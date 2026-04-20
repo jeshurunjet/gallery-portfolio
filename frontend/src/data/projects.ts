@@ -5,7 +5,11 @@ export type ProjectContentBlock =
   | { type: "quote"; text: string }
   | { type: "image"; url: string; alt: string }
   | { type: "list"; items: string[] }
-  | { type: "divider" };
+  | { type: "divider" }
+  | {
+      type: "references";
+      items: { label: string; value: string }[];
+    };
 
 export type Project = {
   id: number;
@@ -23,6 +27,12 @@ export type Project = {
   pdfUrl?: string;
   codeContent?: string;
   content?: ProjectContentBlock[];
+  facts?: {
+    role?: string;
+    year?: string;
+    tools?: string[];
+    category?: string;
+  };
 };
 export const projects: Project[] = [
   {
@@ -184,7 +194,30 @@ export const projects: Project[] = [
         url: "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
         alt: "UI project preview",
       },
+      {
+        type: "references",
+        items: [
+          {
+            label: "Dataset",
+            value: "Kaggle Stroke Prediction Dataset",
+          },
+          {
+            label: "Library",
+            value: "Scikit-learn LogisticRegression",
+          },
+          {
+            label: "Research",
+            value: "Lecture materials and course notes",
+          },
+        ],
+      },
     ],
+    facts: {
+      role: "Designer & Developer",
+      year: "2026",
+      tools: ["React", "Figma", "Python"],
+      category: "UI / Machine Learning",
+    },
   },
   {
     id: 5,

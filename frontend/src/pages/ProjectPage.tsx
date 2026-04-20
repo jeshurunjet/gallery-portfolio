@@ -47,7 +47,30 @@ function ProjectPage() {
           <p className="project-category">{project.category}</p>
           <h1>{project.title}</h1>
           <p className="project-description">{project.description}</p>
-
+          {project.facts && (
+            <div className="project-facts">
+              {project.facts.role && (
+                <div>
+                  <strong>Role:</strong> {project.facts.role}
+                </div>
+              )}
+              {project.facts.year && (
+                <div>
+                  <strong>Year:</strong> {project.facts.year}
+                </div>
+              )}
+              {project.facts.tools && (
+                <div>
+                  <strong>Tools:</strong> {project.facts.tools.join(", ")}
+                </div>
+              )}
+              {project.facts.category && (
+                <div>
+                  <strong>Category:</strong> {project.facts.category}
+                </div>
+              )}
+            </div>
+          )}
           <div className="project-stats">
             <span>❤️ {project.likes}</span>
             <span>👁️ {project.views}</span>

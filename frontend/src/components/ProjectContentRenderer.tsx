@@ -86,6 +86,21 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
           return <hr key={index} className="content-divider" />;
         }
 
+        if (block.type === "references") {
+          return (
+            <div key={index} className="content-references">
+              <h3 className="content-subheading">References</h3>
+              <ul>
+                {block.items.map((item, i) => (
+                  <li key={i}>
+                    <strong>{item.label}:</strong> {item.value}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        }
+
         return null;
       })}
     </section>

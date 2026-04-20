@@ -208,6 +208,22 @@ main {
   gap: 0.75rem;
 }
 
+.project-facts {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-width: 500px;
+}
+
+.project-facts strong {
+  color: #111;
+}
+
 .tag {
   padding: 0.45rem 0.8rem;
   border-radius: 999px;
@@ -477,4 +493,18 @@ main {
   border: none;
   border-top: 1px solid #e5e5e5;
   margin: 0.5rem 0;
+}
+
+.content-references {
+  max-width: 760px;
+  margin-top: 1rem;
+}
+
+.content-references ul {
+  padding-left: 1.2rem;
+  line-height: 1.8;
+}
+
+.content-references li {
+  margin-bottom: 0.4rem;
 }
