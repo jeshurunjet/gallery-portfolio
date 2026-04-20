@@ -33,6 +33,9 @@ export type Project = {
     tools?: string[];
     category?: string;
   };
+  liveUrl?: string;
+  githubUrl?: string;
+  externalUrl?: string;
 };
 export const projects: Project[] = [
   {
@@ -74,6 +77,8 @@ export const projects: Project[] = [
         text: "I started with layout exploration, then refined the hierarchy, spacing, and visual system to create a cleaner user experience.",
       },
     ],
+    liveUrl: "https://example.com",
+    externalUrl: "https://www.figma.com/",
   },
   {
     id: 2,
@@ -218,6 +223,9 @@ export const projects: Project[] = [
       tools: ["React", "Figma", "Python"],
       category: "UI / Machine Learning",
     },
+    liveUrl: "https://example.com",
+    githubUrl: "https://github.com/yourusername/project-name",
+    externalUrl: "https://www.figma.com/",
   },
   {
     id: 5,
@@ -235,6 +243,7 @@ export const projects: Project[] = [
       "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
     ],
     videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    githubUrl: "https://github.com/yourusername/project-name",
   },
   {
     id: 6,

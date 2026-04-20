@@ -67,6 +67,43 @@ function ProjectPage() {
             <span>👁️ {project.views}</span>
           </div>
 
+          {(project.liveUrl || project.githubUrl || project.externalUrl) && (
+            <div className="project-links">
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="project-link-button"
+                >
+                  Live Demo
+                </a>
+              )}
+
+              {project.githubUrl && (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="project-link-button"
+                >
+                  GitHub
+                </a>
+              )}
+
+              {project.externalUrl && (
+                <a
+                  href={project.externalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="project-link-button"
+                >
+                  External Link
+                </a>
+              )}
+            </div>
+          )}
+
           {project.facts && (
             <div className="project-facts">
               {project.facts.role && (
@@ -74,16 +111,19 @@ function ProjectPage() {
                   <strong>Role:</strong> {project.facts.role}
                 </div>
               )}
+
               {project.facts.year && (
                 <div>
                   <strong>Year:</strong> {project.facts.year}
                 </div>
               )}
+
               {project.facts.tools && (
                 <div>
                   <strong>Tools:</strong> {project.facts.tools.join(", ")}
                 </div>
               )}
+
               {project.facts.category && (
                 <div>
                   <strong>Category:</strong> {project.facts.category}
