@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { projects } from "../data/projects";
 import ImageGallery from "../components/ImageGallery";
 import VideoPlayer from "../components/VideoPlayer";
+import AudioPlayer from "../components/AudioPlayer";
 
 function ProjectPage() {
   const { id } = useParams();
@@ -28,6 +29,8 @@ function ProjectPage() {
         <div className="project-hero">
           {project.videoUrl ? (
             <VideoPlayer url={project.videoUrl} />
+          ) : project.audioUrl ? (
+            <AudioPlayer url={project.audioUrl} />
           ) : (
             <ImageGallery images={project.images} title={project.title} />
           )}

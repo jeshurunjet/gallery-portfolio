@@ -10,6 +10,7 @@ export type Project = {
   tags: string[];
   images: string[];
   videoUrl?: string;
+  audioUrl?: string;
 };
 export const projects: Project[] = [
   {
@@ -73,7 +74,7 @@ export const projects: Project[] = [
     images: ["https://via.placeholder.com/1200x800?text=Audio+Cover"],
   },
   {
-    id: 2,
+    id: 5,
     title: "UI Design Demo",
     cover:
       "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
@@ -88,5 +89,22 @@ export const projects: Project[] = [
       "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
     ],
     videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  },
+  {
+    id: 6,
+    title: "Ambient Sound Design",
+    cover:
+      "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
+    category: "Audio",
+    likes: 70,
+    views: 180,
+    types: ["audio"],
+    description:
+      "A collection of ambient textures and sound design experiments.",
+    tags: ["audio", "sound-design"],
+    images: [
+      "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
+    ],
+    audioUrl: "https://soundcloud.com/forss/flickermood",
   },
 ];

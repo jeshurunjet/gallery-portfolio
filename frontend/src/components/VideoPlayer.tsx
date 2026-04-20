@@ -3,19 +3,41 @@ type VideoPlayerProps = {
 };
 
 function getEmbedUrl(url: string) {
-  const videoId = url.split("v=")[1];
-  return `https://www.youtube.com/embed/${videoId}`;
+  try {
+    const parsedUrl = new URL(url);
+
+    if (parsedUrl.hostname.includes("youtube.com")) {
+      const videoId = parsedUrl.searchParams.get("v");
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+    }
+
+    if (parsedUrl.hostname.includes("youtu.be")) {
+      const videoId = parsedUrl.pathname.slice(1);
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+    }
+
+    return "";
+  } catch {
+    return "";
+  }
 }
 
 function VideoPlayer({ url }: VideoPlayerProps) {
   const embedUrl = getEmbedUrl(url);
+
+  if (!embedUrl) {
+    return <p>Invalid YouTube video URL.</p>;
+  }
 
   return (
     <div className="video-player">
       <iframe
         src={embedUrl}
         title="Project video"
-        frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
       />
