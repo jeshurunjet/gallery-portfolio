@@ -25,9 +25,16 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
         }
 
         if (block.type === "paragraph") {
+          const parts = block.text.split(/(\*\*.*?\*\*)/g);
+
           return (
             <p key={index} className="content-paragraph">
-              {block.text}
+              {parts.map((part, i) => {
+                if (part.startsWith("**") && part.endsWith("**")) {
+                  return <strong key={i}>{part.replace(/\*\*/g, "")}</strong>;
+                }
+                return part;
+              })}
             </p>
           );
         }

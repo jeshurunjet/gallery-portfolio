@@ -438,3 +438,8 @@ main {
   color: #333;
   font-style: italic;
 }
+
+.content-paragraph strong {
+  font-weight: 600;
+  color: #111;
+}

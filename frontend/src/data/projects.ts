@@ -111,7 +111,7 @@ export const projects: Project[] = [
       },
       {
         type: "paragraph",
-        text: "I started with layout exploration, then refined the hierarchy, spacing, and visual system to create a cleaner user experience.",
+        text: "This project focuses on **usability**, **clarity**, and **performance**.",
       },
     ],
   },
