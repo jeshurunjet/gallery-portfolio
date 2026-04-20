@@ -1,14 +1,5 @@
 import { Link } from "react-router-dom";
-
-type Project = {
-  id: number;
-  title: string;
-  cover: string;
-  category: string;
-  likes: number;
-  views: number;
-  types: string[]; // image, video, code, pdf, etc.
-};
+import type { Project } from "../data/projects";
 
 function ProjectCard({ project }: { project: Project }) {
   return (
@@ -39,4 +30,5 @@ function ProjectCard({ project }: { project: Project }) {
     </Link>
   );
 }
+
 export default ProjectCard;

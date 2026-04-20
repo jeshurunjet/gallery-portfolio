@@ -1,0 +1,62 @@
+export type Project = {
+  id: number;
+  title: string;
+  cover: string;
+  category: string;
+  likes: number;
+  views: number;
+  types: string[];
+  description: string;
+  tags: string[];
+};
+
+export const projects: Project[] = [
+  {
+    id: 1,
+    title: "Photography Series",
+    cover: "https://via.placeholder.com/1200x800",
+    category: "Photography",
+    likes: 120,
+    views: 540,
+    types: ["image"],
+    description:
+      "A curated photography series exploring light, texture, and portrait composition.",
+    tags: ["photography", "editorial", "portrait"],
+  },
+  {
+    id: 2,
+    title: "UI Design Project",
+    cover: "https://via.placeholder.com/1200x800",
+    category: "Design",
+    likes: 89,
+    views: 300,
+    types: ["image", "web"],
+    description:
+      "A web interface design project focused on clean layout, usability, and responsive structure.",
+    tags: ["ui", "ux", "web", "figma"],
+  },
+  {
+    id: 3,
+    title: "Machine Learning Model",
+    cover: "https://via.placeholder.com/1200x800",
+    category: "Machine Learning",
+    likes: 45,
+    views: 200,
+    types: ["code", "pdf"],
+    description:
+      "A machine learning project with supporting code, experiment notes, and project documentation.",
+    tags: ["machine-learning", "python", "classification"],
+  },
+  {
+    id: 4,
+    title: "Music Production",
+    cover: "https://via.placeholder.com/1200x800",
+    category: "Audio",
+    likes: 60,
+    views: 250,
+    types: ["audio"],
+    description:
+      "An audio design and music production project showcasing composition and sound design work.",
+    tags: ["audio", "sound-design", "music"],
+  },
+];
