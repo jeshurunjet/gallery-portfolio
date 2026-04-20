@@ -31,11 +31,16 @@ function ProjectCard({ project }: { project: Project }) {
           <h3>{project.title}</h3>
 
           <div className="card-tags">
-            {project.tags.slice(0, 3).map((tag) => (
+            {project.tags.slice(0, 2).map((tag) => (
               <span key={tag} className="card-tag">
                 #{tag}
               </span>
             ))}
+            {project.tags.length > 2 && (
+              <span className="card-tag more-tag">
+                +{project.tags.length - 2} more
+              </span>
+            )}
           </div>
 
           <div className="card-meta">
