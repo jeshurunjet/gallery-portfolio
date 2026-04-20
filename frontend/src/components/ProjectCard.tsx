@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 type Project = {
   id: number;
   title: string;
@@ -10,31 +12,31 @@ type Project = {
 
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <div className="card">
-      <div className="card-image">
-        <img src={project.cover} alt={project.title} />
+    <Link to={`/project/${project.id}`} className="card-link">
+      <div className="card">
+        <div className="card-image">
+          <img src={project.cover} alt={project.title} />
 
-        {/* Top-right icons */}
-        <div className="card-icons">
-          {project.types.includes("image") && <span>🖼️</span>}
-          {project.types.includes("video") && <span>🎬</span>}
-          {project.types.includes("audio") && <span>🎧</span>}
-          {project.types.includes("code") && <span>💻</span>}
-          {project.types.includes("pdf") && <span>📄</span>}
-          {project.types.includes("web") && <span>🌐</span>}
+          <div className="card-icons">
+            {project.types.includes("image") && <span>🖼️</span>}
+            {project.types.includes("video") && <span>🎬</span>}
+            {project.types.includes("audio") && <span>🎧</span>}
+            {project.types.includes("code") && <span>💻</span>}
+            {project.types.includes("pdf") && <span>📄</span>}
+            {project.types.includes("web") && <span>🌐</span>}
+          </div>
+        </div>
+
+        <div className="card-body">
+          <h3>{project.title}</h3>
+
+          <div className="card-meta">
+            <span>❤️ {project.likes}</span>
+            <span>👁️ {project.views}</span>
+          </div>
         </div>
       </div>
-
-      <div className="card-body">
-        <h3>{project.title}</h3>
-
-        <div className="card-meta">
-          <span>❤️ {project.likes}</span>
-          <span>👁️ {project.views}</span>
-        </div>
-      </div>
-    </div>
+    </Link>
   );
 }
-
 export default ProjectCard;
