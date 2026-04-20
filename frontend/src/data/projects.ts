@@ -3,7 +3,9 @@ export type ProjectContentBlock =
   | { type: "subheading"; text: string }
   | { type: "paragraph"; text: string }
   | { type: "quote"; text: string }
-  | { type: "image"; url: string; alt: string };
+  | { type: "image"; url: string; alt: string }
+  | { type: "list"; items: string[] }
+  | { type: "divider" };
 
 export type Project = {
   id: number;
@@ -144,6 +146,45 @@ export const projects: Project[] = [
       "An audio design and music production project showcasing composition and sound design work.",
     tags: ["audio", "sound-design", "music"],
     images: ["https://via.placeholder.com/1200x800?text=Audio+Cover"],
+    content: [
+      {
+        type: "heading",
+        text: "Overview",
+      },
+      {
+        type: "paragraph",
+        text: "This project focuses on **clarity**, *motion*, and __hierarchy__ across the full user journey.",
+      },
+      {
+        type: "subheading",
+        text: "Key Contributions",
+      },
+      {
+        type: "list",
+        items: [
+          "Designed the overall layout and visual structure",
+          "Refined spacing and typography hierarchy",
+          "Created a responsive interface concept",
+          "Documented the design process and rationale",
+        ],
+      },
+      {
+        type: "quote",
+        text: "The goal was to make the interface feel calm, modern, and easy to navigate.",
+      },
+      {
+        type: "divider",
+      },
+      {
+        type: "subheading",
+        text: "Visual Direction",
+      },
+      {
+        type: "image",
+        url: "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
+        alt: "UI project preview",
+      },
+    ],
   },
   {
     id: 5,

@@ -72,6 +72,20 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
           );
         }
 
+        if (block.type === "list") {
+          return (
+            <ul key={index} className="content-list">
+              {block.items.map((item, itemIndex) => (
+                <li key={itemIndex}>{renderInlineText(item)}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        if (block.type === "divider") {
+          return <hr key={index} className="content-divider" />;
+        }
+
         return null;
       })}
     </section>

@@ -459,3 +459,22 @@ main {
 .content-heading + .content-paragraph {
   margin-top: -0.25rem;
 }
+
+.content-list {
+  max-width: 760px;
+  padding-left: 1.25rem;
+  color: #333;
+  line-height: 1.9;
+}
+
+.content-list li {
+  margin-bottom: 0.5rem;
+}
+
+.content-divider {
+  width: 100%;
+  max-width: 900px;
+  border: none;
+  border-top: 1px solid #e5e5e5;
+  margin: 0.5rem 0;
+}
