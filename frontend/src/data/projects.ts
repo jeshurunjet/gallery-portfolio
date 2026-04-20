@@ -1,6 +1,8 @@
 export type ProjectContentBlock =
   | { type: "heading"; text: string }
+  | { type: "subheading"; text: string }
   | { type: "paragraph"; text: string }
+  | { type: "quote"; text: string }
   | { type: "image"; url: string; alt: string };
 
 export type Project = {
@@ -76,6 +78,41 @@ export const projects: Project[] = [
       "https://placehold.co/1200x800?text=UI+Design+1",
       "https://placehold.co/1200x800?text=UI+Design+2",
       "https://placehold.co/1200x800?text=UI+Design+3",
+    ],
+    content: [
+      {
+        type: "heading",
+        text: "Overview",
+      },
+      {
+        type: "paragraph",
+        text: "This project explores the visual direction, layout, and interaction design of a modern interface concept.",
+      },
+      {
+        type: "subheading",
+        text: "Design Direction",
+      },
+      {
+        type: "paragraph",
+        text: "I focused on cleaner spacing, stronger hierarchy, and a more minimal visual system to improve readability.",
+      },
+      {
+        type: "quote",
+        text: "The goal was to make the interface feel calm, modern, and easy to navigate.",
+      },
+      {
+        type: "image",
+        url: "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
+        alt: "UI project preview",
+      },
+      {
+        type: "subheading",
+        text: "Process",
+      },
+      {
+        type: "paragraph",
+        text: "I started with layout exploration, then refined the hierarchy, spacing, and visual system to create a cleaner user experience.",
+      },
     ],
   },
   {

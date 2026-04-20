@@ -16,11 +16,27 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
           );
         }
 
+        if (block.type === "subheading") {
+          return (
+            <h3 key={index} className="content-subheading">
+              {block.text}
+            </h3>
+          );
+        }
+
         if (block.type === "paragraph") {
           return (
             <p key={index} className="content-paragraph">
               {block.text}
             </p>
+          );
+        }
+
+        if (block.type === "quote") {
+          return (
+            <blockquote key={index} className="content-quote">
+              {block.text}
+            </blockquote>
           );
         }
 

@@ -421,3 +421,20 @@ main {
   border-radius: 16px;
   display: block;
 }
+
+.content-subheading {
+  font-size: 1.1rem;
+  line-height: 1.4;
+  color: #222;
+  margin-top: 0.5rem;
+}
+
+.content-quote {
+  max-width: 760px;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid #111;
+  background: #f7f7f7;
+  border-radius: 0 12px 12px 0;
+  color: #333;
+  font-style: italic;
+}
