@@ -12,6 +12,7 @@ export type Project = {
   videoUrl?: string;
   audioUrl?: string;
   pdfUrl?: string;
+  codeContent?: string;
 };
 export const projects: Project[] = [
   {
@@ -123,7 +124,30 @@ export const projects: Project[] = [
     images: [
       "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200",
     ],
-    pdfUrl:
-      "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    pdfUrl: "/pdfs/sample-report.pdf",
+  },
+  {
+    id: 8,
+    title: "Logistic Regression Model",
+    cover:
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200",
+    category: "Machine Learning",
+    likes: 80,
+    views: 260,
+    types: ["code"],
+    description: "A logistic regression model for stroke prediction.",
+    tags: ["machine-learning", "python"],
+    images: [
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200",
+    ],
+    codeContent: `
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+predictions = model.predict(X_test)
+`,
   },
 ];

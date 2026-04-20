@@ -4,6 +4,7 @@ import ImageGallery from "../components/ImageGallery";
 import VideoPlayer from "../components/VideoPlayer";
 import AudioPlayer from "../components/AudioPlayer";
 import PdfViewer from "../components/PdfViewer";
+import CodeViewer from "../components/CodeViewer";
 
 function ProjectPage() {
   const { id } = useParams();
@@ -34,6 +35,8 @@ function ProjectPage() {
             <AudioPlayer url={project.audioUrl} />
           ) : project.pdfUrl ? (
             <PdfViewer url={project.pdfUrl} />
+          ) : project.codeContent ? (
+            <CodeViewer code={project.codeContent} />
           ) : (
             <ImageGallery images={project.images} title={project.title} />
           )}
