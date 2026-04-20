@@ -9,6 +9,7 @@ export type Project = {
   description: string;
   tags: string[];
   images: string[];
+  videoUrl?: string;
 };
 export const projects: Project[] = [
   {
@@ -70,5 +71,22 @@ export const projects: Project[] = [
       "An audio design and music production project showcasing composition and sound design work.",
     tags: ["audio", "sound-design", "music"],
     images: ["https://via.placeholder.com/1200x800?text=Audio+Cover"],
+  },
+  {
+    id: 2,
+    title: "UI Design Demo",
+    cover:
+      "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
+    category: "Design",
+    likes: 89,
+    views: 300,
+    types: ["video", "web"],
+    description:
+      "A UI walkthrough showing layout, responsiveness, and interactions.",
+    tags: ["ui", "ux", "web"],
+    images: [
+      "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
+    ],
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
   },
 ];

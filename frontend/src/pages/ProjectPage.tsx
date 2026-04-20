@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { projects } from "../data/projects";
 import ImageGallery from "../components/ImageGallery";
+import VideoPlayer from "../components/VideoPlayer";
 
 function ProjectPage() {
   const { id } = useParams();
@@ -25,7 +26,11 @@ function ProjectPage() {
 
       <div className="project-wrapper">
         <div className="project-hero">
-          <ImageGallery images={project.images} title={project.title} />
+          {project.videoUrl ? (
+            <VideoPlayer url={project.videoUrl} />
+          ) : (
+            <ImageGallery images={project.images} title={project.title} />
+          )}
         </div>
 
         <div className="project-content">
