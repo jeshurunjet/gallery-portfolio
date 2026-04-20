@@ -4,6 +4,30 @@ type ProjectContentRendererProps = {
   content: ProjectContentBlock[];
 };
 
+function renderInlineText(text: string) {
+  const tokens = text.split(/(\*\*.*?\*\*|__.*?__|\*.*?\*)/g);
+
+  return tokens.map((token, index) => {
+    if (token.startsWith("**") && token.endsWith("**")) {
+      return <strong key={index}>{token.slice(2, -2)}</strong>;
+    }
+
+    if (token.startsWith("__") && token.endsWith("__")) {
+      return (
+        <span key={index} className="inline-underline">
+          {token.slice(2, -2)}
+        </span>
+      );
+    }
+
+    if (token.startsWith("*") && token.endsWith("*")) {
+      return <em key={index}>{token.slice(1, -1)}</em>;
+    }
+
+    return token;
+  });
+}
+
 function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
   return (
     <section className="project-content-blocks">
@@ -25,16 +49,9 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
         }
 
         if (block.type === "paragraph") {
-          const parts = block.text.split(/(\*\*.*?\*\*)/g);
-
           return (
             <p key={index} className="content-paragraph">
-              {parts.map((part, i) => {
-                if (part.startsWith("**") && part.endsWith("**")) {
-                  return <strong key={i}>{part.replace(/\*\*/g, "")}</strong>;
-                }
-                return part;
-              })}
+              {renderInlineText(block.text)}
             </p>
           );
         }

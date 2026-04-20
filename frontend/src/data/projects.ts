@@ -113,6 +113,10 @@ export const projects: Project[] = [
         type: "paragraph",
         text: "This project focuses on **usability**, **clarity**, and **performance**.",
       },
+      {
+        type: "paragraph",
+        text: "This project focuses on **clarity**, *motion*, and __hierarchy__ across the full user journey.",
+      },
     ],
   },
   {

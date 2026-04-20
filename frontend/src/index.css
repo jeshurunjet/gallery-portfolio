@@ -394,21 +394,30 @@ main {
 
 /* ----- Project Content Blocks ----- */
 .project-content-blocks {
-  margin-top: 2.5rem;
+  margin-top: 2.75rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.35rem;
 }
 
 .content-heading {
-  font-size: 1.4rem;
-  line-height: 1.3;
+  font-size: 1.5rem;
+  line-height: 1.25;
+  margin-top: 0.75rem;
+}
+
+.content-subheading {
+  font-size: 1.12rem;
+  line-height: 1.4;
+  color: #222;
+  margin-top: 0.25rem;
 }
 
 .content-paragraph {
   max-width: 760px;
   color: #333;
-  line-height: 1.8;
+  line-height: 1.9;
+  font-size: 1rem;
 }
 
 .content-image-wrap {
@@ -422,13 +431,6 @@ main {
   display: block;
 }
 
-.content-subheading {
-  font-size: 1.1rem;
-  line-height: 1.4;
-  color: #222;
-  margin-top: 0.5rem;
-}
-
 .content-quote {
   max-width: 760px;
   padding: 1rem 1.25rem;
@@ -439,7 +441,21 @@ main {
   font-style: italic;
 }
 
+/* Inline formatting */
+
 .content-paragraph strong {
-  font-weight: 600;
+  font-weight: 700;
   color: #111;
+}
+
+.content-paragraph em {
+  font-style: italic;
+}
+
+.inline-underline {
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+.content-heading + .content-paragraph {
+  margin-top: -0.25rem;
 }
