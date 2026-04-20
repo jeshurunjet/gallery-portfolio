@@ -54,21 +54,30 @@ main {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
 
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .card {
-  border: 1px solid #eee;
-  border-radius: 12px;
+  border: 1px solid #ececec;
+  border-radius: 18px;
   overflow: hidden;
   background: #fff;
-  transition: transform 0.2s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
 .card-image {
@@ -77,36 +86,61 @@ main {
 
 .card-image img {
   width: 100%;
-  height: 200px;
+  height: 240px;
   object-fit: cover;
+  display: block;
 }
 
 .card-icons {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   display: flex;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 4px 6px;
-  border-radius: 8px;
-  color: white;
-  font-size: 14px;
+  gap: 0.4rem;
+  background: rgba(17, 17, 17, 0.72);
+  padding: 0.4rem 0.55rem;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.9rem;
 }
 
 .card-body {
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-category {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #777;
 }
 
 .card-body h3 {
-  font-size: 16px;
-  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.card-tag {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  background: #f4f4f4;
+  border-radius: 999px;
+  color: #444;
 }
 
 .card-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 0.9rem;
   color: #666;
 }
 

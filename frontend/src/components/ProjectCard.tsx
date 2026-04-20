@@ -19,7 +19,16 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
 
         <div className="card-body">
+          <p className="card-category">{project.category}</p>
           <h3>{project.title}</h3>
+
+          <div className="card-tags">
+            {project.tags.slice(0, 3).map((tag) => (
+              <span key={tag} className="card-tag">
+                #{tag}
+              </span>
+            ))}
+          </div>
 
           <div className="card-meta">
             <span>❤️ {project.likes}</span>
