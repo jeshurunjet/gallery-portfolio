@@ -5,6 +5,7 @@ import VideoPlayer from "../components/VideoPlayer";
 import AudioPlayer from "../components/AudioPlayer";
 import PdfViewer from "../components/PdfViewer";
 import CodeViewer from "../components/CodeViewer";
+import ProjectContentRenderer from "../components/ProjectContentRenderer";
 
 function ProjectPage() {
   const { id } = useParams();
@@ -59,6 +60,9 @@ function ProjectPage() {
               </span>
             ))}
           </div>
+          {project.content && project.content.length > 0 && (
+            <ProjectContentRenderer content={project.content} />
+          )}
         </div>
       </div>
     </main>

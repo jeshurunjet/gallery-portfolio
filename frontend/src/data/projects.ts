@@ -1,3 +1,8 @@
+export type ProjectContentBlock =
+  | { type: "heading"; text: string }
+  | { type: "paragraph"; text: string }
+  | { type: "image"; url: string; alt: string };
+
 export type Project = {
   id: number;
   title: string;
@@ -13,6 +18,7 @@ export type Project = {
   audioUrl?: string;
   pdfUrl?: string;
   codeContent?: string;
+  content?: ProjectContentBlock[];
 };
 export const projects: Project[] = [
   {
@@ -30,6 +36,29 @@ export const projects: Project[] = [
       "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200",
       "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200",
+    ],
+    content: [
+      {
+        type: "heading",
+        text: "Overview",
+      },
+      {
+        type: "paragraph",
+        text: "This project explores the visual direction, layout, and interaction design of a modern interface concept.",
+      },
+      {
+        type: "image",
+        url: "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
+        alt: "UI project preview",
+      },
+      {
+        type: "heading",
+        text: "Process",
+      },
+      {
+        type: "paragraph",
+        text: "I started with layout exploration, then refined the hierarchy, spacing, and visual system to create a cleaner user experience.",
+      },
     ],
   },
   {

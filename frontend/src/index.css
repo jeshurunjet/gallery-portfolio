@@ -391,3 +391,33 @@ main {
 .code-viewer code {
   font-family: "Courier New", monospace;
 }
+
+/* ----- Project Content Blocks ----- */
+.project-content-blocks {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.content-heading {
+  font-size: 1.4rem;
+  line-height: 1.3;
+}
+
+.content-paragraph {
+  max-width: 760px;
+  color: #333;
+  line-height: 1.8;
+}
+
+.content-image-wrap {
+  margin-top: 0.5rem;
+}
+
+.content-image {
+  width: 100%;
+  max-width: 900px;
+  border-radius: 16px;
+  display: block;
+}
