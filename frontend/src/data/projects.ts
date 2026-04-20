@@ -11,6 +11,7 @@ export type Project = {
   images: string[];
   videoUrl?: string;
   audioUrl?: string;
+  pdfUrl?: string;
 };
 export const projects: Project[] = [
   {
@@ -106,5 +107,23 @@ export const projects: Project[] = [
       "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
     ],
     audioUrl: "https://soundcloud.com/forss/flickermood",
+  },
+  {
+    id: 7,
+    title: "Deep Learning Report",
+    cover:
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200",
+    category: "Deep Learning",
+    likes: 52,
+    views: 210,
+    types: ["pdf"],
+    description:
+      "A deep learning project report with methodology, experiments, and results.",
+    tags: ["deep-learning", "pdf", "research"],
+    images: [
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200",
+    ],
+    pdfUrl:
+      "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
   },
 ];
