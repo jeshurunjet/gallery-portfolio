@@ -54,6 +54,23 @@ main {
   margin-bottom: 1.5rem;
 }
 
+.project-hero,
+.project-layout,
+.grid {
+  animation: fadeInUp 0.45s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ----- HOMEPAGE ----- */
 
 .grid {
@@ -75,8 +92,9 @@ main {
   overflow: hidden;
   background: #fff;
   transition:
-    transform 0.22s ease,
-    box-shadow 0.22s ease;
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -84,11 +102,13 @@ main {
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.09);
+  border-color: #ddd;
 }
 
 .card-image {
   position: relative;
+  overflow: hidden;
 }
 
 .card-image img {
@@ -96,6 +116,11 @@ main {
   height: 240px;
   object-fit: cover;
   display: block;
+  transition: transform 0.35s ease;
+}
+
+.card:hover .card-image img {
+  transform: scale(1.03);
 }
 
 .card-icons {
@@ -249,10 +274,14 @@ main {
   color: #444;
   cursor: pointer;
   font-size: 0.9rem;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .back-button:hover {
   color: #000;
+  transform: translateX(-2px);
 }
 /* ----- Image Gallery ----- */
 
@@ -331,6 +360,13 @@ main {
   background: #fff;
   cursor: pointer;
   font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.tag-button:hover {
+  border-color: #111;
+  color: #111;
+  transform: translateY(-1px);
 }
 
 .tag-button.active {
@@ -547,6 +583,7 @@ main {
 .project-link-button {
   display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
   justify-content: center;
   padding: 0.75rem 1rem;
   border-radius: 10px;
@@ -556,12 +593,14 @@ main {
   font-size: 0.95rem;
   transition:
     background 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .project-link-button:hover {
   background: #333;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
 }
 
 @media (max-width: 900px) {

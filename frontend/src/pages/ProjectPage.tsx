@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { ExternalLink, Code2, Globe } from "lucide-react";
 import { projects } from "../data/projects";
 import ImageGallery from "../components/ImageGallery";
 import VideoPlayer from "../components/VideoPlayer";
@@ -67,41 +68,37 @@ function ProjectPage() {
             <span>👁️ {project.views}</span>
           </div>
 
-          {(project.liveUrl || project.githubUrl || project.externalUrl) && (
-            <div className="project-links">
-              {project.liveUrl && (
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="project-link-button"
-                >
-                  Live Demo
-                </a>
-              )}
+          {project.liveUrl && (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="project-link-button"
+            >
+              <Globe size={16} /> Live Demo
+            </a>
+          )}
 
-              {project.githubUrl && (
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="project-link-button"
-                >
-                  GitHub
-                </a>
-              )}
+          {project.githubUrl && (
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="project-link-button"
+            >
+              <Code2 size={16} /> GitHub
+            </a>
+          )}
 
-              {project.externalUrl && (
-                <a
-                  href={project.externalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="project-link-button"
-                >
-                  External Link
-                </a>
-              )}
-            </div>
+          {project.externalUrl && (
+            <a
+              href={project.externalUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="project-link-button"
+            >
+              <ExternalLink size={16} /> External
+            </a>
           )}
 
           {project.facts && (
