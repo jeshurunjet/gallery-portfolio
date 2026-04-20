@@ -23,9 +23,9 @@ export const projects: Project[] = [
       "A curated photography series exploring light, texture, and portrait composition.",
     tags: ["photography", "editorial", "portrait"],
     images: [
-      "https://via.placeholder.com/1200x800?text=Photo+1",
-      "https://via.placeholder.com/1200x800?text=Photo+2",
-      "https://via.placeholder.com/1200x800?text=Photo+3",
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200",
+      "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=1200",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200",
     ],
   },
   {
@@ -40,9 +40,9 @@ export const projects: Project[] = [
       "A web interface design project focused on clean layout, usability, and responsive structure.",
     tags: ["ui", "ux", "web", "figma"],
     images: [
-      "https://via.placeholder.com/1200x800?text=UI+1",
-      "https://via.placeholder.com/1200x800?text=UI+2",
-      "https://via.placeholder.com/1200x800?text=UI+3",
+      "https://placehold.co/1200x800?text=UI+Design+1",
+      "https://placehold.co/1200x800?text=UI+Design+2",
+      "https://placehold.co/1200x800?text=UI+Design+3",
     ],
   },
   {
