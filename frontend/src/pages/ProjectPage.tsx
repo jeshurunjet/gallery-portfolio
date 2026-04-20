@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { projects } from "../data/projects";
+import ImageGallery from "../components/ImageGallery";
 
 function ProjectPage() {
   const { id } = useParams();
@@ -24,7 +25,7 @@ function ProjectPage() {
 
       <div className="project-wrapper">
         <div className="project-hero">
-          <img src={project.cover} alt={project.title} />
+          <ImageGallery images={project.images} title={project.title} />
         </div>
 
         <div className="project-content">
