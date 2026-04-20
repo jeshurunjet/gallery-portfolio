@@ -1,4 +1,12 @@
 import { Link } from "react-router-dom";
+import {
+  Image as ImageIcon,
+  Video,
+  Headphones,
+  Code2,
+  FileText,
+  Globe,
+} from "lucide-react";
 import type { Project } from "../data/projects";
 
 function ProjectCard({ project }: { project: Project }) {
@@ -9,12 +17,12 @@ function ProjectCard({ project }: { project: Project }) {
           <img src={project.cover} alt={project.title} />
 
           <div className="card-icons">
-            {project.types.includes("image") && <span>🖼️</span>}
-            {project.types.includes("video") && <span>🎬</span>}
-            {project.types.includes("audio") && <span>🎧</span>}
-            {project.types.includes("code") && <span>💻</span>}
-            {project.types.includes("pdf") && <span>📄</span>}
-            {project.types.includes("web") && <span>🌐</span>}
+            {project.types.includes("image") && <ImageIcon size={16} />}
+            {project.types.includes("video") && <Video size={16} />}
+            {project.types.includes("audio") && <Headphones size={16} />}
+            {project.types.includes("code") && <Code2 size={16} />}
+            {project.types.includes("pdf") && <FileText size={16} />}
+            {project.types.includes("web") && <Globe size={16} />}
           </div>
         </div>
 

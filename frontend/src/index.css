@@ -96,12 +96,12 @@ main {
   top: 10px;
   right: 10px;
   display: flex;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 0.45rem;
   background: rgba(17, 17, 17, 0.72);
-  padding: 0.4rem 0.55rem;
+  padding: 0.45rem 0.6rem;
   border-radius: 999px;
   color: #fff;
-  font-size: 0.9rem;
 }
 
 .card-body {
