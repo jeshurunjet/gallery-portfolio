@@ -268,3 +268,44 @@ main {
   object-fit: cover;
   display: block;
 }
+
+/* ----- Search Bar ------ */
+.search-bar {
+  margin-top: 1rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 0.95rem;
+}
+
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.tag-button {
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.tag-button.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.empty-state {
+  margin-top: 2rem;
+  color: #666;
+  font-size: 0.95rem;
+}
