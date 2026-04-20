@@ -198,8 +198,9 @@ main {
 
 .project-stats {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   color: #555;
+  font-size: 0.95rem;
 }
 
 .project-tags {
@@ -209,15 +210,13 @@ main {
 }
 
 .project-facts {
-  margin-top: 1rem;
   padding: 1rem;
   border: 1px solid #eee;
   border-radius: 12px;
   background: #fafafa;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  max-width: 500px;
+  gap: 0.5rem;
 }
 
 .project-facts strong {
@@ -409,6 +408,26 @@ main {
 }
 
 /* ----- Project Content Blocks ----- */
+.project-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 2.5rem;
+  align-items: start;
+  margin-top: 2rem;
+}
+
+.project-main {
+  min-width: 0;
+}
+
+.project-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: sticky;
+  top: 2rem;
+}
+
 .project-content-blocks {
   margin-top: 2.75rem;
   display: flex;
@@ -507,4 +526,15 @@ main {
 
 .content-references li {
   margin-bottom: 0.4rem;
+}
+
+@media (max-width: 900px) {
+  .project-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .project-side {
+    position: static;
+  }
 }

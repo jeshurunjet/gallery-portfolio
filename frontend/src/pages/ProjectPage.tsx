@@ -28,25 +28,45 @@ function ProjectPage() {
         ← Back
       </button>
 
-      <div className="project-wrapper">
-        <div className="project-hero">
-          {project.videoUrl ? (
-            <VideoPlayer url={project.videoUrl} />
-          ) : project.audioUrl ? (
-            <AudioPlayer url={project.audioUrl} />
-          ) : project.pdfUrl ? (
-            <PdfViewer url={project.pdfUrl} />
-          ) : project.codeContent ? (
-            <CodeViewer code={project.codeContent} />
-          ) : (
-            <ImageGallery images={project.images} title={project.title} />
-          )}
-        </div>
+      <div className="project-hero">
+        {project.videoUrl ? (
+          <VideoPlayer url={project.videoUrl} />
+        ) : project.audioUrl ? (
+          <AudioPlayer url={project.audioUrl} />
+        ) : project.pdfUrl ? (
+          <PdfViewer url={project.pdfUrl} />
+        ) : project.codeContent ? (
+          <CodeViewer code={project.codeContent} />
+        ) : (
+          <ImageGallery images={project.images} title={project.title} />
+        )}
+      </div>
 
-        <div className="project-content">
+      <div className="project-layout">
+        <section className="project-main">
           <p className="project-category">{project.category}</p>
           <h1>{project.title}</h1>
           <p className="project-description">{project.description}</p>
+
+          <div className="project-tags">
+            {project.tags.map((tag) => (
+              <span key={tag} className="tag">
+                #{tag}
+              </span>
+            ))}
+          </div>
+
+          {project.content && project.content.length > 0 && (
+            <ProjectContentRenderer content={project.content} />
+          )}
+        </section>
+
+        <aside className="project-side">
+          <div className="project-stats">
+            <span>❤️ {project.likes}</span>
+            <span>👁️ {project.views}</span>
+          </div>
+
           {project.facts && (
             <div className="project-facts">
               {project.facts.role && (
@@ -71,22 +91,7 @@ function ProjectPage() {
               )}
             </div>
           )}
-          <div className="project-stats">
-            <span>❤️ {project.likes}</span>
-            <span>👁️ {project.views}</span>
-          </div>
-
-          <div className="project-tags">
-            {project.tags.map((tag) => (
-              <span key={tag} className="tag">
-                #{tag}
-              </span>
-            ))}
-          </div>
-          {project.content && project.content.length > 0 && (
-            <ProjectContentRenderer content={project.content} />
-          )}
-        </div>
+        </aside>
       </div>
     </main>
   );
