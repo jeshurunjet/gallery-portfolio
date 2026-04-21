@@ -935,6 +935,20 @@ main {
   gap: 0.6rem;
 }
 
+.admin-tag-edit-input {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.admin-tag-edit-input:focus {
+  outline: none;
+  border-color: #111;
+}
+
 /* low res */
 @media (max-width: 700px) {
   .admin-tag-row {

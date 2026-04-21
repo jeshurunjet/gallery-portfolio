@@ -7,12 +7,51 @@ function AdminTagsPage() {
     return [...new Set(allTags)].sort();
   }, []);
 
+  const [tags, setTags] = useState<string[]>(initialTags);
   const [newTag, setNewTag] = useState("");
+  const [editingTag, setEditingTag] = useState<string | null>(null);
+  const [editedValue, setEditedValue] = useState("");
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleAddTag = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("New tag:", newTag);
+
+    const trimmedTag = newTag.trim().toLowerCase();
+
+    if (!trimmedTag || tags.includes(trimmedTag)) {
+      return;
+    }
+
+    setTags((prev) => [...prev, trimmedTag].sort());
     setNewTag("");
+  };
+
+  const handleStartEdit = (tag: string) => {
+    setEditingTag(tag);
+    setEditedValue(tag);
+  };
+
+  const handleSaveEdit = () => {
+    const trimmedValue = editedValue.trim().toLowerCase();
+
+    if (!editingTag || !trimmedValue) {
+      return;
+    }
+
+    setTags((prev) =>
+      prev.map((tag) => (tag === editingTag ? trimmedValue : tag)).sort()
+    );
+
+    setEditingTag(null);
+    setEditedValue("");
+  };
+
+  const handleDeleteTag = (tagToDelete: string) => {
+    setTags((prev) => prev.filter((tag) => tag !== tagToDelete));
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTag(null);
+    setEditedValue("");
   };
 
   return (
@@ -24,7 +63,7 @@ function AdminTagsPage() {
         </div>
       </div>
 
-      <form className="admin-inline-form" onSubmit={handleSubmit}>
+      <form className="admin-inline-form" onSubmit={handleAddTag}>
         <input
           type="text"
           placeholder="Enter a new tag"
@@ -37,18 +76,56 @@ function AdminTagsPage() {
       </form>
 
       <div className="admin-tag-list">
-        {initialTags.map((tag) => (
+        {tags.map((tag) => (
           <div key={tag} className="admin-tag-row">
-            <span className="admin-tag-name">#{tag}</span>
+            {editingTag === tag ? (
+              <>
+                <input
+                  type="text"
+                  value={editedValue}
+                  onChange={(e) => setEditedValue(e.target.value)}
+                  className="admin-tag-edit-input"
+                />
 
-            <div className="admin-tag-actions">
-              <button type="button" className="admin-secondary-button">
-                Edit
-              </button>
-              <button type="button" className="admin-danger-button">
-                Delete
-              </button>
-            </div>
+                <div className="admin-tag-actions">
+                  <button
+                    type="button"
+                    className="admin-primary-button"
+                    onClick={handleSaveEdit}
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-secondary-button"
+                    onClick={handleCancelEdit}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <span className="admin-tag-name">#{tag}</span>
+
+                <div className="admin-tag-actions">
+                  <button
+                    type="button"
+                    className="admin-secondary-button"
+                    onClick={() => handleStartEdit(tag)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-danger-button"
+                    onClick={() => handleDeleteTag(tag)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ))}
       </div>
