@@ -1,18 +1,18 @@
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProjectCard from "../components/ProjectCard";
-import { projects } from "../data/projects";
+import useProjects from "../hooks/useProjects";
 
 function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const { projects } = useProjects();
   const search = searchParams.get("search") ?? "";
   const selectedTag = searchParams.get("tag");
 
   const availableTags = useMemo(() => {
     const allTags = projects.flatMap((project) => project.tags);
     return [...new Set(allTags)].sort();
-  }, []);
+  }, [projects]);
 
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
