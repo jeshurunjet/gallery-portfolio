@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
-import { projects } from "../../data/projects";
+import useProjects from "../../hooks/useProjects";
+import useTags from "../../hooks/useTags";
 
 function AdminDashboardPage() {
+  const { projects } = useProjects();
+  const { tags } = useTags();
+
   const stats = useMemo(() => {
     const totalProjects = projects.length;
     const totalLikes = projects.reduce(
@@ -14,16 +18,13 @@ function AdminDashboardPage() {
       0
     );
 
-    const allTags = projects.flatMap((project) => project.tags);
-    const totalTags = new Set(allTags).size;
-
     return {
       totalProjects,
-      totalTags,
+      totalTags: tags.length,
       totalLikes,
       totalViews,
     };
-  }, []);
+  }, [projects, tags]);
 
   const recentProjects = projects.slice(-3).reverse();
 

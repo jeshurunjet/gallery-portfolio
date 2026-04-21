@@ -1,16 +1,17 @@
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { projects } from "../../data/projects";
 import ProjectForm, {
   type ProjectFormData,
 } from "../../components/ProjectForm";
+import useProjects from "../../hooks/useProjects";
 
 function AdminEditProjectPage() {
   const { id } = useParams();
+  const { projects, updateProject } = useProjects();
 
   const project = useMemo(
     () => projects.find((item) => item.id === Number(id)),
-    [id]
+    [id, projects]
   );
 
   if (!project) {
@@ -34,7 +35,17 @@ function AdminEditProjectPage() {
   };
 
   const handleSubmit = (data: ProjectFormData) => {
-    console.log("Edited project form data:", data);
+    updateProject({
+      ...project,
+      title: data.title,
+      category: data.category,
+      description: data.description,
+      tags: data.tags.split(",").map((tag) => tag.trim()),
+      cover: data.cover,
+      liveUrl: data.liveUrl,
+      githubUrl: data.githubUrl,
+      externalUrl: data.externalUrl,
+    });
   };
 
   return (

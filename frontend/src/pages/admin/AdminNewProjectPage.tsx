@@ -1,8 +1,11 @@
 import ProjectForm, {
   type ProjectFormData,
 } from "../../components/ProjectForm";
+import useProjects from "../../hooks/useProjects";
 
 function AdminNewProjectPage() {
+  const { addProject } = useProjects();
+
   const initialData: ProjectFormData = {
     title: "",
     category: "",
@@ -15,7 +18,23 @@ function AdminNewProjectPage() {
   };
 
   const handleSubmit = (data: ProjectFormData) => {
-    console.log("New project form data:", data);
+    const newProject = {
+      id: Date.now(),
+      title: data.title,
+      category: data.category,
+      description: data.description,
+      tags: data.tags.split(",").map((t) => t.trim()),
+      cover: data.cover,
+      likes: 0,
+      views: 0,
+      types: [],
+      images: [],
+      liveUrl: data.liveUrl,
+      githubUrl: data.githubUrl,
+      externalUrl: data.externalUrl,
+    };
+
+    addProject(newProject);
   };
 
   return (

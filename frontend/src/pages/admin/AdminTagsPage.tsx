@@ -1,27 +1,15 @@
-import { useMemo, useState } from "react";
-import { projects } from "../../data/projects";
+import { useState } from "react";
+import useTags from "../../hooks/useTags";
 
 function AdminTagsPage() {
-  const initialTags = useMemo(() => {
-    const allTags = projects.flatMap((project) => project.tags);
-    return [...new Set(allTags)].sort();
-  }, []);
-
-  const [tags, setTags] = useState<string[]>(initialTags);
+  const { tags, addTag, updateTag, deleteTag } = useTags();
   const [newTag, setNewTag] = useState("");
   const [editingTag, setEditingTag] = useState<string | null>(null);
   const [editedValue, setEditedValue] = useState("");
 
   const handleAddTag = (event: React.FormEvent) => {
     event.preventDefault();
-
-    const trimmedTag = newTag.trim().toLowerCase();
-
-    if (!trimmedTag || tags.includes(trimmedTag)) {
-      return;
-    }
-
-    setTags((prev) => [...prev, trimmedTag].sort());
+    addTag(newTag);
     setNewTag("");
   };
 
@@ -31,22 +19,11 @@ function AdminTagsPage() {
   };
 
   const handleSaveEdit = () => {
-    const trimmedValue = editedValue.trim().toLowerCase();
+    if (!editingTag) return;
 
-    if (!editingTag || !trimmedValue) {
-      return;
-    }
-
-    setTags((prev) =>
-      prev.map((tag) => (tag === editingTag ? trimmedValue : tag)).sort()
-    );
-
+    updateTag(editingTag, editedValue);
     setEditingTag(null);
     setEditedValue("");
-  };
-
-  const handleDeleteTag = (tagToDelete: string) => {
-    setTags((prev) => prev.filter((tag) => tag !== tagToDelete));
   };
 
   const handleCancelEdit = () => {
@@ -119,7 +96,7 @@ function AdminTagsPage() {
                   <button
                     type="button"
                     className="admin-danger-button"
-                    onClick={() => handleDeleteTag(tag)}
+                    onClick={() => deleteTag(tag)}
                   >
                     Delete
                   </button>

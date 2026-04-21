@@ -1,16 +1,8 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { projects as initialProjects } from "../../data/projects";
-import type { Project } from "../../data/projects";
+import useProjects from "../../hooks/useProjects";
 
 function AdminProjectsPage() {
-  const [projectList, setProjectList] = useState<Project[]>(initialProjects);
-
-  const handleDeleteProject = (projectId: number) => {
-    setProjectList((prev) =>
-      prev.filter((project) => project.id !== projectId)
-    );
-  };
+  const { projects, deleteProject } = useProjects();
 
   return (
     <main>
@@ -25,7 +17,7 @@ function AdminProjectsPage() {
         </Link>
       </div>
 
-      {projectList.length === 0 ? (
+      {projects.length === 0 ? (
         <div className="admin-empty-state">
           <h2>No projects yet</h2>
           <p>Create a new project to start building your portfolio.</p>
@@ -35,7 +27,7 @@ function AdminProjectsPage() {
         </div>
       ) : (
         <div className="admin-project-list">
-          {projectList.map((project) => (
+          {projects.map((project) => (
             <div key={project.id} className="admin-project-card">
               <img
                 src={project.cover}
@@ -72,7 +64,7 @@ function AdminProjectsPage() {
                 <button
                   type="button"
                   className="admin-danger-button"
-                  onClick={() => handleDeleteProject(project.id)}
+                  onClick={() => deleteProject(project.id)}
                 >
                   Delete
                 </button>
