@@ -12,6 +12,7 @@ function Navbar() {
         <Link to="/about">About</Link>
         <Link to="/resume">Resume</Link>
         <Link to="/login">Login</Link>
+        <Link to="/admin">Admin</Link>
       </div>
     </nav>
   );

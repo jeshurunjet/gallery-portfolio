@@ -613,3 +613,64 @@ main {
     position: static;
   }
 }
+
+/* ----- ----- ADMIN PAGE ----- ----- */
+/* lower resolution */
+@media (max-width: 900px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    border-right: none;
+    border-bottom: 1px solid #ececec;
+  }
+
+  .admin-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+/* lower resolution - end */
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: calc(100vh - 73px);
+}
+
+.admin-sidebar {
+  border-right: 1px solid #ececec;
+  padding: 1.5rem 1rem;
+  background: #fafafa;
+}
+
+.admin-title {
+  font-size: 1.2rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-nav a {
+  color: #333;
+  text-decoration: none;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.admin-nav a:hover {
+  background: #111;
+  color: #fff;
+}
+
+.admin-content {
+  padding: 2rem;
+}
