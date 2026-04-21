@@ -1,9 +1,19 @@
+import { Link } from "react-router-dom";
 import { projects } from "../../data/projects";
 
 function AdminProjectsPage() {
   return (
     <main>
-      <h1>Manage Projects</h1>
+      <div className="admin-page-header">
+        <div>
+          <h1>Manage Projects</h1>
+          <p>View and manage your portfolio projects.</p>
+        </div>
+
+        <Link to="/admin/projects/new" className="admin-primary-button">
+          + New Project
+        </Link>
+      </div>
 
       <div className="admin-project-list">
         {projects.map((project) => (
@@ -30,6 +40,19 @@ function AdminProjectsPage() {
                   </span>
                 ))}
               </div>
+            </div>
+
+            <div className="admin-project-actions">
+              <Link
+                to={`/admin/projects/${project.id}/edit`}
+                className="admin-secondary-button"
+              >
+                Edit
+              </Link>
+
+              <button type="button" className="admin-danger-button">
+                Delete
+              </button>
             </div>
           </div>
         ))}

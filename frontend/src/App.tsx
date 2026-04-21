@@ -9,6 +9,8 @@ import AdminLayout from "./components/AdminLayout";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminProjectsPage from "./pages/admin/AdminProjectsPage";
 import AdminTagsPage from "./pages/admin/AdminTagsPage";
+import AdminNewProjectPage from "./pages/admin/AdminNewProjectPage";
+import AdminEditProjectPage from "./pages/admin/AdminEditProjectPage";
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
           <Route index element={<AdminDashboardPage />} />
           <Route path="projects" element={<AdminProjectsPage />} />
           <Route path="tags" element={<AdminTagsPage />} />
+          <Route path="projects/new" element={<AdminNewProjectPage />} />
+          <Route path="projects/:id/edit" element={<AdminEditProjectPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

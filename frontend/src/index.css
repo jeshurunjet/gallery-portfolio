@@ -724,3 +724,102 @@ main {
   background: #f0f0f0;
   border-radius: 999px;
 }
+
+/* Admin Project Pages - Buttons */
+/* low res */
+@media (max-width: 700px) {
+  .admin-project-card {
+    flex-direction: column;
+  }
+
+  .admin-project-actions {
+    flex-direction: row;
+    min-width: auto;
+  }
+}
+/* low res - end */
+
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-page-header p {
+  margin-top: 0.35rem;
+  color: #666;
+}
+
+.admin-primary-button,
+.admin-secondary-button,
+.admin-danger-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
+  border: none;
+}
+
+.admin-primary-button {
+  background: #111;
+  color: #fff;
+}
+
+.admin-primary-button:hover {
+  background: #333;
+  transform: translateY(-1px);
+}
+
+.admin-secondary-button {
+  background: #f3f3f3;
+  color: #111;
+}
+
+.admin-secondary-button:hover {
+  background: #e7e7e7;
+  transform: translateY(-1px);
+}
+
+.admin-danger-button {
+  background: #fff1f1;
+  color: #b42318;
+}
+
+.admin-danger-button:hover {
+  background: #ffe4e4;
+  transform: translateY(-1px);
+}
+
+.admin-project-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  background: #fff;
+  align-items: flex-start;
+}
+
+.admin-project-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.admin-project-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 120px;
+}
