@@ -674,3 +674,53 @@ main {
 .admin-content {
   padding: 2rem;
 }
+
+/* ----- Admin Projects Page ----- */
+.admin-project-list {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-project-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.admin-project-image {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.admin-project-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.admin-project-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.admin-project-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.admin-tag {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  background: #f0f0f0;
+  border-radius: 999px;
+}
