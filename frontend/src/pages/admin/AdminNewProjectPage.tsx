@@ -2,10 +2,14 @@ import ProjectForm, {
   type ProjectFormData,
 } from "../../components/ProjectForm";
 import useProjects from "../../hooks/useProjects";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import Toast from "../../components/Toast";
 
 function AdminNewProjectPage() {
   const { addProject } = useProjects();
-
+  const navigate = useNavigate();
+  const [showToast, setShowToast] = useState(false);
   const initialData: ProjectFormData = {
     title: "",
     category: "",
@@ -35,23 +39,35 @@ function AdminNewProjectPage() {
     };
 
     addProject(newProject);
+
+    setShowToast(true);
+
+    setTimeout(() => {
+      navigate("/admin/projects");
+    }, 1500);
   };
 
   return (
-    <main>
-      <div className="admin-page-header">
-        <div>
-          <h1>New Project</h1>
-          <p>Create a new portfolio project.</p>
+    <>
+      <main>
+        <div className="admin-page-header">
+          <div>
+            <h1>New Project</h1>
+            <p>Create a new portfolio project.</p>
+          </div>
         </div>
-      </div>
 
-      <ProjectForm
-        initialData={initialData}
-        submitLabel="Save Project"
-        onSubmit={handleSubmit}
-      />
-    </main>
+        <ProjectForm
+          initialData={initialData}
+          submitLabel="Save Project"
+          onSubmit={handleSubmit}
+        />
+      </main>
+
+      {showToast && (
+        <Toast message="Project created!" onClose={() => setShowToast(false)} />
+      )}
+    </>
   );
 }
 

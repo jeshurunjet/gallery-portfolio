@@ -4,11 +4,15 @@ import ProjectForm, {
   type ProjectFormData,
 } from "../../components/ProjectForm";
 import useProjects from "../../hooks/useProjects";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Toast from "../../components/Toast";
 
 function AdminEditProjectPage() {
   const { id } = useParams();
   const { projects, updateProject } = useProjects();
-
+  const [showToast, setShowToast] = useState(false);
+  const navigate = useNavigate();
   const project = useMemo(
     () => projects.find((item) => item.id === Number(id)),
     [id, projects]
@@ -46,23 +50,35 @@ function AdminEditProjectPage() {
       githubUrl: data.githubUrl,
       externalUrl: data.externalUrl,
     });
+
+    setShowToast(true);
+
+    setTimeout(() => {
+      navigate("/admin/projects");
+    }, 1000);
   };
 
   return (
-    <main>
-      <div className="admin-page-header">
-        <div>
-          <h1>Edit Project</h1>
-          <p>Update your project details.</p>
+    <>
+      <main>
+        <div className="admin-page-header">
+          <div>
+            <h1>Edit Project</h1>
+            <p>Update your project details.</p>
+          </div>
         </div>
-      </div>
 
-      <ProjectForm
-        initialData={initialData}
-        submitLabel="Update Project"
-        onSubmit={handleSubmit}
-      />
-    </main>
+        <ProjectForm
+          initialData={initialData}
+          submitLabel="Update Project"
+          onSubmit={handleSubmit}
+        />
+      </main>
+
+      {showToast && (
+        <Toast message="Project updated!" onClose={() => setShowToast(false)} />
+      )}
+    </>
   );
 }
 

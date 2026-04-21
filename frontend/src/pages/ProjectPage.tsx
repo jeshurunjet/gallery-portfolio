@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { ExternalLink, Code2, Globe } from "lucide-react";
-import { projects } from "../data/projects";
+import useProjects from "../hooks/useProjects";
 import ImageGallery from "../components/ImageGallery";
 import VideoPlayer from "../components/VideoPlayer";
 import AudioPlayer from "../components/AudioPlayer";
@@ -10,9 +10,9 @@ import ProjectContentRenderer from "../components/ProjectContentRenderer";
 
 function ProjectPage() {
   const { id } = useParams();
-
-  const project = projects.find((item) => item.id === Number(id));
+  const { projects } = useProjects();
   const navigate = useNavigate();
+  const project = projects.find((item) => item.id === Number(id ?? 0));
 
   if (!project) {
     return (
