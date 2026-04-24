@@ -21,7 +21,9 @@ function ProjectForm({ initialData, submitLabel, onSubmit }: ProjectFormProps) {
   const [formData, setFormData] = useState<ProjectFormData>(initialData);
 
   const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { id, value } = event.target;
 
@@ -51,13 +53,18 @@ function ProjectForm({ initialData, submitLabel, onSubmit }: ProjectFormProps) {
 
       <div className="admin-form-group">
         <label htmlFor="category">Category</label>
-        <input
-          id="category"
-          type="text"
-          placeholder="e.g. UI Design, Audio, Machine Learning"
-          value={formData.category}
-          onChange={handleChange}
-        />
+        <select id="category" value={formData.category} onChange={handleChange}>
+          <option value="">Select a category</option>
+          <option value="Photography">Photography</option>
+          <option value="Graphic Design">Graphic Design</option>
+          <option value="Audio Design">Audio Design</option>
+          <option value="Frontend/Web Design">Frontend/Web Design</option>
+          <option value="Mobile Design">Mobile Design</option>
+          <option value="Machine Learning">Machine Learning</option>
+          <option value="Deep Learning">Deep Learning</option>
+          <option value="Code Project">Code Project</option>
+          <option value="Technical Case Study">Technical Case Study</option>
+        </select>
       </div>
 
       <div className="admin-form-group">

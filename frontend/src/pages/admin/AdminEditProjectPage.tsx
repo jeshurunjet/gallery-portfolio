@@ -39,6 +39,39 @@ function AdminEditProjectPage() {
   };
 
   const handleSubmit = async (data: ProjectFormData) => {
+    const typesSet = new Set<string>();
+
+    // IMAGE
+    if (data.cover) {
+      typesSet.add("image");
+    }
+
+    // CODE
+    if (data.githubUrl) {
+      typesSet.add("code");
+    }
+
+    // WEB / VIDEO / AUDIO / PDF detection
+    const urlFields = [data.liveUrl, data.externalUrl];
+
+    urlFields.forEach((url) => {
+      if (!url) return;
+
+      const lower = url.toLowerCase();
+
+      if (lower.includes("youtube") || lower.includes("youtu.be")) {
+        typesSet.add("video");
+      } else if (lower.includes("soundcloud")) {
+        typesSet.add("audio");
+      } else if (lower.endsWith(".pdf")) {
+        typesSet.add("pdf");
+      } else {
+        typesSet.add("web");
+      }
+    });
+
+    const types = Array.from(typesSet);
+
     await updateProject({
       ...project,
       title: data.title,
@@ -52,6 +85,7 @@ function AdminEditProjectPage() {
       liveUrl: data.liveUrl,
       githubUrl: data.githubUrl,
       externalUrl: data.externalUrl,
+      types,
     });
 
     setToastMessage("Project updated!");
