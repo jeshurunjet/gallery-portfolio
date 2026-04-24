@@ -1,18 +1,18 @@
-import { useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import ProjectForm, {
   type ProjectFormData,
 } from "../../components/ProjectForm";
 import useProjects from "../../hooks/useProjects";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Toast from "../../components/Toast";
 
 function AdminEditProjectPage() {
   const { id } = useParams();
   const { projects, updateProject } = useProjects();
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const navigate = useNavigate();
+
   const project = useMemo(
     () => projects.find((item) => item.id === Number(id)),
     [id, projects]
@@ -38,8 +38,8 @@ function AdminEditProjectPage() {
     externalUrl: project.externalUrl ?? "",
   };
 
-  const handleSubmit = (data: ProjectFormData) => {
-    updateProject({
+  const handleSubmit = async (data: ProjectFormData) => {
+    await updateProject({
       ...project,
       title: data.title,
       category: data.category,
@@ -54,6 +54,7 @@ function AdminEditProjectPage() {
       externalUrl: data.externalUrl,
     });
 
+    setToastMessage("Project updated!");
     setShowToast(true);
 
     setTimeout(() => {
@@ -71,6 +72,35 @@ function AdminEditProjectPage() {
           </div>
         </div>
 
+        <div className="admin-back-button-container">
+          <div className="admin-edit-actions">
+            <button
+              type="button"
+              className="admin-secondary-button admin-back-button"
+              onClick={() => navigate("/admin/projects")}
+            >
+              ← Back
+            </button>
+
+            <button
+              type="button"
+              className="admin-secondary-button admin-reset-button"
+              onClick={async () => {
+                await updateProject({
+                  ...project,
+                  likes: 0,
+                  views: 0,
+                });
+
+                setToastMessage("Stats reset (likes & views)");
+                setShowToast(true);
+              }}
+            >
+              Reset Likes & Views
+            </button>
+          </div>
+        </div>
+
         <ProjectForm
           initialData={initialData}
           submitLabel="Update Project"
@@ -79,7 +109,7 @@ function AdminEditProjectPage() {
       </main>
 
       {showToast && (
-        <Toast message="Project updated!" onClose={() => setShowToast(false)} />
+        <Toast message={toastMessage} onClose={() => setShowToast(false)} />
       )}
     </>
   );
