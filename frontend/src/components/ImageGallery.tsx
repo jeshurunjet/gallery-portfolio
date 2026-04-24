@@ -1,25 +1,34 @@
 import { useState } from "react";
 
 type ImageGalleryProps = {
-  images: string[];
+  images?: string[];
   title: string;
 };
 
 function ImageGallery({ images, title }: ImageGalleryProps) {
-  const [selectedImage, setSelectedImage] = useState(images[0]);
+  const safeImages = images ?? [];
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const activeImage = selectedImage ?? safeImages[0] ?? null;
+
+  if (safeImages.length === 0 || !activeImage) {
+    return <div className="image-gallery">No images available.</div>;
+  }
 
   return (
     <div className="image-gallery">
       <div className="image-gallery-main">
-        <img src={selectedImage} alt={title} />
+        <img src={activeImage} alt={title} />
       </div>
 
-      {images.length > 1 && (
+      {safeImages.length > 1 && (
         <div className="image-gallery-thumbs">
-          {images.map((image, index) => (
+          {safeImages.map((image, index) => (
             <button
               key={index}
-              className={`thumb-button ${selectedImage === image ? "active" : ""}`}
+              className={`thumb-button ${
+                activeImage === image ? "active" : ""
+              }`}
               onClick={() => setSelectedImage(image)}
               type="button"
             >

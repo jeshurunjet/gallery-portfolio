@@ -32,55 +32,66 @@ function AdminProjectsPage() {
           </div>
         ) : (
           <div className="admin-project-list">
-            {projects.map((project) => (
-              <div key={project.id} className="admin-project-card">
-                <img
-                  src={project.cover}
-                  alt={project.title}
-                  className="admin-project-image"
-                />
+            {projects.map((project) => {
+              const cover =
+                project.cover && project.cover.trim() !== ""
+                  ? project.cover
+                  : "https://via.placeholder.com/600x400?text=No+Image";
+              const category = project.category ?? "Uncategorized";
+              const likes = project.likes ?? 0;
+              const views = project.views ?? 0;
+              const tags = project.tags ?? [];
 
-                <div className="admin-project-info">
-                  <h3>{project.title}</h3>
-                  <p>{project.category}</p>
+              return (
+                <div key={project.id} className="admin-project-card">
+                  <img
+                    src={cover}
+                    alt={project.title}
+                    className="admin-project-image"
+                  />
 
-                  <div className="admin-project-meta">
-                    <span>❤️ {project.likes}</span>
-                    <span>👁️ {project.views}</span>
+                  <div className="admin-project-info">
+                    <h3>{project.title}</h3>
+                    <p>{category}</p>
+
+                    <div className="admin-project-meta">
+                      <span>❤️ {likes}</span>
+                      <span>👁️ {views}</span>
+                    </div>
+
+                    <div className="admin-project-tags">
+                      {tags.map((tag, index) => (
+                        <span key={`${tag}-${index}`} className="admin-tag">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="admin-project-tags">
-                    {project.tags.map((tag) => (
-                      <span key={tag} className="admin-tag">
-                        #{tag}
-                      </span>
-                    ))}
+                  <div className="admin-project-actions">
+                    <Link
+                      to={`/admin/projects/${project.id}/edit`}
+                      className="admin-secondary-button"
+                    >
+                      Edit
+                    </Link>
+
+                    <button
+                      type="button"
+                      className="admin-danger-button"
+                      onClick={() => setSelectedId(project.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
-
-                <div className="admin-project-actions">
-                  <Link
-                    to={`/admin/projects/${project.id}/edit`}
-                    className="admin-secondary-button"
-                  >
-                    Edit
-                  </Link>
-
-                  <button
-                    type="button"
-                    className="admin-danger-button"
-                    onClick={() => setSelectedId(project.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
 
-      {selectedId && (
+      {selectedId !== null && (
         <ConfirmModal
           message="Are you sure you want to delete this project?"
           onConfirm={() => {

@@ -6,21 +6,25 @@ import useTags from "../../hooks/useTags";
 function AdminDashboardPage() {
   const { projects } = useProjects();
   const { tags } = useTags();
-
   const stats = useMemo(() => {
     const totalProjects = projects.length;
+
     const totalLikes = projects.reduce(
-      (sum, project) => sum + project.likes,
+      (sum, project) => sum + (project.likes ?? 0),
       0
     );
+
     const totalViews = projects.reduce(
-      (sum, project) => sum + project.views,
+      (sum, project) => sum + (project.views ?? 0),
       0
     );
+
+    const projectTags = projects.flatMap((project) => project.tags ?? []);
+    const allUniqueTags = new Set([...tags, ...projectTags]);
 
     return {
       totalProjects,
-      totalTags: tags.length,
+      totalTags: allUniqueTags.size,
       totalLikes,
       totalViews,
     };
@@ -72,7 +76,7 @@ function AdminDashboardPage() {
             <div key={project.id} className="admin-recent-row">
               <div className="admin-recent-info">
                 <h3>{project.title}</h3>
-                <p>{project.category}</p>
+                <p>{project.category ?? "Uncategorized"}</p>
               </div>
 
               <Link

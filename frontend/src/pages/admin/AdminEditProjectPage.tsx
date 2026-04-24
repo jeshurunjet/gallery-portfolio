@@ -28,11 +28,11 @@ function AdminEditProjectPage() {
   }
 
   const initialData: ProjectFormData = {
-    title: project.title,
-    category: project.category,
-    description: project.description,
-    tags: project.tags.join(", "),
-    cover: project.cover,
+    title: project.title ?? "",
+    category: project.category ?? "",
+    description: project.description ?? "",
+    tags: (project.tags ?? []).join(", "),
+    cover: project.cover ?? "",
     liveUrl: project.liveUrl ?? "",
     githubUrl: project.githubUrl ?? "",
     externalUrl: project.externalUrl ?? "",
@@ -44,7 +44,10 @@ function AdminEditProjectPage() {
       title: data.title,
       category: data.category,
       description: data.description,
-      tags: data.tags.split(",").map((tag) => tag.trim()),
+      tags: data.tags
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase())
+        .filter(Boolean),
       cover: data.cover,
       liveUrl: data.liveUrl,
       githubUrl: data.githubUrl,

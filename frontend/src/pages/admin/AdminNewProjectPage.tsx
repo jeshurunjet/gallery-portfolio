@@ -5,6 +5,7 @@ import useProjects from "../../hooks/useProjects";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Toast from "../../components/Toast";
+import type { Project } from "../../data/projects";
 
 function AdminNewProjectPage() {
   const { addProject } = useProjects();
@@ -22,23 +23,19 @@ function AdminNewProjectPage() {
   };
 
   const handleSubmit = (data: ProjectFormData) => {
-    const newProject = {
-      id: Date.now(),
+    addProject({
       title: data.title,
       category: data.category,
       description: data.description,
-      tags: data.tags.split(",").map((t) => t.trim()),
+      tags: data.tags
+        .split(",")
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean),
       cover: data.cover,
-      likes: 0,
-      views: 0,
-      types: [],
-      images: [],
       liveUrl: data.liveUrl,
       githubUrl: data.githubUrl,
       externalUrl: data.externalUrl,
-    };
-
-    addProject(newProject);
+    } as unknown as Project);
 
     setShowToast(true);
 

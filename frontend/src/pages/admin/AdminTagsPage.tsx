@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import useTags from "../../hooks/useTags";
+import useProjects from "../../hooks/useProjects";
 import Toast from "../../components/Toast";
 
 function AdminTagsPage() {
   const { tags, addTag, updateTag, deleteTag } = useTags();
+  const { projects } = useProjects();
+
   const [newTag, setNewTag] = useState("");
   const [editingTag, setEditingTag] = useState<string | null>(null);
   const [editedValue, setEditedValue] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+
+  const visibleTags = useMemo(() => {
+    const projectTags = projects.flatMap((project) => project.tags ?? []);
+    return [...new Set([...tags, ...projectTags])].sort();
+  }, [tags, projects]);
 
   const handleAddTag = (event: React.FormEvent) => {
     event.preventDefault();
@@ -16,7 +24,7 @@ function AdminTagsPage() {
     const trimmedTag = newTag.trim().toLowerCase();
     if (!trimmedTag) return;
 
-    if (tags.includes(trimmedTag)) {
+    if (visibleTags.includes(trimmedTag)) {
       setToastMessage("Tag already exists!");
       setShowToast(true);
       return;
@@ -36,7 +44,10 @@ function AdminTagsPage() {
   const handleSaveEdit = () => {
     if (!editingTag) return;
 
-    updateTag(editingTag, editedValue);
+    const trimmed = editedValue.trim().toLowerCase();
+    if (!trimmed) return;
+
+    updateTag(editingTag, trimmed);
     setToastMessage("Tag updated!");
     setShowToast(true);
     setEditingTag(null);
@@ -71,8 +82,8 @@ function AdminTagsPage() {
         </form>
 
         <div className="admin-tag-list">
-          {tags.map((tag) => (
-            <div key={tag} className="admin-tag-row">
+          {visibleTags.map((tag, index) => (
+            <div key={`${tag}-${index}`} className="admin-tag-row">
               {editingTag === tag ? (
                 <>
                   <input
@@ -107,7 +118,17 @@ function AdminTagsPage() {
                     <button
                       type="button"
                       className="admin-secondary-button"
-                      onClick={() => handleStartEdit(tag)}
+                      onClick={() => {
+                        if (!tags.includes(tag)) {
+                          setToastMessage(
+                            "This tag is from a project. Edit it from the project page."
+                          );
+                          setShowToast(true);
+                          return;
+                        }
+
+                        handleStartEdit(tag);
+                      }}
                     >
                       Edit
                     </button>
@@ -115,6 +136,14 @@ function AdminTagsPage() {
                       type="button"
                       className="admin-danger-button"
                       onClick={() => {
+                        if (!tags.includes(tag)) {
+                          setToastMessage(
+                            "This tag is from a project. Remove it by editing the project."
+                          );
+                          setShowToast(true);
+                          return;
+                        }
+
                         deleteTag(tag);
                         setToastMessage("Tag deleted!");
                         setShowToast(true);
