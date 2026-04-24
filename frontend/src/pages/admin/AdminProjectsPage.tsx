@@ -3,6 +3,7 @@ import useProjects from "../../hooks/useProjects";
 import { useState } from "react";
 import ConfirmModal from "../../components/ConfirmModal";
 import Toast from "../../components/Toast";
+import { ThumbsUp, Eye } from "lucide-react";
 
 function AdminProjectsPage() {
   const { projects, deleteProject } = useProjects();
@@ -38,8 +39,6 @@ function AdminProjectsPage() {
                   ? project.cover
                   : "https://via.placeholder.com/600x400?text=No+Image";
               const category = project.category ?? "Uncategorized";
-              const likes = project.likes ?? 0;
-              const views = project.views ?? 0;
               const tags = project.tags ?? [];
 
               return (
@@ -55,8 +54,16 @@ function AdminProjectsPage() {
                     <p>{category}</p>
 
                     <div className="admin-project-meta">
-                      <span>❤️ {likes}</span>
-                      <span>👁️ {views}</span>
+                      <span>
+                        <div className="stat-item">
+                          <ThumbsUp size={16} /> {project.likes ?? 0}
+                        </div>
+                      </span>
+                      <span>
+                        <div className="stat-item">
+                          <Eye size={16} /> {project.views ?? 0}
+                        </div>
+                      </span>
                     </div>
 
                     <div className="admin-project-tags">

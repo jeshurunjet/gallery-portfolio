@@ -1462,3 +1462,51 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+/* ----- Like and Seen Buttons ----- */
+
+.project-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.stat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.stat-item svg {
+  stroke-width: 1.8;
+}
+
+.stat-item:hover {
+  color: #111;
+}
+
+.like-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.like-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.like-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.like-button.liked svg {
+  fill: currentColor;
+}
+.like-button:active {
+  transform: scale(0.95);
+}

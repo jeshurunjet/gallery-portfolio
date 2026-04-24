@@ -8,6 +8,7 @@ import {
   Globe,
 } from "lucide-react";
 import type { Project } from "../data/projects";
+import { ThumbsUp, Eye } from "lucide-react";
 
 function ProjectCard({ project }: { project: Project }) {
   const types = project.types ?? [];
@@ -17,8 +18,6 @@ function ProjectCard({ project }: { project: Project }) {
       ? project.cover
       : "https://via.placeholder.com/600x400?text=No+Image";
   const category = project.category ?? "Uncategorized";
-  const likes = project.likes ?? 0;
-  const views = project.views ?? 0;
 
   return (
     <Link to={`/project/${project.id}`} className="card-link">
@@ -52,8 +51,16 @@ function ProjectCard({ project }: { project: Project }) {
           </div>
 
           <div className="card-meta">
-            <span>❤️ {likes}</span>
-            <span>👁️ {views}</span>
+            <span>
+              <div className="stat-item">
+                <ThumbsUp size={16} /> {project.likes ?? 0}
+              </div>
+            </span>
+            <span>
+              <div className="stat-item">
+                <Eye size={16} /> {project.views ?? 0}
+              </div>
+            </span>
           </div>
         </div>
       </div>

@@ -71,6 +71,22 @@ public class ProjectController {
         return projectRepository.save(project);
     }
 
+    @PutMapping("/api/projects/{id}/like")
+public Project incrementProjectLike(@PathVariable("id") Long id) {
+    Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+
+    Integer currentLikes = project.getLikes();
+
+    if (currentLikes == null) {
+        currentLikes = 0;
+    }
+
+    project.setLikes(currentLikes + 1);
+
+    return projectRepository.save(project);
+}
+
     @DeleteMapping("/api/projects/{id}")
     public void deleteProject(@PathVariable("id") Long id) {
         projectRepository.deleteById(id);

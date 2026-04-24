@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ExternalLink, Code2, Globe } from "lucide-react";
+import { ExternalLink, Code2, Globe, ThumbsUp, Eye } from "lucide-react";
 import useProjects from "../hooks/useProjects";
 import ImageGallery from "../components/ImageGallery";
 import VideoPlayer from "../components/VideoPlayer";
@@ -15,7 +15,16 @@ function ProjectPage() {
   const navigate = useNavigate();
   const project = projects.find((item) => item.id === Number(id ?? 0));
   const hasCountedView = useRef(false);
+  const [hasLiked, setHasLiked] = useState(false);
 
+  useEffect(() => {
+    if (!project?.id) return;
+
+    queueMicrotask(() => {
+      const liked = localStorage.getItem(`liked-${project.id}`);
+      setHasLiked(!!liked);
+    });
+  }, [project?.id]);
   useEffect(() => {
     if (!project?.id || hasCountedView.current) return;
 
@@ -85,8 +94,33 @@ function ProjectPage() {
 
         <aside className="project-side">
           <div className="project-stats">
-            <span>❤️ {likes}</span>
-            <span>👁️ {views}</span>
+            <button
+              className={`stat-item like-button ${hasLiked ? "liked" : ""}`}
+              disabled={hasLiked}
+              onClick={async () => {
+                if (hasLiked) return;
+
+                try {
+                  await fetch(
+                    `http://localhost:8080/api/projects/${project.id}/like`,
+                    { method: "PUT" }
+                  );
+
+                  localStorage.setItem(`liked-${project.id}`, "true");
+                  setHasLiked(true);
+
+                  await refreshProjects();
+                } catch (error) {
+                  console.error("Failed to like project:", error);
+                }
+              }}
+            >
+              <ThumbsUp size={16} /> {likes}
+            </button>
+
+            <div className="stat-item">
+              <Eye size={16} /> {views}
+            </div>
           </div>
 
           {project.liveUrl && (
