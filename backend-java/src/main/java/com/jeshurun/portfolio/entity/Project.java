@@ -13,6 +13,12 @@ public class Project {
     private String title;
     private String category;
 
+    private Integer likes = 0;
+    private Integer views = 0;
+
+    @ElementCollection
+    private List<String> types;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -110,5 +116,29 @@ public class Project {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public Integer getLikes() {
+    return likes;
+}
+
+    public void setLikes(Integer likes) {
+        this.likes = likes;
+    }
+
+    public Integer getViews() {
+        return views;
+    }
+
+    public void setViews(Integer views) {
+        this.views = views;
+    }
+
+    public List<String> getTypes() {
+        return types;
+    }
+
+    public void setTypes(List<String> types) {
+        this.types = types;
     }
 }

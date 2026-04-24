@@ -31,7 +31,10 @@ public class ProjectController {
     }
 
     @PutMapping("/api/projects/{id}")
-public Project updateProject(@PathVariable("id") Long id, @RequestBody Project updatedProject) {
+    public Project updateProject(
+            @PathVariable("id") Long id,
+            @RequestBody Project updatedProject
+    ) {
         Project existingProject = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
 
@@ -43,14 +46,33 @@ public Project updateProject(@PathVariable("id") Long id, @RequestBody Project u
         existingProject.setGithubUrl(updatedProject.getGithubUrl());
         existingProject.setExternalUrl(updatedProject.getExternalUrl());
         existingProject.setTags(updatedProject.getTags());
+        existingProject.setLikes(updatedProject.getLikes());
+        existingProject.setViews(updatedProject.getViews());
+        existingProject.setTypes(updatedProject.getTypes());
 
         syncTags(updatedProject.getTags());
 
         return projectRepository.save(existingProject);
     }
 
+    @PutMapping("/api/projects/{id}/view")
+    public Project incrementProjectView(@PathVariable("id") Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+
+        Integer currentViews = project.getViews();
+
+        if (currentViews == null) {
+            currentViews = 0;
+        }
+
+        project.setViews(currentViews + 1);
+
+        return projectRepository.save(project);
+    }
+
     @DeleteMapping("/api/projects/{id}")
-    public void deleteProject(@PathVariable Long id) {
+    public void deleteProject(@PathVariable("id") Long id) {
         projectRepository.deleteById(id);
     }
 
@@ -61,10 +83,9 @@ public Project updateProject(@PathVariable("id") Long id, @RequestBody Project u
             if (tagName == null || tagName.trim().isEmpty()) continue;
 
             String normalized = tagName.trim().toLowerCase();
-
             boolean exists = tagRepository.findByName(normalized).isPresent();
 
-            if (!exists) continue; // prevent tag resurrection
+            if (!exists) continue;
         }
     }
 }

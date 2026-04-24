@@ -42,6 +42,9 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
           githubUrl: project.githubUrl,
           externalUrl: project.externalUrl,
           tags: project.tags ?? [],
+          likes: project.likes ?? 0,
+          views: project.views ?? 0,
+          types: project.types ?? [],
         }),
       });
 
@@ -76,6 +79,9 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
             githubUrl: updatedProject.githubUrl,
             externalUrl: updatedProject.externalUrl,
             tags: updatedProject.tags ?? [],
+            likes: updatedProject.likes ?? 0,
+            views: updatedProject.views ?? 0,
+            types: updatedProject.types ?? [],
           }),
         }
       );

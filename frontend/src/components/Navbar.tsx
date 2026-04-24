@@ -16,7 +16,7 @@ function Navbar() {
   return (
     <nav>
       <div>
-        <Link to="/">Gallery Portfolio</Link>
+        <Link to="/">Jeshurun Sanchez</Link>
       </div>
 
       <div>
