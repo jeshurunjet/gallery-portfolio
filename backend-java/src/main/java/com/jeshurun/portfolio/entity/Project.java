@@ -25,6 +25,21 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     private String cover;
 
+    @ElementCollection
+    private List<String> images;
+
+    @Column(columnDefinition = "TEXT")
+    private String videoUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String audioUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String pdfUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String codeContent;
+
     @Column(columnDefinition = "TEXT")
     private String liveUrl;
 
@@ -84,6 +99,46 @@ public class Project {
 
     public void setCover(String cover) {
         this.cover = cover;
+    }
+
+    public List<String> getImages() {
+    return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
+    }
+
+    public String getPdfUrl() {
+        return pdfUrl;
+    }
+
+    public void setPdfUrl(String pdfUrl) {
+        this.pdfUrl = pdfUrl;
+    }
+
+    public String getCodeContent() {
+        return codeContent;
+    }
+
+    public void setCodeContent(String codeContent) {
+        this.codeContent = codeContent;
     }
 
     public String getLiveUrl() {

@@ -42,6 +42,11 @@ public class ProjectController {
         existingProject.setCategory(updatedProject.getCategory());
         existingProject.setDescription(updatedProject.getDescription());
         existingProject.setCover(updatedProject.getCover());
+        existingProject.setImages(updatedProject.getImages());
+        existingProject.setVideoUrl(updatedProject.getVideoUrl());
+        existingProject.setAudioUrl(updatedProject.getAudioUrl());
+        existingProject.setPdfUrl(updatedProject.getPdfUrl());
+        existingProject.setCodeContent(updatedProject.getCodeContent());
         existingProject.setLiveUrl(updatedProject.getLiveUrl());
         existingProject.setGithubUrl(updatedProject.getGithubUrl());
         existingProject.setExternalUrl(updatedProject.getExternalUrl());

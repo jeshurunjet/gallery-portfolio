@@ -6,6 +6,11 @@ type ProjectFormData = {
   description: string;
   tags: string;
   cover: string;
+  images: string;
+  videoUrl: string;
+  audioUrl: string;
+  pdfUrl: string;
+  codeContent: string;
   liveUrl: string;
   githubUrl: string;
   externalUrl: string;
@@ -97,6 +102,61 @@ function ProjectForm({ initialData, submitLabel, onSubmit }: ProjectFormProps) {
           type="text"
           placeholder="https://example.com/image.jpg"
           value={formData.cover}
+          onChange={handleChange}
+        />
+      </div>
+      <div className="admin-form-group">
+        <label htmlFor="images">Image Gallery URLs</label>
+        <textarea
+          id="images"
+          rows={3}
+          placeholder="Paste image URLs separated by commas"
+          value={formData.images}
+          onChange={handleChange}
+        />
+        <small>Separate multiple image URLs with commas.</small>
+      </div>
+
+      <div className="admin-form-group">
+        <label htmlFor="videoUrl">Video URL</label>
+        <input
+          id="videoUrl"
+          type="text"
+          placeholder="YouTube, Vimeo, or video link"
+          value={formData.videoUrl}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div className="admin-form-group">
+        <label htmlFor="audioUrl">Audio URL</label>
+        <input
+          id="audioUrl"
+          type="text"
+          placeholder="SoundCloud or audio link"
+          value={formData.audioUrl}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div className="admin-form-group">
+        <label htmlFor="pdfUrl">PDF URL</label>
+        <input
+          id="pdfUrl"
+          type="text"
+          placeholder="/pdfs/sample-report.pdf or https://example.com/file.pdf"
+          value={formData.pdfUrl}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div className="admin-form-group">
+        <label htmlFor="codeContent">Code Content</label>
+        <textarea
+          id="codeContent"
+          rows={6}
+          placeholder="Paste code here if this project has a code preview"
+          value={formData.codeContent}
           onChange={handleChange}
         />
       </div>

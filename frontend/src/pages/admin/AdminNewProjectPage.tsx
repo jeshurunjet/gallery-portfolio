@@ -17,6 +17,11 @@ function AdminNewProjectPage() {
     description: "",
     tags: "",
     cover: "",
+    images: "",
+    videoUrl: "",
+    audioUrl: "",
+    pdfUrl: "",
+    codeContent: "",
     liveUrl: "",
     githubUrl: "",
     externalUrl: "",
@@ -55,7 +60,10 @@ function AdminNewProjectPage() {
     });
 
     const types = Array.from(typesSet);
-
+    const images = data.images
+      .split(",")
+      .map((img) => img.trim())
+      .filter(Boolean);
     addProject({
       title: data.title,
       category: data.category,
@@ -65,6 +73,11 @@ function AdminNewProjectPage() {
         .map((t) => t.trim().toLowerCase())
         .filter(Boolean),
       cover: data.cover,
+      images,
+      videoUrl: data.videoUrl,
+      audioUrl: data.audioUrl,
+      pdfUrl: data.pdfUrl,
+      codeContent: data.codeContent,
       liveUrl: data.liveUrl,
       githubUrl: data.githubUrl,
       externalUrl: data.externalUrl,

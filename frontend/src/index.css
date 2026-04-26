@@ -207,11 +207,30 @@ main {
   padding: 0 1.5rem;
 }
 
+.project-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.empty-media {
+  width: 100%;
+  min-height: 260px;
+  border-radius: 16px;
+  border: 1px solid #ececec;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 0.95rem;
+}
+
 .project-hero img {
   width: 100%;
   border-radius: 16px;
   display: block;
-  margin-bottom: 2rem;
 }
 
 .project-content {

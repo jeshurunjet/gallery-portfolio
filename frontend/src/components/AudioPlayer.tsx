@@ -9,6 +9,14 @@ function getSoundCloudEmbed(url: string) {
 }
 
 function AudioPlayer({ url }: AudioPlayerProps) {
+  if (!url.includes("soundcloud")) {
+    return (
+      <div className="empty-media">
+        <p>Unsupported audio source.</p>
+      </div>
+    );
+  }
+
   const embedUrl = getSoundCloudEmbed(url);
 
   return (

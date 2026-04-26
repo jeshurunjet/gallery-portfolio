@@ -62,17 +62,27 @@ function ProjectPage() {
       </button>
 
       <div className="project-hero">
-        {project.videoUrl ? (
-          <VideoPlayer url={project.videoUrl} />
-        ) : project.audioUrl ? (
-          <AudioPlayer url={project.audioUrl} />
-        ) : project.pdfUrl ? (
-          <PdfViewer url={project.pdfUrl} />
-        ) : project.codeContent ? (
-          <CodeViewer code={project.codeContent} />
-        ) : (
+        {project.videoUrl && <VideoPlayer url={project.videoUrl} />}
+
+        {project.audioUrl && <AudioPlayer url={project.audioUrl} />}
+
+        {project.pdfUrl && <PdfViewer url={project.pdfUrl} />}
+
+        {project.codeContent && <CodeViewer code={project.codeContent} />}
+
+        {images.length > 0 && (
           <ImageGallery images={images} title={project.title} />
         )}
+
+        {!project.videoUrl &&
+          !project.audioUrl &&
+          !project.pdfUrl &&
+          !project.codeContent &&
+          images.length === 0 && (
+            <div className="empty-media">
+              <p>No media available for this project.</p>
+            </div>
+          )}
       </div>
 
       <div className="project-layout">

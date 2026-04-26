@@ -33,6 +33,11 @@ function AdminEditProjectPage() {
     description: project.description ?? "",
     tags: (project.tags ?? []).join(", "),
     cover: project.cover ?? "",
+    images: (project.images ?? []).join(", "),
+    videoUrl: project.videoUrl ?? "",
+    audioUrl: project.audioUrl ?? "",
+    pdfUrl: project.pdfUrl ?? "",
+    codeContent: project.codeContent ?? "",
     liveUrl: project.liveUrl ?? "",
     githubUrl: project.githubUrl ?? "",
     externalUrl: project.externalUrl ?? "",
@@ -71,7 +76,10 @@ function AdminEditProjectPage() {
     });
 
     const types = Array.from(typesSet);
-
+    const images = data.images
+      .split(",")
+      .map((img) => img.trim())
+      .filter(Boolean);
     await updateProject({
       ...project,
       title: data.title,
@@ -82,6 +90,11 @@ function AdminEditProjectPage() {
         .map((tag) => tag.trim().toLowerCase())
         .filter(Boolean),
       cover: data.cover,
+      images,
+      videoUrl: data.videoUrl,
+      audioUrl: data.audioUrl,
+      pdfUrl: data.pdfUrl,
+      codeContent: data.codeContent,
       liveUrl: data.liveUrl,
       githubUrl: data.githubUrl,
       externalUrl: data.externalUrl,

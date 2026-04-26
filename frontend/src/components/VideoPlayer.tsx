@@ -8,6 +8,7 @@ function getEmbedUrl(url: string) {
 
     if (parsedUrl.hostname.includes("youtube.com")) {
       const videoId = parsedUrl.searchParams.get("v");
+
       if (videoId) {
         return `https://www.youtube.com/embed/${videoId}`;
       }
@@ -15,12 +16,21 @@ function getEmbedUrl(url: string) {
 
     if (parsedUrl.hostname.includes("youtu.be")) {
       const videoId = parsedUrl.pathname.slice(1);
+
       if (videoId) {
         return `https://www.youtube.com/embed/${videoId}`;
       }
     }
 
-    return "";
+    if (parsedUrl.hostname.includes("vimeo.com")) {
+      const videoId = parsedUrl.pathname.split("/").filter(Boolean)[0];
+
+      if (videoId) {
+        return `https://player.vimeo.com/video/${videoId}`;
+      }
+    }
+
+    return url;
   } catch {
     return "";
   }
@@ -30,7 +40,11 @@ function VideoPlayer({ url }: VideoPlayerProps) {
   const embedUrl = getEmbedUrl(url);
 
   if (!embedUrl) {
-    return <p>Invalid YouTube video URL.</p>;
+    return (
+      <div className="empty-media">
+        <p>Video could not be loaded.</p>
+      </div>
+    );
   }
 
   return (
