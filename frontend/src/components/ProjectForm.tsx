@@ -38,6 +38,43 @@ function ProjectForm({ initialData, submitLabel, onSubmit }: ProjectFormProps) {
     }));
   };
 
+  const formatSelectedText = (
+    field: keyof ProjectFormData,
+    before: string,
+    after: string = before
+  ) => {
+    const textarea = document.getElementById(
+      field
+    ) as HTMLTextAreaElement | null;
+
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentValue = formData[field];
+
+    const selectedText = currentValue.slice(start, end);
+    const replacement = selectedText
+      ? `${before}${selectedText}${after}`
+      : `${before}Text${after}`;
+
+    const updatedValue =
+      currentValue.slice(0, start) + replacement + currentValue.slice(end);
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: updatedValue,
+    }));
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(
+        start + before.length,
+        start + before.length + (selectedText || "Text").length
+      );
+    }, 0);
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     onSubmit(formData);
@@ -74,13 +111,91 @@ function ProjectForm({ initialData, submitLabel, onSubmit }: ProjectFormProps) {
 
       <div className="admin-form-group">
         <label htmlFor="description">Description</label>
+
+        <div className="format-toolbar">
+          <button
+            type="button"
+            onClick={() => formatSelectedText("description", "**")}
+          >
+            Bold
+          </button>
+
+          <button
+            type="button"
+            onClick={() => formatSelectedText("description", "*")}
+          >
+            Italic
+          </button>
+
+          <button
+            type="button"
+            onClick={() => formatSelectedText("description", "__")}
+          >
+            Underline
+          </button>
+
+          <button
+            type="button"
+            onClick={() => formatSelectedText("description", "- ", "")}
+          >
+            Bullet
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              const lines = formData.description.split("\n");
+
+              // Find last numbered item
+              let lastNumber = 0;
+
+              for (let i = lines.length - 1; i >= 0; i--) {
+                const match = lines[i].trim().match(/^(\d+)\.\s/);
+                if (match) {
+                  lastNumber = parseInt(match[1], 10);
+                  break;
+                }
+              }
+
+              const nextNumber = lastNumber + 1;
+
+              setFormData((prev) => ({
+                ...prev,
+                description:
+                  prev.description +
+                  (prev.description ? "\n" : "") +
+                  `${nextNumber}. `,
+              }));
+            }}
+          >
+            Numbered
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              setFormData((prev) => ({
+                ...prev,
+                description: `${prev.description}${prev.description ? "\n" : ""}---`,
+              }))
+            }
+          >
+            Separator
+          </button>
+        </div>
+
         <textarea
           id="description"
-          rows={5}
+          rows={7}
           placeholder="Write a short project description"
           value={formData.description}
           onChange={handleChange}
         />
+
+        <small>
+          Supports **bold**, *italic*, __underline__, bullet lists, numbered
+          lists, and --- separators.
+        </small>
       </div>
 
       <div className="admin-form-group">
@@ -104,6 +219,36 @@ function ProjectForm({ initialData, submitLabel, onSubmit }: ProjectFormProps) {
           value={formData.cover}
           onChange={handleChange}
         />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            const formDataUpload = new FormData();
+            formDataUpload.append("file", file);
+
+            try {
+              const response = await fetch(
+                "http://localhost:8080/api/upload/image",
+                {
+                  method: "POST",
+                  body: formDataUpload,
+                }
+              );
+
+              const imageUrl = await response.text();
+
+              setFormData((prev) => ({
+                ...prev,
+                cover: imageUrl,
+              }));
+            } catch (error) {
+              console.error("Upload failed", error);
+            }
+          }}
+        />
       </div>
       <div className="admin-form-group">
         <label htmlFor="images">Image Gallery URLs</label>
@@ -115,6 +260,50 @@ function ProjectForm({ initialData, submitLabel, onSubmit }: ProjectFormProps) {
           onChange={handleChange}
         />
         <small>Separate multiple image URLs with commas.</small>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={async (e) => {
+            const files = e.target.files;
+            if (!files) return;
+
+            const uploadedUrls: string[] = [];
+
+            for (const file of Array.from(files)) {
+              const formDataUpload = new FormData();
+              formDataUpload.append("file", file);
+
+              try {
+                const response = await fetch(
+                  "http://localhost:8080/api/upload/image",
+                  {
+                    method: "POST",
+                    body: formDataUpload,
+                  }
+                );
+
+                const url = await response.text();
+                uploadedUrls.push(url);
+              } catch (error) {
+                console.error("Upload failed", error);
+              }
+            }
+
+            setFormData((prev) => {
+              const existing = prev.images
+                ? prev.images.split(",").map((i) => i.trim())
+                : [];
+
+              const combined = [...existing, ...uploadedUrls];
+
+              return {
+                ...prev,
+                images: combined.join(", "),
+              };
+            });
+          }}
+        />
       </div>
 
       <div className="admin-form-group">

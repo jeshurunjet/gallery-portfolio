@@ -1,6 +1,8 @@
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/PortfolioApplication.java
+/Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/WebConfig.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/controller/ProjectController.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/controller/TagController.java
+/Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/controller/UploadController.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/entity/Project.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/entity/Tag.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/repository/ProjectRepository.java

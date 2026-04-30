@@ -8,6 +8,7 @@ import AudioPlayer from "../components/AudioPlayer";
 import PdfViewer from "../components/PdfViewer";
 import CodeViewer from "../components/CodeViewer";
 import ProjectContentRenderer from "../components/ProjectContentRenderer";
+import FormattedText from "../components/FormattedText";
 
 function ProjectPage() {
   const { id } = useParams();
@@ -89,7 +90,9 @@ function ProjectPage() {
         <section className="project-main">
           <p className="project-category">{category}</p>
           <h1>{project.title}</h1>
-          <p className="project-description">{description}</p>
+          <div className="project-description">
+            <FormattedText text={description} />
+          </div>
 
           <div className="project-tags">
             {tags.map((tag, index) => (

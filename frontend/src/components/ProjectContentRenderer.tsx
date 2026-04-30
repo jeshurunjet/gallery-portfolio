@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ProjectContentBlock } from "../data/projects";
 
 type ProjectContentRendererProps = {
@@ -28,6 +29,85 @@ function renderInlineText(text: string) {
   });
 }
 
+function renderTextWithLists(text: string): ReactNode[] {
+  const lines = text.split("\n");
+  const elements: ReactNode[] = [];
+
+  let listBuffer: string[] = [];
+  let listType: "bullet" | "numbered" | null = null;
+
+  const flushList = () => {
+    if (listBuffer.length === 0 || listType === null) return;
+
+    if (listType === "numbered") {
+      elements.push(
+        <ol className="content-list" key={`list-${elements.length}`}>
+          {listBuffer.map((item, index) => (
+            <li key={index}>{renderInlineText(item)}</li>
+          ))}
+        </ol>
+      );
+    } else {
+      elements.push(
+        <ul className="content-list" key={`list-${elements.length}`}>
+          {listBuffer.map((item, index) => (
+            <li key={index}>{renderInlineText(item)}</li>
+          ))}
+        </ul>
+      );
+    }
+
+    listBuffer = [];
+    listType = null;
+  };
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith("- ")) {
+      if (listType !== "bullet") {
+        flushList();
+        listType = "bullet";
+      }
+
+      listBuffer.push(trimmed.slice(2));
+      return;
+    }
+
+    if (/^\d+\.\s/.test(trimmed)) {
+      if (listType !== "numbered") {
+        flushList();
+        listType = "numbered";
+      }
+
+      listBuffer.push(trimmed.replace(/^\d+\.\s/, ""));
+      return;
+    }
+
+    if (trimmed === "---") {
+      flushList();
+      elements.push(
+        <hr key={`divider-${index}`} className="content-divider" />
+      );
+      return;
+    }
+
+    flushList();
+
+    if (trimmed !== "") {
+      elements.push(
+        <p key={`paragraph-${index}`} className="content-paragraph">
+          {renderInlineText(trimmed)}
+        </p>
+      );
+    }
+  });
+
+  flushList();
+
+  return elements;
+}
+
 function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
   return (
     <section className="project-content-blocks">
@@ -49,17 +129,13 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
         }
 
         if (block.type === "paragraph") {
-          return (
-            <p key={index} className="content-paragraph">
-              {renderInlineText(block.text)}
-            </p>
-          );
+          return <div key={index}>{renderTextWithLists(block.text)}</div>;
         }
 
         if (block.type === "quote") {
           return (
             <blockquote key={index} className="content-quote">
-              {block.text}
+              {renderInlineText(block.text)}
             </blockquote>
           );
         }
