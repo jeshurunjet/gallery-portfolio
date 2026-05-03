@@ -20,10 +20,32 @@ type ProjectFormProps = {
   initialData: ProjectFormData;
   submitLabel: string;
   onSubmit: (data: ProjectFormData) => void;
+  onNotify?: (message: string) => void;
 };
 
-function ProjectForm({ initialData, submitLabel, onSubmit }: ProjectFormProps) {
+function ProjectForm({
+  initialData,
+  submitLabel,
+  onSubmit,
+  onNotify,
+}: ProjectFormProps) {
   const [formData, setFormData] = useState<ProjectFormData>(initialData);
+
+  const uploadImage = async (file: File) => {
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+
+    const response = await fetch("http://localhost:8080/api/upload/image", {
+      method: "POST",
+      body: formDataUpload,
+    });
+
+    if (!response.ok) {
+      throw new Error("Upload failed");
+    }
+
+    return response.text();
+  };
 
   const handleChange = (
     event: React.ChangeEvent<
@@ -226,29 +248,39 @@ function ProjectForm({ initialData, submitLabel, onSubmit }: ProjectFormProps) {
             const file = e.target.files?.[0];
             if (!file) return;
 
-            const formDataUpload = new FormData();
-            formDataUpload.append("file", file);
-
             try {
-              const response = await fetch(
-                "http://localhost:8080/api/upload/image",
-                {
-                  method: "POST",
-                  body: formDataUpload,
-                }
-              );
-
-              const imageUrl = await response.text();
+              onNotify?.("Uploading cover image...");
+              const imageUrl = await uploadImage(file);
 
               setFormData((prev) => ({
                 ...prev,
                 cover: imageUrl,
               }));
+
+              onNotify?.("Cover image uploaded!");
             } catch (error) {
               console.error("Upload failed", error);
+              onNotify?.("Cover upload failed. Please try again.");
             }
           }}
         />
+        {formData.cover && (
+          <div className="upload-preview">
+            <img src={formData.cover} alt="Cover preview" />
+
+            <button
+              type="button"
+              onClick={() =>
+                setFormData((prev) => ({
+                  ...prev,
+                  cover: "",
+                }))
+              }
+            >
+              Remove cover
+            </button>
+          </div>
+        )}
       </div>
       <div className="admin-form-group">
         <label htmlFor="images">Image Gallery URLs</label>
@@ -268,42 +300,90 @@ function ProjectForm({ initialData, submitLabel, onSubmit }: ProjectFormProps) {
             const files = e.target.files;
             if (!files) return;
 
-            const uploadedUrls: string[] = [];
+            try {
+              onNotify?.("Uploading gallery images...");
 
-            for (const file of Array.from(files)) {
-              const formDataUpload = new FormData();
-              formDataUpload.append("file", file);
+              const results = await Promise.allSettled(
+                Array.from(files).map((file) => uploadImage(file))
+              );
 
-              try {
-                const response = await fetch(
-                  "http://localhost:8080/api/upload/image",
-                  {
-                    method: "POST",
-                    body: formDataUpload,
-                  }
-                );
+              const uploadedUrls = results
+                .filter(
+                  (r): r is PromiseFulfilledResult<string> =>
+                    r.status === "fulfilled"
+                )
+                .map((r) => r.value);
 
-                const url = await response.text();
-                uploadedUrls.push(url);
-              } catch (error) {
-                console.error("Upload failed", error);
+              const failedCount = results.filter(
+                (r) => r.status === "rejected"
+              ).length;
+
+              setFormData((prev) => {
+                const existing = prev.images
+                  ? prev.images
+                      .split(",")
+                      .map((i) => i.trim())
+                      .filter(Boolean)
+                  : [];
+
+                const combined = [...existing, ...uploadedUrls];
+
+                return {
+                  ...prev,
+                  images: combined.join(", "),
+                };
+              });
+
+              if (uploadedUrls.length > 0 && failedCount === 0) {
+                onNotify?.(`${uploadedUrls.length} image(s) uploaded!`);
               }
+
+              if (uploadedUrls.length > 0 && failedCount > 0) {
+                onNotify?.(
+                  `${uploadedUrls.length} uploaded, ${failedCount} failed.`
+                );
+              }
+
+              if (uploadedUrls.length === 0 && failedCount > 0) {
+                onNotify?.("All uploads failed. Please try again.");
+              }
+            } catch (error) {
+              console.error("Upload failed", error);
+              onNotify?.("Unexpected error during upload.");
             }
-
-            setFormData((prev) => {
-              const existing = prev.images
-                ? prev.images.split(",").map((i) => i.trim())
-                : [];
-
-              const combined = [...existing, ...uploadedUrls];
-
-              return {
-                ...prev,
-                images: combined.join(", "),
-              };
-            });
           }}
         />
+        {formData.images && (
+          <div className="upload-preview-grid">
+            {formData.images
+              .split(",")
+              .map((img) => img.trim())
+              .filter(Boolean)
+              .map((img, index) => (
+                <div key={`${img}-${index}`} className="upload-preview-item">
+                  <img src={img} alt={`Gallery preview ${index + 1}`} />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const remainingImages = formData.images
+                        .split(",")
+                        .map((item) => item.trim())
+                        .filter(Boolean)
+                        .filter((_, itemIndex) => itemIndex !== index);
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        images: remainingImages.join(", "),
+                      }));
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
 
       <div className="admin-form-group">

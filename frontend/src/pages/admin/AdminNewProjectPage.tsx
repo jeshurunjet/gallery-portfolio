@@ -10,7 +10,10 @@ import type { Project } from "../../data/projects";
 function AdminNewProjectPage() {
   const { addProject } = useProjects();
   const navigate = useNavigate();
+
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
   const initialData: ProjectFormData = {
     title: "",
     category: "",
@@ -30,17 +33,9 @@ function AdminNewProjectPage() {
   const handleSubmit = (data: ProjectFormData) => {
     const typesSet = new Set<string>();
 
-    // IMAGE
-    if (data.cover) {
-      typesSet.add("image");
-    }
+    if (data.cover) typesSet.add("image");
+    if (data.githubUrl) typesSet.add("code");
 
-    // CODE
-    if (data.githubUrl) {
-      typesSet.add("code");
-    }
-
-    // WEB / VIDEO / AUDIO / PDF detection
     const urlFields = [data.liveUrl, data.externalUrl];
 
     urlFields.forEach((url) => {
@@ -60,10 +55,12 @@ function AdminNewProjectPage() {
     });
 
     const types = Array.from(typesSet);
+
     const images = data.images
       .split(",")
       .map((img) => img.trim())
       .filter(Boolean);
+
     addProject({
       title: data.title,
       category: data.category,
@@ -84,6 +81,8 @@ function AdminNewProjectPage() {
       types,
     } as unknown as Project);
 
+    // ✅ Show success message
+    setToastMessage("Project created!");
     setShowToast(true);
 
     setTimeout(() => {
@@ -105,11 +104,15 @@ function AdminNewProjectPage() {
           initialData={initialData}
           submitLabel="Save Project"
           onSubmit={handleSubmit}
+          onNotify={(message) => {
+            setToastMessage(message);
+            setShowToast(true);
+          }}
         />
       </main>
 
       {showToast && (
-        <Toast message="Project created!" onClose={() => setShowToast(false)} />
+        <Toast message={toastMessage} onClose={() => setShowToast(false)} />
       )}
     </>
   );

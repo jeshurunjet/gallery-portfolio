@@ -294,6 +294,7 @@ main {
 
 /*----- Back Button ----- */
 .back-button {
+  margin-top: 1rem;
   margin-bottom: 1.5rem;
   padding: 0.4rem 0.8rem;
   border: none;
@@ -670,11 +671,14 @@ main {
   border-right: 1px solid #ececec;
   padding: 1.5rem 1rem;
   background: #fafafa;
+  align-items: stretch; /* keeps menu full width */
 }
 
 .admin-title {
   font-size: 1.2rem;
   margin-bottom: 1.25rem;
+  margin-top: 1.5rem;
+  text-align: center;
 }
 
 .admin-nav {
@@ -831,6 +835,54 @@ main {
     flex-shrink: 0;
   }
 }
+
+.upload-preview {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.upload-preview img {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #ececec;
+}
+
+.upload-preview button,
+.upload-preview-item button {
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.upload-preview-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.upload-preview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.upload-preview-item img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #ececec;
+}
+
 /* low res - end */
 
 .admin-page-header {

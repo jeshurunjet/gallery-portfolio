@@ -61,7 +61,6 @@ function ProjectPage() {
       <button className="back-button" onClick={() => navigate(-1)}>
         ← Back
       </button>
-
       <div className="project-hero">
         {project.videoUrl && <VideoPlayer url={project.videoUrl} />}
 
