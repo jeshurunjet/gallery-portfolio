@@ -1,5 +1,9 @@
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/PortfolioApplication.java
+/Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/AuthFilter.java
+/Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/CloudinaryConfig.java
+/Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/SecurityConfig.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/WebConfig.java
+/Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/controller/AuthController.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/controller/ProjectController.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/controller/TagController.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/controller/UploadController.java
