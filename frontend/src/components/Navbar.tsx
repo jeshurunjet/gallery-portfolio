@@ -1,16 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+// import { useState } from "react";
 
 function Navbar() {
   const navigate = useNavigate();
-  const [isAuth, setIsAuth] = useState(
-    () => localStorage.getItem("isAuth") === "true"
-  );
+  const isAuth = localStorage.getItem("isAuth") === "true";
 
   const handleLogout = () => {
     localStorage.removeItem("isAuth");
-    setIsAuth(false);
     navigate("/");
+    window.location.reload();
   };
 
   return (

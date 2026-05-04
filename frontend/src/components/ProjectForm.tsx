@@ -37,6 +37,9 @@ function ProjectForm({
 
     const response = await fetch("http://localhost:8080/api/upload/image", {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
       body: formDataUpload,
     });
 

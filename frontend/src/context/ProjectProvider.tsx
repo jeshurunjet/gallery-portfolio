@@ -32,6 +32,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           title: project.title,
@@ -74,6 +75,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({
             title: updatedProject.title,
@@ -116,6 +118,9 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`http://localhost:8080/api/projects/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
 
       if (!response.ok) {

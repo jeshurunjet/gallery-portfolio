@@ -5,13 +5,30 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (email === "admin@test.com" && password === "1234") {
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Invalid credentials");
+      }
+
+      const data = await response.json();
+
+      localStorage.setItem("token", data.token);
       localStorage.setItem("isAuth", "true");
-      window.location.href = "/admin";
-    } else {
+
+      window.location.replace("/admin");
+    } catch (err) {
+      console.error(err);
       setError("Invalid credentials");
     }
   };
