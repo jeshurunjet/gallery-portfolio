@@ -1,1 +1,17 @@
+com/jeshurun/portfolio/entity/Project.class
+com/jeshurun/portfolio/controller/ProjectController.class
+com/jeshurun/portfolio/config/AuthFilter.class
+com/jeshurun/portfolio/config/CloudinaryProperties.class
+com/jeshurun/portfolio/repository/ProjectRepository.class
+com/jeshurun/portfolio/config/SecurityConfig.class
+com/jeshurun/portfolio/config/PasswordConfig.class
+com/jeshurun/portfolio/repository/TagRepository.class
+com/jeshurun/portfolio/entity/User.class
+com/jeshurun/portfolio/config/WebConfig.class
+com/jeshurun/portfolio/controller/UploadController.class
+com/jeshurun/portfolio/repository/UserRepository.class
+com/jeshurun/portfolio/config/CloudinaryConfig.class
+com/jeshurun/portfolio/controller/TagController.class
+com/jeshurun/portfolio/entity/Tag.class
 com/jeshurun/portfolio/PortfolioApplication.class
+com/jeshurun/portfolio/controller/AuthController.class

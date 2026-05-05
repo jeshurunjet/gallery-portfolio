@@ -2,6 +2,7 @@
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/AuthFilter.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/CloudinaryConfig.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/CloudinaryProperties.java
+/Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/PasswordConfig.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/SecurityConfig.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/config/WebConfig.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/controller/AuthController.java
@@ -10,5 +11,8 @@
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/controller/UploadController.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/entity/Project.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/entity/Tag.java
+/Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/entity/User.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/repository/ProjectRepository.java
 /Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/repository/TagRepository.java
+/Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/repository/UserRepository.java
+/Users/jeshurun/Desktop/gallery-portfolio/backend-java/src/main/java/com/jeshurun/portfolio/security/JwtService.java
