@@ -1,5 +1,7 @@
 package com.jeshurun.portfolio.controller;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.jeshurun.portfolio.entity.Project;
 import com.jeshurun.portfolio.repository.ProjectRepository;
 import com.jeshurun.portfolio.repository.TagRepository;
@@ -13,10 +15,16 @@ public class ProjectController {
 
     private final ProjectRepository projectRepository;
     private final TagRepository tagRepository;
+    private final Cloudinary cloudinary;
 
-    public ProjectController(ProjectRepository projectRepository, TagRepository tagRepository) {
+    public ProjectController(
+            ProjectRepository projectRepository,
+            TagRepository tagRepository,
+            Cloudinary cloudinary
+    ) {
         this.projectRepository = projectRepository;
         this.tagRepository = tagRepository;
+        this.cloudinary = cloudinary;
     }
 
     @GetMapping("/api/projects")
@@ -77,24 +85,69 @@ public class ProjectController {
     }
 
     @PutMapping("/api/projects/{id}/like")
-public Project incrementProjectLike(@PathVariable("id") Long id) {
-    Project project = projectRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+    public Project incrementProjectLike(@PathVariable("id") Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
 
-    Integer currentLikes = project.getLikes();
+        Integer currentLikes = project.getLikes();
 
-    if (currentLikes == null) {
-        currentLikes = 0;
+        if (currentLikes == null) {
+            currentLikes = 0;
+        }
+
+        project.setLikes(currentLikes + 1);
+
+        return projectRepository.save(project);
     }
-
-    project.setLikes(currentLikes + 1);
-
-    return projectRepository.save(project);
-}
 
     @DeleteMapping("/api/projects/{id}")
     public void deleteProject(@PathVariable("id") Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+
+        deleteCloudinaryImage(project.getCover());
+
+        if (project.getImages() != null) {
+            for (String imageUrl : project.getImages()) {
+                deleteCloudinaryImage(imageUrl);
+            }
+        }
+
         projectRepository.deleteById(id);
+    }
+
+    private void deleteCloudinaryImage(String imageUrl) {
+        try {
+            String publicId = extractPublicId(imageUrl);
+
+            if (publicId == null) return;
+
+            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+        } catch (Exception error) {
+            System.out.println("Failed to delete Cloudinary image: " + imageUrl);
+            error.printStackTrace();
+        }
+    }
+
+    private String extractPublicId(String url) {
+        if (url == null || !url.contains("/upload/")) return null;
+
+        String[] parts = url.split("/upload/");
+        if (parts.length < 2) return null;
+
+        String path = parts[1];
+
+        if (path.startsWith("v")) {
+            int slashIndex = path.indexOf("/");
+            if (slashIndex != -1) {
+                path = path.substring(slashIndex + 1);
+            }
+        }
+
+        int dotIndex = path.lastIndexOf(".");
+        if (dotIndex == -1) return path;
+
+        return path.substring(0, dotIndex);
     }
 
     private void syncTags(List<String> tags) {
