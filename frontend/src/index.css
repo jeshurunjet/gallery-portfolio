@@ -1454,6 +1454,16 @@ main {
   border-radius: 10px;
 }
 
+.auth-subtext {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.auth-form {
+  gap: 1.1rem;
+}
+
 @media (max-width: 600px) {
   .auth-page {
     padding: 1rem;

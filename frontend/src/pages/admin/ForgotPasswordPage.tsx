@@ -23,10 +23,11 @@ function ForgotPasswordPage() {
     <main className="auth-page">
       <form className="auth-form" onSubmit={handleSubmit}>
         <h1>Reset Password</h1>
-
+        <p className="auth-subtext">Manage your portfolio securely</p>
         <input
           type="email"
           placeholder="Enter your email"
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />

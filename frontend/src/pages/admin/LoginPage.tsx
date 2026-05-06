@@ -38,11 +38,13 @@ function LoginPage() {
     <main className="auth-page">
       <form className="auth-form" onSubmit={handleSubmit}>
         <h1>Admin Login</h1>
+        <p className="auth-subtext">Manage your portfolio securely</p>
         <p>Sign in to manage your portfolio projects and tags.</p>
 
         <input
           type="email"
           placeholder="Email"
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -50,6 +52,7 @@ function LoginPage() {
         <input
           type="password"
           placeholder="Password"
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />

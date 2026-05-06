@@ -46,11 +46,13 @@ function RegisterPage() {
     <main className="auth-page">
       <form className="auth-form" onSubmit={handleSubmit}>
         <h1>Create Account</h1>
+        <p className="auth-subtext">Manage your portfolio securely</p>
         <p>Create an admin account for your portfolio CMS.</p>
 
         <input
           type="email"
           placeholder="Email"
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -58,6 +60,7 @@ function RegisterPage() {
         <input
           type={showPassword ? "text" : "password"}
           placeholder="Password"
+          autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -65,6 +68,7 @@ function RegisterPage() {
         <input
           type={showPassword ? "text" : "password"}
           placeholder="Confirm password"
+          autoComplete="new-password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />

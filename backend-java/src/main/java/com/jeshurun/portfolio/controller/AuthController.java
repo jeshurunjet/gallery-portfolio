@@ -10,27 +10,51 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    
+    // For sending password reset emails
+    private final JavaMailSender mailSender;
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
+    @Value("${app.admin-email}")
+    private String adminEmail;
+
+    @Value("${app.registration-enabled}")
+    private boolean registrationEnabled;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     public AuthController(
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            JwtService jwtService
-    ) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-    }
+        UserRepository userRepository,
+        PasswordEncoder passwordEncoder,
+        JwtService jwtService,
+        JavaMailSender mailSender
+) {
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.jwtService = jwtService;
+    this.mailSender = mailSender;
+}
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
+        
+        // Check if registration is enabled
+        if (!registrationEnabled) {
+        return ResponseEntity.status(403).body("Registration is disabled");
+        }
+
         String email = body.get("email");
         String password = body.get("password");
 
@@ -102,9 +126,15 @@ public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
 
 @PostMapping("/forgot")
 public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> body) {
-    String email = body.get("email");
+
+    String email = body.get("email").trim().toLowerCase();
+
+    System.out.println("FORGOT REQUEST EMAIL: " + email);
+    System.out.println("ADMIN EMAIL: " + adminEmail);
 
     User user = userRepository.findByEmail(email).orElse(null);
+
+    System.out.println("USER FOUND: " + (user != null));
 
     if (user == null) {
         return ResponseEntity.ok("If account exists, reset link sent");
@@ -117,11 +147,29 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> body) {
 
     userRepository.save(user);
 
-    // For now: print reset link (instead of email)
-    System.out.println("RESET LINK:");
-    System.out.println("http://localhost:5173/reset-password?token=" + token);
+    // for sending email (in production, use a real email service)
+    String resetLink = frontendUrl + "/reset-password?token=" + token;
 
-    return ResponseEntity.ok("Reset link generated (check backend console)");
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setTo(adminEmail);
+    message.setSubject("Portfolio Admin Password Reset");
+    message.setText(
+            "A password reset was requested for your portfolio admin account.\n\n" +
+            "Reset your password here:\n" + resetLink + "\n\n" +
+            "This link expires in 15 minutes."
+    );
+
+    try {
+        mailSender.send(message);
+        System.out.println("EMAIL SENT SUCCESSFULLY");
+        return ResponseEntity.ok("Reset link sent if the account exists");
+    } catch (Exception e) {
+        System.out.println("EMAIL FAILED");
+        e.printStackTrace();
+
+        return ResponseEntity.status(500)
+                .body("Email failed: " + e.getMessage());
+    }
 }
 
 @PostMapping("/reset")

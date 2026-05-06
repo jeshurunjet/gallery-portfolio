@@ -11,15 +11,16 @@ function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  if (password !== confirmPassword) {
-    setError("Passwords do not match");
-    return;
-  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
     setError("");
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
     try {
       const response = await fetch("http://localhost:8080/api/auth/reset", {
         method: "POST",
@@ -51,10 +52,11 @@ function ResetPasswordPage() {
     <main className="auth-page">
       <form className="auth-form" onSubmit={handleSubmit}>
         <h1>Reset Password</h1>
-
+        <p className="auth-subtext">Manage your portfolio securely</p>
         <input
           type={showPassword ? "text" : "password"}
           placeholder="Password"
+          autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -62,6 +64,7 @@ function ResetPasswordPage() {
         <input
           type={showPassword ? "text" : "password"}
           placeholder="Confirm password"
+          autoComplete="new-password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
