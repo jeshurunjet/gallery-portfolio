@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE_URL } from "../../config";
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -7,7 +8,7 @@ function ForgotPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await fetch("http://localhost:8080/api/auth/forgot", {
+    const res = await fetch(`${API_BASE_URL}/api/auth/forgot`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

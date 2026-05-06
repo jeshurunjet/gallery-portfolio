@@ -9,6 +9,7 @@ import PdfViewer from "../components/PdfViewer";
 import CodeViewer from "../components/CodeViewer";
 import ProjectContentRenderer from "../components/ProjectContentRenderer";
 import FormattedText from "../components/FormattedText";
+import { API_BASE_URL } from "../config";
 
 function ProjectPage() {
   const { id } = useParams();
@@ -28,7 +29,7 @@ function ProjectPage() {
 
     hasCountedView.current = true;
 
-    fetch(`http://localhost:8080/api/projects/${project.id}/view`, {
+    fetch(`${API_BASE_URL}/api/projects/${project.id}/view`, {
       method: "PUT",
     })
       .then(() => refreshProjects())
@@ -71,7 +72,7 @@ function ProjectPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/projects/${project.id}/like`,
+        `${API_BASE_URL}/api/projects/${project.id}/like`,
         { method: "PUT" }
       );
 

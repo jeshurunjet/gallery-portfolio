@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { API_BASE_URL } from "../../config";
 
 function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -22,7 +23,7 @@ function ResetPasswordPage() {
       return;
     }
     try {
-      const response = await fetch("http://localhost:8080/api/auth/reset", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { TagContext } from "./tag-context";
 import useProjects from "../hooks/useProjects";
+import { API_BASE_URL } from "../config";
 
 type Tag = {
   id: number;
@@ -13,7 +14,7 @@ function TagProvider({ children }: { children: React.ReactNode }) {
   const { refreshProjects } = useProjects();
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/tags")
+    fetch(`${API_BASE_URL}/api/tags`)
       .then((res) => res.json())
       .then((data: Tag[]) => {
         const names = data.map((t) => t.name);
@@ -31,7 +32,7 @@ function TagProvider({ children }: { children: React.ReactNode }) {
 
   const addTag = async (tag: string) => {
     try {
-      const response = await fetch("http://localhost:8080/api/tags", {
+      const response = await fetch(`${API_BASE_URL}/api/tags`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,7 +55,7 @@ function TagProvider({ children }: { children: React.ReactNode }) {
     if (!id) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/tags/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/tags/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -84,7 +85,7 @@ function TagProvider({ children }: { children: React.ReactNode }) {
     if (!id) return;
 
     try {
-      await fetch(`http://localhost:8080/api/tags/${id}`, {
+      await fetch(`${API_BASE_URL}/api/tags/${id}`, {
         method: "DELETE",
       });
 

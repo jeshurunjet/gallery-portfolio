@@ -8,7 +8,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://jesh.nz/"
+})
 @RestController
 @RequestMapping("/api/upload")
 public class UploadController {

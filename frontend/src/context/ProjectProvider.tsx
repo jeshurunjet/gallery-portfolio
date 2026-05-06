@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import type { Project } from "../data/projects";
 import { ProjectContext } from "./project-context";
+import { API_BASE_URL } from "../config";
 
 function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([]);
 
   const refreshProjects = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/projects");
+      const response = await fetch(`${API_BASE_URL}/api/projects`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch projects");
@@ -28,7 +29,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
 
   const addProject = async (project: Project) => {
     try {
-      const response = await fetch("http://localhost:8080/api/projects", {
+      const response = await fetch(`${API_BASE_URL}/api/projects`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,7 +71,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
   const updateProject = async (updatedProject: Project) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/projects/${updatedProject.id}`,
+        `${API_BASE_URL}/api/projects/${updatedProject.id}`,
         {
           method: "PUT",
           headers: {
@@ -116,7 +117,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
 
   const deleteProject = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/projects/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
