@@ -4,7 +4,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
   const isAuth = localStorage.getItem("isAuth") === "true";
 
-  if (!isAuth || !token) {
+  if (!token || !isAuth) {
     return <Navigate to="/admin/login" replace />;
   }
 
