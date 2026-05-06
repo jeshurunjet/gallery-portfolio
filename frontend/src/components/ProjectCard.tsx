@@ -13,17 +13,19 @@ import { ThumbsUp, Eye } from "lucide-react";
 function ProjectCard({ project }: { project: Project }) {
   const types = project.types ?? [];
   const tags = project.tags ?? [];
-  const cover =
-    project.cover && project.cover.trim() !== ""
-      ? project.cover
-      : "https://via.placeholder.com/600x400?text=No+Image";
   const category = project.category ?? "Uncategorized";
 
   return (
     <Link to={`/project/${project.id}`} className="card-link">
       <div className="card">
         <div className="card-image">
-          <img src={cover} alt={project.title} />
+          {project.cover && project.cover.trim() !== "" ? (
+            <img src={project.cover} alt={project.title} />
+          ) : (
+            <div className="card-image-fallback">
+              <span>No cover image</span>
+            </div>
+          )}
 
           <div className="card-icons">
             {types.includes("image") && <ImageIcon size={16} />}

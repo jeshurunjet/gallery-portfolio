@@ -1,11 +1,68 @@
 import { Link } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import useProjects from "../../hooks/useProjects";
 import useTags from "../../hooks/useTags";
 
 function AdminDashboardPage() {
   const { projects } = useProjects();
   const { tags } = useTags();
+  const [currentUser, setCurrentUser] = useState<{ email: string } | null>(
+    null
+  );
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch("http://localhost:8080/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        setCurrentUser(data);
+      } catch (err) {
+        console.error("Failed to fetch user", err);
+      }
+    };
+
+    fetchUser();
+  }, []);
+  const handleDeleteAccount = async () => {
+    const confirmed = confirm(
+      "Are you sure you want to delete your account? This cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch("http://localhost:8080/api/auth/delete", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete account");
+      }
+
+      // logout after deletion
+      localStorage.removeItem("token");
+      localStorage.removeItem("isAuth");
+
+      window.location.replace("/admin/login");
+    } catch (err) {
+      alert("Failed to delete account");
+      console.error(err);
+    }
+  };
+
   const stats = useMemo(() => {
     const totalProjects = projects.length;
 
@@ -37,7 +94,18 @@ function AdminDashboardPage() {
       <div className="admin-page-header">
         <div>
           <h1>Admin Dashboard</h1>
+
           <p>Overview of your portfolio content and activity.</p>
+        </div>
+        <div className="account-info">
+          {currentUser && (
+            <p className="admin-user-info">
+              Logged in as: <strong>{currentUser.email}</strong>
+            </p>
+          )}
+          <button className="admin-delete-button" onClick={handleDeleteAccount}>
+            Delete Account
+          </button>
         </div>
       </div>
 
@@ -71,22 +139,49 @@ function AdminDashboardPage() {
           </Link>
         </div>
 
-        <div className="admin-recent-list">
-          {recentProjects.map((project) => (
-            <div key={project.id} className="admin-recent-row">
-              <div className="admin-recent-info">
-                <h3>{project.title}</h3>
-                <p>{project.category ?? "Uncategorized"}</p>
-              </div>
+        <div className="admin-project-list">
+          {recentProjects.map((project) => {
+            const category = project.category ?? "Uncategorized";
+            const tags = project.tags ?? [];
 
-              <Link
-                to={`/admin/projects/${project.id}/edit`}
-                className="admin-secondary-button"
-              >
-                Edit
-              </Link>
-            </div>
-          ))}
+            return (
+              <div key={project.id} className="admin-project-card">
+                {project.cover && project.cover.trim() !== "" ? (
+                  <img
+                    src={project.cover}
+                    alt={project.title}
+                    className="admin-project-image"
+                  />
+                ) : (
+                  <div className="admin-project-image admin-project-image-fallback">
+                    No image
+                  </div>
+                )}
+
+                <div className="admin-project-info">
+                  <h3>{project.title}</h3>
+                  <p>{category}</p>
+
+                  <div className="admin-project-tags">
+                    {tags.map((tag, index) => (
+                      <span key={`${tag}-${index}`} className="admin-tag">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="admin-project-actions">
+                  <Link
+                    to={`/admin/projects/${project.id}/edit`}
+                    className="admin-secondary-button"
+                  >
+                    Edit
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
     </main>

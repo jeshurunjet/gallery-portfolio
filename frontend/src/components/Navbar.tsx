@@ -7,6 +7,8 @@ function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("isAuth");
+    localStorage.removeItem("token");
+
     navigate("/");
     window.location.reload();
   };
@@ -14,7 +16,9 @@ function Navbar() {
   return (
     <nav>
       <div>
-        <Link to="/">Jeshurun Sanchez</Link>
+        <Link className="logo" to="/">
+          JESHURUN SANCHEZ
+        </Link>
       </div>
 
       <div>

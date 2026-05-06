@@ -5,7 +5,13 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "users")
 public class User {
+    
+    @Column(name = "reset_token")
+    private String resetToken;
 
+    @Column(name = "reset_token_expiry")
+    private Long resetTokenExpiry;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,5 +40,21 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getResetToken() {
+    return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public Long getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(Long resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
     }
 }

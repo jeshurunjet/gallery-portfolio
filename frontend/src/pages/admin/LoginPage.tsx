@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -58,6 +59,9 @@ function LoginPage() {
         <button type="submit" className="admin-primary-button">
           Sign In
         </button>
+        <p className="auth-helper-text">
+          Forgot your password? <Link to="/forgot-password">Reset it</Link>
+        </p>
       </form>
     </main>
   );

@@ -82,4 +82,77 @@ public class AuthController {
 
     return ResponseEntity.ok("Account deleted");
     }
+
+    // User's identity on the admin dashboard page
+    @GetMapping("/me")
+public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+    User user = (User) request.getAttribute("user");
+
+    if (user == null) {
+        return ResponseEntity.status(401).body("Unauthorized");
+    }
+
+    return ResponseEntity.ok(
+            Map.of(
+                    "id", user.getId(),
+                    "email", user.getEmail()
+            )
+    );
+}
+
+@PostMapping("/forgot")
+public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> body) {
+    String email = body.get("email");
+
+    User user = userRepository.findByEmail(email).orElse(null);
+
+    if (user == null) {
+        return ResponseEntity.ok("If account exists, reset link sent");
+    }
+
+    String token = java.util.UUID.randomUUID().toString();
+
+    user.setResetToken(token);
+    user.setResetTokenExpiry(System.currentTimeMillis() + (1000 * 60 * 15)); // 15 min
+
+    userRepository.save(user);
+
+    // For now: print reset link (instead of email)
+    System.out.println("RESET LINK:");
+    System.out.println("http://localhost:5173/reset-password?token=" + token);
+
+    return ResponseEntity.ok("Reset link generated (check backend console)");
+}
+
+@PostMapping("/reset")
+public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+    String token = body.get("token");
+    String newPassword = body.get("password");
+
+    User user = userRepository.findAll().stream()
+            .filter(u -> token.equals(u.getResetToken()))
+            .findFirst()
+            .orElse(null);
+
+    if (user == null) {
+        return ResponseEntity.status(400).body("Invalid token");
+    }
+
+    if (user.getResetTokenExpiry() == null ||
+        user.getResetTokenExpiry() < System.currentTimeMillis()) {
+        return ResponseEntity.status(400).body("Token expired");
+    }
+
+    // update password (bcrypt)
+    user.setPassword(passwordEncoder.encode(newPassword));
+
+    // clear reset token
+    user.setResetToken(null);
+    user.setResetTokenExpiry(null);
+
+    userRepository.save(user);
+
+    return ResponseEntity.ok("Password reset successful");
+}
+
 }

@@ -33,8 +33,13 @@ private final UserRepository userRepository;
         // Allow public routes
         if (path.startsWith("/api/auth/login") ||
         path.startsWith("/api/auth/register") ||
+        path.startsWith("/api/auth/forgot") ||
+        path.startsWith("/api/auth/reset") ||
         path.startsWith("/uploads") ||
-        request.getMethod().equals("GET")) {
+        path.matches("/api/projects/\\d+/view") ||
+        path.matches("/api/projects/\\d+/like") ||
+        (request.getMethod().equals("GET") &&
+                (path.startsWith("/api/projects") || path.startsWith("/api/tags")))) {
     filterChain.doFilter(request, response);
     return;
 }

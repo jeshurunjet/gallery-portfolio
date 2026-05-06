@@ -9,6 +9,7 @@ function AdminProjectsPage() {
   const { projects, deleteProject } = useProjects();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
+
   return (
     <>
       <main>
@@ -34,20 +35,22 @@ function AdminProjectsPage() {
         ) : (
           <div className="admin-project-list">
             {projects.map((project) => {
-              const cover =
-                project.cover && project.cover.trim() !== ""
-                  ? project.cover
-                  : "https://via.placeholder.com/600x400?text=No+Image";
               const category = project.category ?? "Uncategorized";
               const tags = project.tags ?? [];
 
               return (
                 <div key={project.id} className="admin-project-card">
-                  <img
-                    src={cover}
-                    alt={project.title}
-                    className="admin-project-image"
-                  />
+                  {project.cover && project.cover.trim() !== "" ? (
+                    <img
+                      src={project.cover}
+                      alt={project.title}
+                      className="admin-project-image"
+                    />
+                  ) : (
+                    <div className="admin-project-image admin-project-image-fallback">
+                      No image
+                    </div>
+                  )}
 
                   <div className="admin-project-info">
                     <h3>{project.title}</h3>

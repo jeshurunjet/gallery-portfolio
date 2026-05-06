@@ -14,18 +14,15 @@ function ProjectPage() {
   const { id } = useParams();
   const { projects, refreshProjects } = useProjects();
   const navigate = useNavigate();
+
   const project = projects.find((item) => item.id === Number(id ?? 0));
   const hasCountedView = useRef(false);
-  const [hasLiked, setHasLiked] = useState(false);
 
-  useEffect(() => {
-    if (!project?.id) return;
+  const [, forceLikeRender] = useState(0);
+  const [localLikesById, setLocalLikesById] = useState<Record<number, number>>(
+    {}
+  );
 
-    queueMicrotask(() => {
-      const liked = localStorage.getItem(`liked-${project.id}`);
-      setHasLiked(!!liked);
-    });
-  }, [project?.id]);
   useEffect(() => {
     if (!project?.id || hasCountedView.current) return;
 
@@ -47,27 +44,65 @@ function ProjectPage() {
     );
   }
 
+  const likedKey = `liked-${project.id}`;
+  const hasLiked = localStorage.getItem(likedKey) === "true";
+
   const tags = project.tags ?? [];
   const images = project.images ?? [];
   const category = project.category ?? "Uncategorized";
   const description = project.description ?? "No description yet.";
-  const likes = project.likes ?? 0;
+  const likes = localLikesById[project.id] ?? project.likes ?? 0;
   const views = project.views ?? 0;
   const content = project.content ?? [];
   const facts = project.facts;
+
+  const handleLike = async () => {
+    if (hasLiked) return;
+
+    const previousLikes = likes;
+
+    localStorage.setItem(likedKey, "true");
+    forceLikeRender((prev) => prev + 1);
+
+    setLocalLikesById((prev) => ({
+      ...prev,
+      [project.id]: previousLikes + 1,
+    }));
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/projects/${project.id}/like`,
+        { method: "PUT" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to like project");
+      }
+
+      await refreshProjects();
+    } catch (error) {
+      console.error("Failed to like project:", error);
+
+      localStorage.removeItem(likedKey);
+      forceLikeRender((prev) => prev + 1);
+
+      setLocalLikesById((prev) => ({
+        ...prev,
+        [project.id]: previousLikes,
+      }));
+    }
+  };
 
   return (
     <main className="project-page">
       <button className="back-button" onClick={() => navigate(-1)}>
         ← Back
       </button>
+
       <div className="project-hero">
         {project.videoUrl && <VideoPlayer url={project.videoUrl} />}
-
         {project.audioUrl && <AudioPlayer url={project.audioUrl} />}
-
         {project.pdfUrl && <PdfViewer url={project.pdfUrl} />}
-
         {project.codeContent && <CodeViewer code={project.codeContent} />}
 
         {images.length > 0 && (
@@ -89,11 +124,13 @@ function ProjectPage() {
         <section className="project-main">
           <p className="project-category">{category}</p>
           <h1>{project.title}</h1>
+
           <div className="project-description">
             <FormattedText text={description} />
           </div>
 
           <div className="project-tags">
+            <hr className="content-divider"></hr>
             {tags.map((tag, index) => (
               <span key={`${tag}-${index}`} className="tag">
                 #{tag}
@@ -109,23 +146,7 @@ function ProjectPage() {
             <button
               className={`stat-item like-button ${hasLiked ? "liked" : ""}`}
               disabled={hasLiked}
-              onClick={async () => {
-                if (hasLiked) return;
-
-                try {
-                  await fetch(
-                    `http://localhost:8080/api/projects/${project.id}/like`,
-                    { method: "PUT" }
-                  );
-
-                  localStorage.setItem(`liked-${project.id}`, "true");
-                  setHasLiked(true);
-
-                  await refreshProjects();
-                } catch (error) {
-                  console.error("Failed to like project:", error);
-                }
-              }}
+              onClick={handleLike}
             >
               <ThumbsUp size={16} /> {likes}
             </button>
