@@ -94,13 +94,19 @@ function renderTextWithLists(text: string): ReactNode[] {
 
     flushList();
 
-    if (trimmed !== "") {
+    if (trimmed === "") {
+      // 👇 this creates spacing between paragraphs
       elements.push(
-        <p key={`paragraph-${index}`} className="content-paragraph">
-          {renderInlineText(trimmed)}
-        </p>
+        <div key={`spacer-${index}`} style={{ height: "0.8rem" }} />
       );
+      return;
     }
+
+    elements.push(
+      <p key={`paragraph-${index}`} className="content-paragraph">
+        {renderInlineText(trimmed)}
+      </p>
+    );
   });
 
   flushList();

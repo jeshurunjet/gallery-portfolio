@@ -87,13 +87,16 @@ function renderTextWithLists(text: string): ReactNode[] {
 
     flushList();
 
-    if (trimmed !== "") {
-      elements.push(
-        <p key={`p-${index}`} className="content-paragraph">
-          {renderInlineText(trimmed)}
-        </p>
-      );
+    if (trimmed === "") {
+      elements.push(<div key={`spacer-${index}`} className="content-spacer" />);
+      return;
     }
+
+    elements.push(
+      <p key={`p-${index}`} className="content-paragraph">
+        {renderInlineText(trimmed)}
+      </p>
+    );
   });
 
   flushList();
