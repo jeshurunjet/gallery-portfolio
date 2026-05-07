@@ -10,7 +10,8 @@ import java.util.Map;
 
 @CrossOrigin(origins = {
         "http://localhost:5173",
-        "https://jesh.nz/"
+        "https://jesh.nz/",
+        "https://gallery-portfolio-orpin.vercel.app/"
 })
 @RestController
 @RequestMapping("/api/upload")
