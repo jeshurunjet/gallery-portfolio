@@ -127,6 +127,9 @@ function ProjectForm({
           <option value="Graphic Design">Graphic Design</option>
           <option value="Audio Design">Audio Design</option>
           <option value="Frontend/Web Design">Frontend/Web Design</option>
+          <option value="Full-Stack/Web Development">
+            Full-Stack/Web Development
+          </option>
           <option value="Mobile Design">Mobile Design</option>
           <option value="Machine Learning">Machine Learning</option>
           <option value="Deep Learning">Deep Learning</option>
