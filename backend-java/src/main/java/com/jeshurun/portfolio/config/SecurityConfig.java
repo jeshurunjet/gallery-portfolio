@@ -50,6 +50,7 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
+                "https://www.jesh.nz/",
                 "https://jesh.nz/",
                 "https://gallery-portfolio-orpin.vercel.app/"
         ));
