@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProjectCard from "../components/ProjectCard";
 import useProjects from "../hooks/useProjects";
@@ -8,6 +8,7 @@ function HomePage() {
   const { projects } = useProjects();
   const search = searchParams.get("search") ?? "";
   const selectedTag = searchParams.get("tag");
+  const [showAllTags, setShowAllTags] = useState(false);
 
   const availableTags = useMemo(() => {
     const allTags = projects.flatMap((project) => project.tags);
@@ -51,6 +52,9 @@ function HomePage() {
     setSearchParams(nextParams);
   };
 
+  const visibleTags = showAllTags ? availableTags : availableTags.slice(0, 8);
+  const hiddenTagCount = availableTags.length - visibleTags.length;
+
   return (
     <main>
       <h1>Gallery</h1>
@@ -66,7 +70,7 @@ function HomePage() {
       </div>
 
       <div className="tag-filter">
-        {availableTags.map((tag) => (
+        {visibleTags.map((tag) => (
           <button
             key={tag}
             className={`tag-button ${selectedTag === tag ? "active" : ""}`}
@@ -76,6 +80,16 @@ function HomePage() {
             #{tag}
           </button>
         ))}
+
+        {availableTags.length > 8 && (
+          <button
+            className="tag-button tag-toggle-button"
+            onClick={() => setShowAllTags((prev) => !prev)}
+            type="button"
+          >
+            {showAllTags ? "Show less" : `+${hiddenTagCount} more`}
+          </button>
+        )}
       </div>
 
       {filteredProjects.length === 0 ? (
