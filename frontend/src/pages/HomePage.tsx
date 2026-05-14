@@ -2,10 +2,11 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProjectCard from "../components/ProjectCard";
 import useProjects from "../hooks/useProjects";
+import LoadingPage from "../components/LoadingPage";
 
 function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { projects } = useProjects();
+  const { projects, loading, progress } = useProjects();
   const search = searchParams.get("search") ?? "";
   const selectedTag = searchParams.get("tag");
   const [showAllTags, setShowAllTags] = useState(false);
@@ -13,7 +14,12 @@ function HomePage() {
   const availableTags = useMemo(() => {
     const allTags = projects.flatMap((project) => project.tags);
     return [...new Set(allTags)].sort();
+
+    // Loading page
   }, [projects]);
+  if (loading) {
+    return <LoadingPage progress={progress} />;
+  }
 
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =

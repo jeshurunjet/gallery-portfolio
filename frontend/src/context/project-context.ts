@@ -3,6 +3,8 @@ import type { Project } from "../data/projects";
 
 export type ProjectContextType = {
   projects: Project[];
+  loading: boolean;
+  progress: number;
   refreshProjects: () => Promise<void>;
   addProject: (project: Project) => void;
   updateProject: (project: Project) => void;

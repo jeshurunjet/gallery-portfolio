@@ -5,9 +5,21 @@ import { API_BASE_URL } from "../config";
 
 function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   const refreshProjects = async () => {
     try {
+      setLoading(true);
+      setProgress(15);
+
+      const fakeProgress = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 85) return prev;
+          return prev + 10;
+        });
+      }, 250);
+
       const response = await fetch(`${API_BASE_URL}/api/projects`);
 
       if (!response.ok) {
@@ -15,9 +27,18 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json();
-      setProjects(data);
+
+      clearInterval(fakeProgress);
+
+      setProgress(100);
+
+      setTimeout(() => {
+        setProjects(data);
+        setLoading(false);
+      }, 300);
     } catch (error) {
       console.error("Failed to refresh projects:", error);
+      setLoading(false);
     }
   };
 
@@ -138,6 +159,8 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
     <ProjectContext.Provider
       value={{
         projects,
+        loading,
+        progress,
         refreshProjects,
         addProject,
         updateProject,
