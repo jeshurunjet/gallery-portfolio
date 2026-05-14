@@ -8,7 +8,11 @@ function ResumePage() {
           <p>Graphic Designer / Web Designer / Software Engineer</p>
         </div>
 
-        <a href="/resume.pdf" className="resume-download" download>
+        <a
+          href="https://docs.google.com/document/d/1s7pvk6pstVVBFssVP_TyNfAvKNwUHkJzdhvS-wtD-48/edit?usp=drive_link"
+          className="resume-download"
+          download
+        >
           Download CV
         </a>
       </section>
@@ -28,10 +32,10 @@ function ResumePage() {
             <h2>Projects</h2>
 
             <div className="resume-item">
-              <h3>Gallery Portfolio</h3>
+              <h3>Gallery Portfolios</h3>
               <p>
-                Full-stack portfolio platform using React, Spring Boot, and
-                PostgreSQL.
+                Full-stack portfolio platforms using ReactJS, Spring Boot,
+                NodeJS, and PostgreSQL/PHP Laravel.
               </p>
             </div>
 
@@ -48,8 +52,21 @@ function ResumePage() {
             <h2>Education</h2>
 
             <div className="resume-item">
-              <h3>Postgraduate Diploma in Computer Sciences</h3>
-              <p>AUT — Machine Learning, Deep Learning, Data Mining</p>
+              <h3>Postgraduate Diploma in Computer & Information Sciences</h3>
+              <p>Level 8 · In Progress</p>
+              <p>Auckland University of Technology</p>
+            </div>
+
+            <div className="resume-item">
+              <h3>Diploma in Web & Software Development</h3>
+              <p>Level 7 · Completed</p>
+              <p>ATMC New Zealand, formerly Edenz Colleges Ltd.</p>
+            </div>
+
+            <div className="resume-item">
+              <h3>Bachelor of Arts in Multimedia Arts</h3>
+              <p>Level 7 · Completed</p>
+              <p>De La Salle - College of Saint Benilde</p>
             </div>
           </section>
         </div>
@@ -63,6 +80,11 @@ function ResumePage() {
               <span>Java</span>
               <span>Spring Boot</span>
               <span>Python</span>
+              <span>Machine Learning</span>
+              <span>PHP</span>
+              <span>Laravel</span>
+              <span>HTML/CSS</span>
+              <span>NodeJS</span>
               <span>PostgreSQL</span>
               <span>UI Design</span>
               <span>Graphic Design</span>

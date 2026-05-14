@@ -1846,6 +1846,8 @@ main {
   margin-bottom: 0.75rem;
 }
 
+/* ----- Resuume Format ----- */
+
 .about-page,
 .resume-page {
   max-width: 1100px;
@@ -1871,7 +1873,6 @@ main {
 .about-hero p,
 .resume-header p,
 .about-section p,
-.resume-section p,
 .resume-sidebar p {
   color: #555;
   line-height: 1.8;
@@ -1891,6 +1892,41 @@ main {
 .resume-section h2 {
   font-size: 1.1rem;
   margin-bottom: 1rem;
+}
+
+/* Resume content blocks */
+
+.resume-section {
+  border-bottom: 1px solid #ececec;
+  padding-bottom: 2rem;
+}
+
+.resume-section p {
+  color: #555;
+  line-height: 1.8;
+}
+
+.resume-item {
+  margin-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.resume-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.resume-item h3 {
+  font-size: 1rem;
+  color: #111;
+  line-height: 1.4;
+}
+
+.resume-item p {
+  margin-top: 0.35rem;
+  color: #666;
+  line-height: 1.6;
 }
 
 .about-card ul {
