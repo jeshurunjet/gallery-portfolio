@@ -127,7 +127,12 @@ public class ProjectController {
 
             if (publicId == null) return;
 
-            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            cloudinary.uploader().destroy(
+    publicId,
+    ObjectUtils.asMap(
+        "resource_type", "image"
+    )
+);
         } catch (Exception error) {
             System.out.println("Failed to delete Cloudinary image: " + imageUrl);
             error.printStackTrace();
@@ -135,25 +140,27 @@ public class ProjectController {
     }
 
     private String extractPublicId(String url) {
-        if (url == null || !url.contains("/upload/")) return null;
+    if (url == null || !url.contains("/upload/")) {
+        return null;
+    }
 
-        String[] parts = url.split("/upload/");
-        if (parts.length < 2) return null;
+    try {
+        String path = url.split("/upload/")[1];
 
-        String path = parts[1];
+        path = path.replaceFirst("v\\d+/", "");
 
-        if (path.startsWith("v")) {
-            int slashIndex = path.indexOf("/");
-            if (slashIndex != -1) {
-                path = path.substring(slashIndex + 1);
-            }
+        int extensionIndex = path.lastIndexOf(".");
+
+        if (extensionIndex != -1) {
+            path = path.substring(0, extensionIndex);
         }
 
-        int dotIndex = path.lastIndexOf(".");
-        if (dotIndex == -1) return path;
+        return path;
 
-        return path.substring(0, dotIndex);
+    } catch (Exception e) {
+        return null;
     }
+}
 
     private void syncTags(List<String> tags) {
         if (tags == null) return;

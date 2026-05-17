@@ -28,9 +28,13 @@ public class UploadController {
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
         @SuppressWarnings("unchecked")
-Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader().upload(
+Map<String, Object> uploadResult =
+(Map<String, Object>) cloudinary.uploader().upload(
         file.getBytes(),
-        ObjectUtils.emptyMap()
+        ObjectUtils.asMap(
+            "folder", "portfolio",
+            "resource_type", "image"
+        )
 );
             String imageUrl = (String) uploadResult.get("secure_url");
 
