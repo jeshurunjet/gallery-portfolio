@@ -300,7 +300,8 @@ function ProjectForm({
             <div className="admin-empty-state">
               <p>
                 No content blocks yet. Add paragraphs, images, quotes, and
-                layouts above.
+                layouts above. This also supports **bold**, *italic*,
+                __underline__, bullet lists, numbered lists, and --- separators.
               </p>
             </div>
           )}
