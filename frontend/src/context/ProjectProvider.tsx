@@ -3,6 +3,25 @@ import type { Project } from "../data/projects";
 import { ProjectContext } from "./project-context";
 import { API_BASE_URL } from "../config";
 
+function normalizeProject(project: Project): Project {
+  let parsedContent = [];
+
+  try {
+    if (typeof project.content === "string") {
+      parsedContent = JSON.parse(project.content);
+    } else if (Array.isArray(project.content)) {
+      parsedContent = project.content;
+    }
+  } catch {
+    parsedContent = [];
+  }
+
+  return {
+    ...project,
+    content: parsedContent,
+  };
+}
+
 function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,12 +45,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Failed to fetch projects");
       }
       const data = await response.json();
-      const parsedProjects = data.map((project: Project) => ({
-        ...project,
-        content: project.content
-          ? JSON.parse(project.content as unknown as string)
-          : [],
-      }));
+      const parsedProjects = data.map(normalizeProject);
 
       clearInterval(fakeProgress);
 
@@ -89,7 +103,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
       }
 
       const createdProject = await response.json();
-      setProjects((prev) => [...prev, createdProject]);
+      setProjects((prev) => [...prev, normalizeProject(createdProject)]);
     } catch (error) {
       console.error("Failed to add project:", error);
     }
@@ -136,9 +150,10 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
       }
 
       const savedProject = await response.json();
+      const normalizedProject = normalizeProject(savedProject);
 
       setProjects((prev) =>
-        prev.map((p) => (p.id === savedProject.id ? savedProject : p))
+        prev.map((p) => (p.id === normalizedProject.id ? normalizedProject : p))
       );
     } catch (error) {
       console.error("Failed to update project:", error);
