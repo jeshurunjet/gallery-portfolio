@@ -271,6 +271,102 @@ function ProjectForm({
         </small>
       </div>
 
+      <div className="content-block-section">
+        <div className="content-block-header">
+          <h3>Content Blocks</h3>
+          <p>Add extra layout sections below the main project description.</p>
+        </div>
+
+        <div className="content-toolbar">
+          <button type="button" onClick={() => addContentBlock("paragraph")}>
+            + Paragraph
+          </button>
+
+          <button type="button" onClick={() => addContentBlock("image")}>
+            + Image
+          </button>
+
+          <button type="button" onClick={() => addContentBlock("quote")}>
+            + Quote
+          </button>
+
+          <button type="button" onClick={() => addContentBlock("divider")}>
+            + Divider
+          </button>
+        </div>
+
+        <div className="content-editor-list">
+          {formData.content?.length === 0 && (
+            <div className="admin-empty-state">
+              <p>
+                No content blocks yet. Add paragraphs, images, quotes, and
+                layouts above.
+              </p>
+            </div>
+          )}
+          {formData.content?.map((block, index) => (
+            <div key={index} className="content-editor-card">
+              <div className="content-editor-card-header">
+                <p>Block {index + 1}</p>
+
+                <button
+                  type="button"
+                  className="content-editor-remove"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      content: prev.content.filter((_, i) => i !== index),
+                    }));
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+
+              {"text" in block && (
+                <textarea
+                  rows={4}
+                  value={block.text}
+                  onChange={(e) => {
+                    const updated = [...formData.content];
+
+                    updated[index] = {
+                      ...block,
+                      text: e.target.value,
+                    };
+
+                    setFormData((prev) => ({
+                      ...prev,
+                      content: updated,
+                    }));
+                  }}
+                />
+              )}
+
+              {"url" in block && (
+                <input
+                  placeholder="Image URL"
+                  value={block.url}
+                  onChange={(e) => {
+                    const updated = [...formData.content];
+
+                    updated[index] = {
+                      ...block,
+                      url: e.target.value,
+                    };
+
+                    setFormData((prev) => ({
+                      ...prev,
+                      content: updated,
+                    }));
+                  }}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="admin-form-group">
         <label htmlFor="tags">Tags</label>
         <input
@@ -514,102 +610,6 @@ function ProjectForm({
           value={formData.externalUrl}
           onChange={handleChange}
         />
-      </div>
-
-      <div className="content-block-section">
-        <div className="content-block-header">
-          <h3>Content Blocks</h3>
-          <p>Add extra layout sections below the main project description.</p>
-        </div>
-
-        <div className="content-toolbar">
-          <button type="button" onClick={() => addContentBlock("paragraph")}>
-            + Paragraph
-          </button>
-
-          <button type="button" onClick={() => addContentBlock("image")}>
-            + Image
-          </button>
-
-          <button type="button" onClick={() => addContentBlock("quote")}>
-            + Quote
-          </button>
-
-          <button type="button" onClick={() => addContentBlock("divider")}>
-            + Divider
-          </button>
-        </div>
-
-        <div className="content-editor-list">
-          {formData.content?.length === 0 && (
-            <div className="admin-empty-state">
-              <p>
-                No content blocks yet. Add paragraphs, images, quotes, and
-                layouts above.
-              </p>
-            </div>
-          )}
-          {formData.content?.map((block, index) => (
-            <div key={index} className="content-editor-card">
-              <div className="content-editor-card-header">
-                <p>Block {index + 1}</p>
-
-                <button
-                  type="button"
-                  className="content-editor-remove"
-                  onClick={() => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      content: prev.content.filter((_, i) => i !== index),
-                    }));
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-
-              {"text" in block && (
-                <textarea
-                  rows={4}
-                  value={block.text}
-                  onChange={(e) => {
-                    const updated = [...formData.content];
-
-                    updated[index] = {
-                      ...block,
-                      text: e.target.value,
-                    };
-
-                    setFormData((prev) => ({
-                      ...prev,
-                      content: updated,
-                    }));
-                  }}
-                />
-              )}
-
-              {"url" in block && (
-                <input
-                  placeholder="Image URL"
-                  value={block.url}
-                  onChange={(e) => {
-                    const updated = [...formData.content];
-
-                    updated[index] = {
-                      ...block,
-                      url: e.target.value,
-                    };
-
-                    setFormData((prev) => ({
-                      ...prev,
-                      content: updated,
-                    }));
-                  }}
-                />
-              )}
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="admin-form-actions">
