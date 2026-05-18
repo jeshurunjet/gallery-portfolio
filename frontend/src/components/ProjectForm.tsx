@@ -516,89 +516,92 @@ function ProjectForm({
         />
       </div>
 
-      <div className="admin-form-actions">
-        <button type="submit" className="admin-primary-button">
-          {submitLabel}
-        </button>
-      </div>
-      <div className="admin-form-group">
-        <h3>Content Blocks</h3>
+      <div className="content-block-section">
+        <div className="admin-form-group">
+          <h3>Content Blocks</h3>
 
-        <div className="content-toolbar">
-          <button type="button" onClick={() => addContentBlock("paragraph")}>
-            + Paragraph
-          </button>
+          <div className="content-toolbar">
+            <button type="button" onClick={() => addContentBlock("paragraph")}>
+              + Paragraph
+            </button>
 
-          <button type="button" onClick={() => addContentBlock("image")}>
-            + Image
-          </button>
+            <button type="button" onClick={() => addContentBlock("image")}>
+              + Image
+            </button>
 
-          <button type="button" onClick={() => addContentBlock("quote")}>
-            + Quote
-          </button>
+            <button type="button" onClick={() => addContentBlock("quote")}>
+              + Quote
+            </button>
 
-          <button type="button" onClick={() => addContentBlock("divider")}>
-            + Divider
-          </button>
-        </div>
-
-        {formData.content?.map((block, index) => (
-          <div key={index} className="content-editor-card">
-            <p>Block {index + 1}</p>
-
-            {"text" in block && (
-              <textarea
-                rows={4}
-                value={block.text}
-                onChange={(e) => {
-                  const updated = [...formData.content];
-
-                  updated[index] = {
-                    ...block,
-                    text: e.target.value,
-                  };
-
-                  setFormData((prev) => ({
-                    ...prev,
-                    content: updated,
-                  }));
-                }}
-              />
-            )}
-
-            {"url" in block && (
-              <input
-                placeholder="Image URL"
-                value={block.url}
-                onChange={(e) => {
-                  const updated = [...formData.content];
-
-                  updated[index] = {
-                    ...block,
-                    url: e.target.value,
-                  };
-
-                  setFormData((prev) => ({
-                    ...prev,
-                    content: updated,
-                  }));
-                }}
-              />
-            )}
-
-            <button
-              type="button"
-              onClick={() => {
-                setFormData((prev) => ({
-                  ...prev,
-                  content: prev.content.filter((_, i) => i !== index),
-                }));
-              }}
-            >
-              Remove
+            <button type="button" onClick={() => addContentBlock("divider")}>
+              + Divider
             </button>
           </div>
-        ))}
+          <div className="content-editor-list">
+            {formData.content?.map((block, index) => (
+              <div key={index} className="content-editor-card">
+                <p>Block {index + 1}</p>
+
+                {"text" in block && (
+                  <textarea
+                    rows={4}
+                    value={block.text}
+                    onChange={(e) => {
+                      const updated = [...formData.content];
+
+                      updated[index] = {
+                        ...block,
+                        text: e.target.value,
+                      };
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: updated,
+                      }));
+                    }}
+                  />
+                )}
+
+                {"url" in block && (
+                  <input
+                    placeholder="Image URL"
+                    value={block.url}
+                    onChange={(e) => {
+                      const updated = [...formData.content];
+
+                      updated[index] = {
+                        ...block,
+                        url: e.target.value,
+                      };
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: updated,
+                      }));
+                    }}
+                  />
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      content: prev.content.filter((_, i) => i !== index),
+                    }));
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="admin-form-actions">
+          <button type="submit" className="admin-primary-button">
+            {submitLabel}
+          </button>
+        </div>
       </div>
     </form>
   );
