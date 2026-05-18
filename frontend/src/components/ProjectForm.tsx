@@ -541,6 +541,14 @@ function ProjectForm({
         </div>
 
         <div className="content-editor-list">
+          {formData.content?.length === 0 && (
+            <div className="admin-empty-state">
+              <p>
+                No content blocks yet. Add paragraphs, images, quotes, and
+                layouts above.
+              </p>
+            </div>
+          )}
           {formData.content?.map((block, index) => (
             <div key={index} className="content-editor-card">
               <div className="content-editor-card-header">
