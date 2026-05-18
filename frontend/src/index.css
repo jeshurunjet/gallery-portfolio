@@ -2221,6 +2221,7 @@ main {
 /* ----- Content Block Editor - Admin Form ----- */
 
 .content-block-section {
+  margin-bottom: 5rem;
   margin-top: 1rem;
   padding: 1.25rem;
   border: 1px solid #ececec;
