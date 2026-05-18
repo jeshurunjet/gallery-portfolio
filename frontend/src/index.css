@@ -622,10 +622,10 @@ main {
 }
 
 .project-content-blocks {
-  margin-top: 2.75rem;
   display: flex;
   flex-direction: column;
-  gap: 1.35rem;
+  gap: 3rem;
+  margin-top: 2rem;
 }
 
 .content-spacer {
@@ -636,6 +636,7 @@ main {
   font-size: 1.5rem;
   line-height: 1.25;
   margin-top: 0.75rem;
+  margin-bottom: -1.5rem;
 }
 
 .content-subheading {
@@ -643,6 +644,7 @@ main {
   line-height: 1.4;
   color: #222;
   margin-top: 0.25rem;
+  margin-bottom: -1rem;
 }
 
 .content-paragraph {
@@ -654,6 +656,8 @@ main {
 
 .content-image-wrap {
   margin-top: 0.5rem;
+  border-radius: 18px;
+  overflow: hidden;
 }
 
 .content-image {
@@ -2127,4 +2131,107 @@ main {
 .footer-copy {
   font-size: 0.8rem;
   color: #888;
+}
+
+/* ----- POST IMPROVEMENTS - ----- */
+
+/* ----- Rich Content Layout Blocks ----- */
+
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+.content-two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 900px;
+}
+
+.content-column {
+  min-width: 0;
+}
+
+.content-media-text {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 2rem;
+  align-items: center;
+  max-width: 1000px;
+}
+
+.content-media-reverse {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+}
+
+.content-media-reverse .content-media-image {
+  order: 2;
+}
+
+.content-media-reverse .content-media-copy {
+  order: 1;
+}
+
+.content-media-copy .content-paragraph,
+.content-column .content-paragraph {
+  margin-bottom: 1rem;
+}
+
+.content-media-text-three {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 0.8fr);
+}
+
+.content-media-image {
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+  object-fit: cover;
+}
+
+.content-media-copy {
+  min-width: 0;
+}
+
+@media (max-width: 800px) {
+  .content-two-column,
+  .content-media-text,
+  .content-media-text-three,
+  .content-media-reverse {
+    grid-template-columns: 1fr;
+  }
+
+  .content-media-reverse .content-media-image,
+  .content-media-reverse .content-media-copy {
+    order: initial;
+  }
+}
+
+.content-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.content-editor-card {
+  padding: 1rem;
+  border: 1px solid #ececec;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  background: #fafafa;
 }

@@ -135,7 +135,11 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
         }
 
         if (block.type === "paragraph") {
-          return <div key={index}>{renderTextWithLists(block.text)}</div>;
+          return (
+            <div key={index} className={`text-${block.align ?? "left"}`}>
+              {renderTextWithLists(block.text)}
+            </div>
+          );
         }
 
         if (block.type === "quote") {
@@ -166,6 +170,71 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
 
         if (block.type === "divider") {
           return <hr key={index} className="content-divider" />;
+        }
+
+        // Improvements for twoColumn and mediaText types
+        if (block.type === "twoColumn") {
+          return (
+            <div key={index} className="content-two-column">
+              <div className={`content-column text-${block.align ?? "left"}`}>
+                {renderTextWithLists(block.left)}
+              </div>
+
+              <div className={`content-column text-${block.align ?? "left"}`}>
+                {renderTextWithLists(block.right)}
+              </div>
+            </div>
+          );
+        }
+
+        if (block.type === "mediaText") {
+          const alignmentClass = `text-${block.align ?? "left"}`;
+
+          if (block.layout === "image-text-image") {
+            return (
+              <div
+                key={index}
+                className="content-media-text content-media-text-three"
+              >
+                <img
+                  src={block.imageUrl}
+                  alt={block.imageAlt ?? ""}
+                  className="content-media-image"
+                />
+
+                <div className={`content-media-copy ${alignmentClass}`}>
+                  {renderTextWithLists(block.text)}
+                </div>
+
+                {block.imageUrlRight && (
+                  <img
+                    src={block.imageUrlRight}
+                    alt={block.imageAltRight ?? ""}
+                    className="content-media-image"
+                  />
+                )}
+              </div>
+            );
+          }
+
+          return (
+            <div
+              key={index}
+              className={`content-media-text ${
+                block.layout === "image-right" ? "content-media-reverse" : ""
+              }`}
+            >
+              <img
+                src={block.imageUrl}
+                alt={block.imageAlt ?? ""}
+                className="content-media-image"
+              />
+
+              <div className={`content-media-copy ${alignmentClass}`}>
+                {renderTextWithLists(block.text)}
+              </div>
+            </div>
+          );
         }
 
         if (block.type === "references") {

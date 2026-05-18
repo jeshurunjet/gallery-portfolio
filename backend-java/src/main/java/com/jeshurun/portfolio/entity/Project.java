@@ -49,6 +49,9 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     private String externalUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
     @ElementCollection
     private List<String> tags;
 
@@ -195,5 +198,13 @@ public class Project {
 
     public void setTypes(List<String> types) {
         this.types = types;
+    }
+
+    public String getContent() {
+    return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

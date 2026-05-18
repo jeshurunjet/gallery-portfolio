@@ -1,11 +1,29 @@
+export type TextAlignOption = "left" | "center" | "right" | "justify";
+
 export type ProjectContentBlock =
   | { type: "heading"; text: string }
   | { type: "subheading"; text: string }
-  | { type: "paragraph"; text: string }
+  | { type: "paragraph"; text: string; align?: TextAlignOption }
   | { type: "quote"; text: string }
-  | { type: "image"; url: string; alt: string }
+  | { type: "image"; url: string; alt: string; caption?: string }
   | { type: "list"; items: string[] }
   | { type: "divider" }
+  | {
+      type: "twoColumn";
+      left: string;
+      right: string;
+      align?: TextAlignOption;
+    }
+  | {
+      type: "mediaText";
+      layout: "image-left" | "image-right" | "image-text-image";
+      text: string;
+      imageUrl: string;
+      imageAlt?: string;
+      imageUrlRight?: string;
+      imageAltRight?: string;
+      align?: TextAlignOption;
+    }
   | {
       type: "references";
       items: { label: string; value: string }[];

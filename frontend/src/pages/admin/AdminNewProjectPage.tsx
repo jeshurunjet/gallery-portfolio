@@ -18,6 +18,7 @@ function AdminNewProjectPage() {
     title: "",
     category: "",
     description: "",
+    content: [],
     tags: "",
     cover: "",
     images: "",
@@ -65,6 +66,7 @@ function AdminNewProjectPage() {
       title: data.title,
       category: data.category,
       description: data.description,
+      content: data.content,
       tags: data.tags
         .split(",")
         .map((t) => t.trim().toLowerCase())

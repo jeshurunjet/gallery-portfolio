@@ -25,15 +25,20 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
       if (!response.ok) {
         throw new Error("Failed to fetch projects");
       }
-
       const data = await response.json();
+      const parsedProjects = data.map((project: Project) => ({
+        ...project,
+        content: project.content
+          ? JSON.parse(project.content as unknown as string)
+          : [],
+      }));
 
       clearInterval(fakeProgress);
 
       setProgress(100);
 
       setTimeout(() => {
-        setProjects(data);
+        setProjects(parsedProjects);
         setLoading(false);
       }, 300);
     } catch (error) {
@@ -60,6 +65,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
           title: project.title,
           category: project.category,
           description: project.description,
+          content: project.content ? JSON.stringify(project.content) : "",
           cover: project.cover,
           images: project.images ?? [],
           videoUrl: project.videoUrl ?? "",
@@ -103,6 +109,9 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
             title: updatedProject.title,
             category: updatedProject.category,
             description: updatedProject.description,
+            content: updatedProject.content
+              ? JSON.stringify(updatedProject.content)
+              : "",
             cover: updatedProject.cover,
             images: updatedProject.images ?? [],
             videoUrl: updatedProject.videoUrl ?? "",

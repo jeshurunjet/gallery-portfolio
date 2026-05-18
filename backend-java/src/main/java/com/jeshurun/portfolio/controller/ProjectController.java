@@ -54,6 +54,7 @@ public class ProjectController {
         existingProject.setTitle(updatedProject.getTitle());
         existingProject.setCategory(updatedProject.getCategory());
         existingProject.setDescription(updatedProject.getDescription());
+        existingProject.setContent(updatedProject.getContent());
         existingProject.setCover(updatedProject.getCover());
         existingProject.setImages(updatedProject.getImages());
         existingProject.setVideoUrl(updatedProject.getVideoUrl());

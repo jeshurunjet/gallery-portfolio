@@ -31,6 +31,7 @@ function AdminEditProjectPage() {
     title: project.title ?? "",
     category: project.category ?? "",
     description: project.description ?? "",
+    content: project.content ?? [],
     tags: (project.tags ?? []).join(", "),
     cover: project.cover ?? "",
     images: (project.images ?? []).join(", "),
@@ -85,6 +86,7 @@ function AdminEditProjectPage() {
       title: data.title,
       category: data.category,
       description: data.description,
+      content: data.content,
       tags: data.tags
         .split(",")
         .map((tag) => tag.trim().toLowerCase())

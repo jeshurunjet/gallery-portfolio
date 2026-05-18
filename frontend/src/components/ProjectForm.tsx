@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { API_BASE_URL } from "../config";
+import type { ProjectContentBlock } from "../data/projects";
 
 type ProjectFormData = {
   title: string;
   category: string;
   description: string;
+  content: ProjectContentBlock[];
   tags: string;
   cover: string;
   images: string;
@@ -31,6 +33,48 @@ function ProjectForm({
   onNotify,
 }: ProjectFormProps) {
   const [formData, setFormData] = useState<ProjectFormData>(initialData);
+
+  // content block
+  const addContentBlock = (
+    type: "paragraph" | "image" | "quote" | "divider"
+  ) => {
+    let block: ProjectContentBlock;
+
+    switch (type) {
+      case "paragraph":
+        block = {
+          type: "paragraph",
+          text: "",
+          align: "left",
+        };
+        break;
+
+      case "image":
+        block = {
+          type: "image",
+          url: "",
+          alt: "",
+        };
+        break;
+
+      case "quote":
+        block = {
+          type: "quote",
+          text: "",
+        };
+        break;
+
+      default:
+        block = {
+          type: "divider",
+        };
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      content: [...(prev.content ?? []), block],
+    }));
+  };
 
   const uploadImage = async (file: File) => {
     const formDataUpload = new FormData();
@@ -476,6 +520,85 @@ function ProjectForm({
         <button type="submit" className="admin-primary-button">
           {submitLabel}
         </button>
+      </div>
+      <div className="admin-form-group">
+        <h3>Content Blocks</h3>
+
+        <div className="content-toolbar">
+          <button type="button" onClick={() => addContentBlock("paragraph")}>
+            + Paragraph
+          </button>
+
+          <button type="button" onClick={() => addContentBlock("image")}>
+            + Image
+          </button>
+
+          <button type="button" onClick={() => addContentBlock("quote")}>
+            + Quote
+          </button>
+
+          <button type="button" onClick={() => addContentBlock("divider")}>
+            + Divider
+          </button>
+        </div>
+
+        {formData.content?.map((block, index) => (
+          <div key={index} className="content-editor-card">
+            <p>Block {index + 1}</p>
+
+            {"text" in block && (
+              <textarea
+                rows={4}
+                value={block.text}
+                onChange={(e) => {
+                  const updated = [...formData.content];
+
+                  updated[index] = {
+                    ...block,
+                    text: e.target.value,
+                  };
+
+                  setFormData((prev) => ({
+                    ...prev,
+                    content: updated,
+                  }));
+                }}
+              />
+            )}
+
+            {"url" in block && (
+              <input
+                placeholder="Image URL"
+                value={block.url}
+                onChange={(e) => {
+                  const updated = [...formData.content];
+
+                  updated[index] = {
+                    ...block,
+                    url: e.target.value,
+                  };
+
+                  setFormData((prev) => ({
+                    ...prev,
+                    content: updated,
+                  }));
+                }}
+              />
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setFormData((prev) => ({
+                  ...prev,
+                  content: prev.content.filter((_, i) => i !== index),
+                }));
+              }}
+            >
+              Remove
+            </button>
+          </div>
+        ))}
       </div>
     </form>
   );
