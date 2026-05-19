@@ -36,7 +36,13 @@ function ProjectForm({
 
   // content block
   const addContentBlock = (
-    type: "paragraph" | "image" | "quote" | "divider"
+    type:
+      | "paragraph"
+      | "image"
+      | "quote"
+      | "divider"
+      | "twoColumn"
+      | "mediaText"
   ) => {
     let block: ProjectContentBlock;
 
@@ -61,6 +67,28 @@ function ProjectForm({
         block = {
           type: "quote",
           text: "",
+        };
+        break;
+
+      case "twoColumn":
+        block = {
+          type: "twoColumn",
+          left: "",
+          right: "",
+          align: "left",
+        };
+        break;
+
+      case "mediaText":
+        block = {
+          type: "mediaText",
+          layout: "image-left",
+          imageUrl: "",
+          imageAlt: "",
+          imageUrlRight: "",
+          imageAltRight: "",
+          text: "",
+          align: "left",
         };
         break;
 
@@ -293,6 +321,13 @@ function ProjectForm({
           <button type="button" onClick={() => addContentBlock("divider")}>
             + Divider
           </button>
+          <button type="button" onClick={() => addContentBlock("twoColumn")}>
+            + Two Column
+          </button>
+
+          <button type="button" onClick={() => addContentBlock("mediaText")}>
+            + Media + Text
+          </button>
         </div>
 
         <div className="content-editor-list">
@@ -362,6 +397,186 @@ function ProjectForm({
                     }));
                   }}
                 />
+              )}
+
+              {block.type === "twoColumn" && (
+                <>
+                  <select
+                    value={block.align ?? "left"}
+                    onChange={(e) => {
+                      const updated = [...formData.content];
+
+                      updated[index] = {
+                        ...block,
+                        align: e.target.value as
+                          | "left"
+                          | "center"
+                          | "right"
+                          | "justify",
+                      };
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: updated,
+                      }));
+                    }}
+                  >
+                    <option value="left">Left align</option>
+                    <option value="center">Center align</option>
+                    <option value="right">Right align</option>
+                    <option value="justify">Justify</option>
+                  </select>
+
+                  <textarea
+                    rows={4}
+                    placeholder="Left column text"
+                    value={block.left}
+                    onChange={(e) => {
+                      const updated = [...formData.content];
+
+                      updated[index] = {
+                        ...block,
+                        left: e.target.value,
+                      };
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: updated,
+                      }));
+                    }}
+                  />
+
+                  <textarea
+                    rows={4}
+                    placeholder="Right column text"
+                    value={block.right}
+                    onChange={(e) => {
+                      const updated = [...formData.content];
+
+                      updated[index] = {
+                        ...block,
+                        right: e.target.value,
+                      };
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: updated,
+                      }));
+                    }}
+                  />
+                </>
+              )}
+              {block.type === "mediaText" && (
+                <>
+                  <select
+                    value={block.layout}
+                    onChange={(e) => {
+                      const updated = [...formData.content];
+
+                      updated[index] = {
+                        ...block,
+                        layout: e.target.value as
+                          | "image-left"
+                          | "image-right"
+                          | "image-text-image",
+                      };
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: updated,
+                      }));
+                    }}
+                  >
+                    <option value="image-left">Image left + text right</option>
+                    <option value="image-right">Text left + image right</option>
+                    <option value="image-text-image">
+                      Image + text + image
+                    </option>
+                  </select>
+
+                  <select
+                    value={block.align ?? "left"}
+                    onChange={(e) => {
+                      const updated = [...formData.content];
+
+                      updated[index] = {
+                        ...block,
+                        align: e.target.value as
+                          | "left"
+                          | "center"
+                          | "right"
+                          | "justify",
+                      };
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: updated,
+                      }));
+                    }}
+                  >
+                    <option value="left">Left align</option>
+                    <option value="center">Center align</option>
+                    <option value="right">Right align</option>
+                    <option value="justify">Justify</option>
+                  </select>
+
+                  <input
+                    placeholder="Left/main image URL"
+                    value={block.imageUrl}
+                    onChange={(e) => {
+                      const updated = [...formData.content];
+
+                      updated[index] = {
+                        ...block,
+                        imageUrl: e.target.value,
+                      };
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: updated,
+                      }));
+                    }}
+                  />
+
+                  <textarea
+                    rows={5}
+                    placeholder="Text beside image"
+                    value={block.text}
+                    onChange={(e) => {
+                      const updated = [...formData.content];
+
+                      updated[index] = {
+                        ...block,
+                        text: e.target.value,
+                      };
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: updated,
+                      }));
+                    }}
+                  />
+
+                  {block.layout === "image-text-image" && (
+                    <input
+                      placeholder="Right image URL"
+                      value={block.imageUrlRight ?? ""}
+                      onChange={(e) => {
+                        const updated = [...formData.content];
+
+                        updated[index] = {
+                          ...block,
+                          imageUrlRight: e.target.value,
+                        };
+
+                        setFormData((prev) => ({
+                          ...prev,
+                          content: updated,
+                        }));
+                      }}
+                    />
+                  )}
+                </>
               )}
             </div>
           ))}
