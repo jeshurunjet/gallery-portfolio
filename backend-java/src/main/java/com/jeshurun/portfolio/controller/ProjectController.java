@@ -6,6 +6,8 @@ import com.jeshurun.portfolio.entity.Project;
 import com.jeshurun.portfolio.repository.ProjectRepository;
 import com.jeshurun.portfolio.repository.TagRepository;
 import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
@@ -119,6 +121,7 @@ public class ProjectController {
             }
         }
 
+        deleteContentImages(project.getContent());
         projectRepository.deleteById(id);
     }
 
@@ -139,6 +142,42 @@ public class ProjectController {
             error.printStackTrace();
         }
     }
+
+    private void deleteContentImages(String contentJson) {
+    if (contentJson == null || contentJson.isBlank()) return;
+
+    try {
+        ObjectMapper mapper = new ObjectMapper();
+
+        JsonNode blocks = mapper.readTree(contentJson);
+
+        for (JsonNode block : blocks) {
+
+            String type = block.path("type").asText();
+
+            if ("image".equals(type)) {
+                deleteCloudinaryImage(
+                        block.path("url").asText()
+                );
+            }
+
+            if ("mediaText".equals(type)) {
+
+                deleteCloudinaryImage(
+                        block.path("imageUrl").asText()
+                );
+
+                deleteCloudinaryImage(
+                        block.path("imageUrlRight").asText()
+                );
+            }
+        }
+
+    } catch (Exception error) {
+        System.out.println("Failed parsing content blocks");
+        error.printStackTrace();
+    }
+}
 
     private String extractPublicId(String url) {
     if (url == null || !url.contains("/upload/")) {
