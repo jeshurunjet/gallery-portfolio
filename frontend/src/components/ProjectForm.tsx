@@ -26,6 +26,16 @@ type ProjectFormProps = {
   onNotify?: (message: string) => void;
 };
 
+type BlockType =
+  | "paragraph"
+  | "image"
+  | "quote"
+  | "divider"
+  | "twoColumn"
+  | "mediaText";
+
+type TextAlignOption = "left" | "center" | "right" | "justify";
+
 function ProjectForm({
   initialData,
   submitLabel,
@@ -34,16 +44,7 @@ function ProjectForm({
 }: ProjectFormProps) {
   const [formData, setFormData] = useState<ProjectFormData>(initialData);
 
-  // content block
-  const addContentBlock = (
-    type:
-      | "paragraph"
-      | "image"
-      | "quote"
-      | "divider"
-      | "twoColumn"
-      | "mediaText"
-  ) => {
+  const addContentBlock = (type: BlockType) => {
     let block: ProjectContentBlock;
 
     switch (type) {
@@ -104,6 +105,21 @@ function ProjectForm({
     }));
   };
 
+  const updateContentBlock = (
+    index: number,
+    updatedBlock: ProjectContentBlock
+  ) => {
+    setFormData((prev) => {
+      const updated = [...prev.content];
+      updated[index] = updatedBlock;
+
+      return {
+        ...prev,
+        content: updated,
+      };
+    });
+  };
+
   const uploadImage = async (file: File) => {
     const formDataUpload = new FormData();
     formDataUpload.append("file", file);
@@ -151,6 +167,8 @@ function ProjectForm({
     const end = textarea.selectionEnd;
     const currentValue = formData[field];
 
+    if (typeof currentValue !== "string") return;
+
     const selectedText = currentValue.slice(start, end);
     const replacement = selectedText
       ? `${before}${selectedText}${after}`
@@ -171,6 +189,27 @@ function ProjectForm({
         start + before.length + (selectedText || "Text").length
       );
     }, 0);
+  };
+
+  const uploadContentImage = async (
+    file: File,
+    onSuccess: (imageUrl: string) => void,
+    loadingMessage = "Uploading content image...",
+    successMessage = "Content image uploaded!",
+    errorMessage = "Content image upload failed."
+  ) => {
+    try {
+      onNotify?.(loadingMessage);
+
+      const imageUrl = await uploadImage(file);
+
+      onSuccess(imageUrl);
+
+      onNotify?.(successMessage);
+    } catch (error) {
+      console.error(error);
+      onNotify?.(errorMessage);
+    }
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -246,12 +285,11 @@ function ProjectForm({
             type="button"
             onClick={() => {
               const lines = formData.description.split("\n");
-
-              // Find last numbered item
               let lastNumber = 0;
 
               for (let i = lines.length - 1; i >= 0; i--) {
                 const match = lines[i].trim().match(/^(\d+)\.\s/);
+
                 if (match) {
                   lastNumber = parseInt(match[1], 10);
                   break;
@@ -321,6 +359,7 @@ function ProjectForm({
           <button type="button" onClick={() => addContentBlock("divider")}>
             + Divider
           </button>
+
           <button type="button" onClick={() => addContentBlock("twoColumn")}>
             + Two Column
           </button>
@@ -335,15 +374,18 @@ function ProjectForm({
             <div className="admin-empty-state">
               <p>
                 No content blocks yet. Add paragraphs, images, quotes, and
-                layouts above. This also supports **bold**, *italic*,
+                layouts above. Content blocks also support **bold**, *italic*,
                 __underline__, bullet lists, numbered lists, and --- separators.
               </p>
             </div>
           )}
+
           {formData.content?.map((block, index) => (
             <div key={index} className="content-editor-card">
               <div className="content-editor-card-header">
-                <p>Block {index + 1}</p>
+                <p>
+                  Block {index + 1}: <strong>{block.type}</strong>
+                </p>
 
                 <button
                   type="button"
@@ -362,41 +404,102 @@ function ProjectForm({
               {(block.type === "paragraph" || block.type === "quote") && (
                 <textarea
                   rows={4}
+                  placeholder={
+                    block.type === "quote"
+                      ? "Write quote text"
+                      : "Write paragraph text"
+                  }
                   value={block.text}
                   onChange={(e) => {
-                    const updated = [...formData.content];
-
-                    updated[index] = {
+                    updateContentBlock(index, {
                       ...block,
                       text: e.target.value,
-                    };
-
-                    setFormData((prev) => ({
-                      ...prev,
-                      content: updated,
-                    }));
+                    });
                   }}
                 />
               )}
 
-              {"url" in block && (
-                <input
-                  placeholder="Image URL"
-                  value={block.url}
+              {block.type === "paragraph" && (
+                <select
+                  value={block.align ?? "left"}
                   onChange={(e) => {
-                    const updated = [...formData.content];
-
-                    updated[index] = {
+                    updateContentBlock(index, {
                       ...block,
-                      url: e.target.value,
-                    };
-
-                    setFormData((prev) => ({
-                      ...prev,
-                      content: updated,
-                    }));
+                      align: e.target.value as TextAlignOption,
+                    });
                   }}
-                />
+                >
+                  <option value="left">Left align</option>
+                  <option value="center">Center align</option>
+                  <option value="right">Right align</option>
+                  <option value="justify">Justify</option>
+                </select>
+              )}
+
+              {block.type === "image" && (
+                <>
+                  <input
+                    placeholder="Image URL"
+                    value={block.url}
+                    onChange={(e) => {
+                      updateContentBlock(index, {
+                        ...block,
+                        url: e.target.value,
+                      });
+                    }}
+                  />
+
+                  <input
+                    placeholder="Image alt text"
+                    value={block.alt}
+                    onChange={(e) => {
+                      updateContentBlock(index, {
+                        ...block,
+                        alt: e.target.value,
+                      });
+                    }}
+                  />
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+
+                      await uploadContentImage(
+                        file,
+                        (imageUrl) => {
+                          updateContentBlock(index, {
+                            ...block,
+                            url: imageUrl,
+                          });
+                        },
+                        "Uploading content image...",
+                        "Content image uploaded!",
+                        "Content image upload failed."
+                      );
+                    }}
+                  />
+
+                  {block.url && (
+                    <div className="upload-preview">
+                      <img src={block.url} alt={block.alt || "Preview"} />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateContentBlock(index, {
+                            ...block,
+                            url: "",
+                          });
+                        }}
+                      >
+                        Remove image
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
 
               {block.type === "twoColumn" && (
@@ -404,21 +507,10 @@ function ProjectForm({
                   <select
                     value={block.align ?? "left"}
                     onChange={(e) => {
-                      const updated = [...formData.content];
-
-                      updated[index] = {
+                      updateContentBlock(index, {
                         ...block,
-                        align: e.target.value as
-                          | "left"
-                          | "center"
-                          | "right"
-                          | "justify",
-                      };
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: updated,
-                      }));
+                        align: e.target.value as TextAlignOption,
+                      });
                     }}
                   >
                     <option value="left">Left align</option>
@@ -432,17 +524,10 @@ function ProjectForm({
                     placeholder="Left column text"
                     value={block.left}
                     onChange={(e) => {
-                      const updated = [...formData.content];
-
-                      updated[index] = {
+                      updateContentBlock(index, {
                         ...block,
                         left: e.target.value,
-                      };
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: updated,
-                      }));
+                      });
                     }}
                   />
 
@@ -451,40 +536,27 @@ function ProjectForm({
                     placeholder="Right column text"
                     value={block.right}
                     onChange={(e) => {
-                      const updated = [...formData.content];
-
-                      updated[index] = {
+                      updateContentBlock(index, {
                         ...block,
                         right: e.target.value,
-                      };
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: updated,
-                      }));
+                      });
                     }}
                   />
                 </>
               )}
+
               {block.type === "mediaText" && (
                 <>
                   <select
                     value={block.layout}
                     onChange={(e) => {
-                      const updated = [...formData.content];
-
-                      updated[index] = {
+                      updateContentBlock(index, {
                         ...block,
                         layout: e.target.value as
                           | "image-left"
                           | "image-right"
                           | "image-text-image",
-                      };
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: updated,
-                      }));
+                      });
                     }}
                   >
                     <option value="image-left">Image left + text right</option>
@@ -497,21 +569,10 @@ function ProjectForm({
                   <select
                     value={block.align ?? "left"}
                     onChange={(e) => {
-                      const updated = [...formData.content];
-
-                      updated[index] = {
+                      updateContentBlock(index, {
                         ...block,
-                        align: e.target.value as
-                          | "left"
-                          | "center"
-                          | "right"
-                          | "justify",
-                      };
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: updated,
-                      }));
+                        align: e.target.value as TextAlignOption,
+                      });
                     }}
                   >
                     <option value="left">Left align</option>
@@ -524,57 +585,124 @@ function ProjectForm({
                     placeholder="Left/main image URL"
                     value={block.imageUrl}
                     onChange={(e) => {
-                      const updated = [...formData.content];
-
-                      updated[index] = {
+                      updateContentBlock(index, {
                         ...block,
                         imageUrl: e.target.value,
-                      };
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: updated,
-                      }));
+                      });
                     }}
                   />
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+
+                      await uploadContentImage(
+                        file,
+                        (imageUrl) => {
+                          updateContentBlock(index, {
+                            ...block,
+                            imageUrl,
+                          });
+                        },
+                        "Uploading media image...",
+                        "Media image uploaded!",
+                        "Media image upload failed."
+                      );
+                    }}
+                  />
+
+                  {block.imageUrl && (
+                    <div className="upload-preview">
+                      <img
+                        src={block.imageUrl}
+                        alt={block.imageAlt || "Media preview"}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateContentBlock(index, {
+                            ...block,
+                            imageUrl: "",
+                          });
+                        }}
+                      >
+                        Remove image
+                      </button>
+                    </div>
+                  )}
 
                   <textarea
                     rows={5}
                     placeholder="Text beside image"
                     value={block.text}
                     onChange={(e) => {
-                      const updated = [...formData.content];
-
-                      updated[index] = {
+                      updateContentBlock(index, {
                         ...block,
                         text: e.target.value,
-                      };
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: updated,
-                      }));
+                      });
                     }}
                   />
 
                   {block.layout === "image-text-image" && (
-                    <input
-                      placeholder="Right image URL"
-                      value={block.imageUrlRight ?? ""}
-                      onChange={(e) => {
-                        const updated = [...formData.content];
+                    <>
+                      <input
+                        placeholder="Right image URL"
+                        value={block.imageUrlRight ?? ""}
+                        onChange={(e) => {
+                          updateContentBlock(index, {
+                            ...block,
+                            imageUrlRight: e.target.value,
+                          });
+                        }}
+                      />
 
-                        updated[index] = {
-                          ...block,
-                          imageUrlRight: e.target.value,
-                        };
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
 
-                        setFormData((prev) => ({
-                          ...prev,
-                          content: updated,
-                        }));
-                      }}
-                    />
+                          await uploadContentImage(
+                            file,
+                            (imageUrl) => {
+                              updateContentBlock(index, {
+                                ...block,
+                                imageUrlRight: imageUrl,
+                              });
+                            },
+                            "Uploading right media image...",
+                            "Right media image uploaded!",
+                            "Right media image upload failed."
+                          );
+                        }}
+                      />
+
+                      {block.imageUrlRight && (
+                        <div className="upload-preview">
+                          <img
+                            src={block.imageUrlRight}
+                            alt={block.imageAltRight || "Right media preview"}
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateContentBlock(index, {
+                                ...block,
+                                imageUrlRight: "",
+                              });
+                            }}
+                          >
+                            Remove right image
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </>
               )}
@@ -604,6 +732,7 @@ function ProjectForm({
           value={formData.cover}
           onChange={handleChange}
         />
+
         <input
           type="file"
           accept="image/*"
@@ -627,6 +756,7 @@ function ProjectForm({
             }
           }}
         />
+
         {formData.cover && (
           <div className="upload-preview">
             <img src={formData.cover} alt="Cover preview" />
@@ -645,6 +775,7 @@ function ProjectForm({
           </div>
         )}
       </div>
+
       <div className="admin-form-group">
         <label htmlFor="images">Image Gallery URLs</label>
         <textarea
@@ -654,7 +785,9 @@ function ProjectForm({
           value={formData.images}
           onChange={handleChange}
         />
+
         <small>Separate multiple image URLs with commas.</small>
+
         <input
           type="file"
           accept="image/*"
@@ -672,20 +805,20 @@ function ProjectForm({
 
               const uploadedUrls = results
                 .filter(
-                  (r): r is PromiseFulfilledResult<string> =>
-                    r.status === "fulfilled"
+                  (result): result is PromiseFulfilledResult<string> =>
+                    result.status === "fulfilled"
                 )
-                .map((r) => r.value);
+                .map((result) => result.value);
 
               const failedCount = results.filter(
-                (r) => r.status === "rejected"
+                (result) => result.status === "rejected"
               ).length;
 
               setFormData((prev) => {
                 const existing = prev.images
                   ? prev.images
                       .split(",")
-                      .map((i) => i.trim())
+                      .map((image) => image.trim())
                       .filter(Boolean)
                   : [];
 
@@ -716,15 +849,16 @@ function ProjectForm({
             }
           }}
         />
+
         {formData.images && (
           <div className="upload-preview-grid">
             {formData.images
               .split(",")
-              .map((img) => img.trim())
+              .map((image) => image.trim())
               .filter(Boolean)
-              .map((img, index) => (
-                <div key={`${img}-${index}`} className="upload-preview-item">
-                  <img src={img} alt={`Gallery preview ${index + 1}`} />
+              .map((image, index) => (
+                <div key={`${image}-${index}`} className="upload-preview-item">
+                  <img src={image} alt={`Gallery preview ${index + 1}`} />
 
                   <button
                     type="button"
