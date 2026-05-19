@@ -359,7 +359,7 @@ function ProjectForm({
                 </button>
               </div>
 
-              {"text" in block && (
+              {(block.type === "paragraph" || block.type === "quote") && (
                 <textarea
                   rows={4}
                   value={block.text}
