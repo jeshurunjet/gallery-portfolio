@@ -27,6 +27,18 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
 
+  const handleAuthExpired = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("isAuth");
+
+    sessionStorage.setItem(
+      "authMessage",
+      "Your session has expired. Please log in again."
+    );
+
+    window.location.href = "/admin/login";
+  };
+
   const refreshProjects = async () => {
     try {
       setLoading(true);
@@ -44,6 +56,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
       if (!response.ok) {
         throw new Error("Failed to fetch projects");
       }
+
       const data = await response.json();
       const parsedProjects = data.map(normalizeProject);
 
@@ -96,6 +109,11 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
         }),
       });
 
+      if (response.status === 401) {
+        handleAuthExpired();
+        return;
+      }
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Backend create project error:", errorText);
@@ -143,6 +161,11 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
         }
       );
 
+      if (response.status === 401) {
+        handleAuthExpired();
+        return;
+      }
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Backend update project error:", errorText);
@@ -168,6 +191,11 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
+
+      if (response.status === 401) {
+        handleAuthExpired();
+        return;
+      }
 
       if (!response.ok) {
         throw new Error("Failed to delete project");
