@@ -16,7 +16,7 @@ export type ProjectContentBlock =
     }
   | {
       type: "mediaText";
-      layout: "image-left" | "image-right" | "image-text-image";
+      layout: "image-left" | "image-right" | "image-text-image" | "image-image";
       text: string;
       imageUrl: string;
       imageAlt?: string;

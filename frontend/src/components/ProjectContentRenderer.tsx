@@ -189,7 +189,28 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
 
         if (block.type === "mediaText") {
           const alignmentClass = `text-${block.align ?? "left"}`;
+          if (block.layout === "image-image") {
+            return (
+              <div
+                key={index}
+                className="content-media-text content-media-image-pair"
+              >
+                <img
+                  src={block.imageUrl}
+                  alt={block.imageAlt ?? ""}
+                  className="content-media-image"
+                />
 
+                {block.imageUrlRight && (
+                  <img
+                    src={block.imageUrlRight}
+                    alt={block.imageAltRight ?? ""}
+                    className="content-media-image"
+                  />
+                )}
+              </div>
+            );
+          }
           if (block.layout === "image-text-image") {
             return (
               <div

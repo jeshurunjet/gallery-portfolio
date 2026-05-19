@@ -1,4 +1,14 @@
 import { useState } from "react";
+import {
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
+  Images,
+  PanelLeft,
+  PanelRight,
+  PanelsLeftRight,
+} from "lucide-react";
 import { API_BASE_URL } from "../config";
 import type { ProjectContentBlock } from "../data/projects";
 
@@ -35,6 +45,12 @@ type BlockType =
   | "mediaText";
 
 type TextAlignOption = "left" | "center" | "right" | "justify";
+
+type MediaTextLayout =
+  | "image-left"
+  | "image-right"
+  | "image-text-image"
+  | "image-image";
 
 function ProjectForm({
   initialData,
@@ -132,11 +148,46 @@ function ProjectForm({
       body: formDataUpload,
     });
 
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("isAuth");
+
+      sessionStorage.setItem(
+        "authMessage",
+        "Your session has expired. Please log in again."
+      );
+
+      window.location.href = "/admin/login";
+
+      throw new Error("Session expired");
+    }
+
     if (!response.ok) {
       throw new Error("Upload failed");
     }
 
     return response.text();
+  };
+
+  const uploadContentImage = async (
+    file: File,
+    onSuccess: (imageUrl: string) => void,
+    loadingMessage = "Uploading content image...",
+    successMessage = "Content image uploaded!",
+    errorMessage = "Content image upload failed."
+  ) => {
+    try {
+      onNotify?.(loadingMessage);
+
+      const imageUrl = await uploadImage(file);
+
+      onSuccess(imageUrl);
+
+      onNotify?.(successMessage);
+    } catch (error) {
+      console.error(error);
+      onNotify?.(errorMessage);
+    }
   };
 
   const handleChange = (
@@ -170,6 +221,7 @@ function ProjectForm({
     if (typeof currentValue !== "string") return;
 
     const selectedText = currentValue.slice(start, end);
+
     const replacement = selectedText
       ? `${before}${selectedText}${after}`
       : `${before}Text${after}`;
@@ -191,30 +243,101 @@ function ProjectForm({
     }, 0);
   };
 
-  const uploadContentImage = async (
-    file: File,
-    onSuccess: (imageUrl: string) => void,
-    loadingMessage = "Uploading content image...",
-    successMessage = "Content image uploaded!",
-    errorMessage = "Content image upload failed."
-  ) => {
-    try {
-      onNotify?.(loadingMessage);
-
-      const imageUrl = await uploadImage(file);
-
-      onSuccess(imageUrl);
-
-      onNotify?.(successMessage);
-    } catch (error) {
-      console.error(error);
-      onNotify?.(errorMessage);
-    }
-  };
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     onSubmit(formData);
+  };
+
+  const renderAlignmentButtons = (
+    currentAlign: TextAlignOption | undefined,
+    onChange: (align: TextAlignOption) => void
+  ) => {
+    const options: {
+      value: TextAlignOption;
+      label: string;
+      icon: React.ReactNode;
+    }[] = [
+      { value: "left", label: "Left align", icon: <AlignLeft size={18} /> },
+      {
+        value: "center",
+        label: "Center align",
+        icon: <AlignCenter size={18} />,
+      },
+      { value: "right", label: "Right align", icon: <AlignRight size={18} /> },
+      {
+        value: "justify",
+        label: "Justify",
+        icon: <AlignJustify size={18} />,
+      },
+    ];
+
+    return (
+      <div className="editor-toggle-group" aria-label="Text alignment">
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            title={option.label}
+            className={`editor-toggle-button ${
+              (currentAlign ?? "left") === option.value ? "active" : ""
+            }`}
+            onClick={() => onChange(option.value)}
+          >
+            {option.icon}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
+  const renderMediaLayoutButtons = (
+    currentLayout: string,
+    onChange: (layout: MediaTextLayout) => void
+  ) => {
+    const options: {
+      value: MediaTextLayout;
+      label: string;
+      icon: React.ReactNode;
+    }[] = [
+      {
+        value: "image-left",
+        label: "Image left + text right",
+        icon: <PanelLeft size={18} />,
+      },
+      {
+        value: "image-right",
+        label: "Text left + image right",
+        icon: <PanelRight size={18} />,
+      },
+      {
+        value: "image-text-image",
+        label: "Image + text + image",
+        icon: <PanelsLeftRight size={18} />,
+      },
+      {
+        value: "image-image",
+        label: "Image + image",
+        icon: <Images size={18} />,
+      },
+    ];
+
+    return (
+      <div className="editor-toggle-group" aria-label="Media layout">
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            title={option.label}
+            className={`editor-toggle-button ${
+              currentLayout === option.value ? "active" : ""
+            }`}
+            onClick={() => onChange(option.value)}
+          >
+            {option.icon}
+          </button>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -410,41 +533,32 @@ function ProjectForm({
                       : "Write paragraph text"
                   }
                   value={block.text}
-                  onChange={(e) => {
+                  onChange={(event) => {
                     updateContentBlock(index, {
                       ...block,
-                      text: e.target.value,
+                      text: event.target.value,
                     });
                   }}
                 />
               )}
 
-              {block.type === "paragraph" && (
-                <select
-                  value={block.align ?? "left"}
-                  onChange={(e) => {
-                    updateContentBlock(index, {
-                      ...block,
-                      align: e.target.value as TextAlignOption,
-                    });
-                  }}
-                >
-                  <option value="left">Left align</option>
-                  <option value="center">Center align</option>
-                  <option value="right">Right align</option>
-                  <option value="justify">Justify</option>
-                </select>
-              )}
+              {block.type === "paragraph" &&
+                renderAlignmentButtons(block.align, (align) => {
+                  updateContentBlock(index, {
+                    ...block,
+                    align,
+                  });
+                })}
 
               {block.type === "image" && (
                 <>
                   <input
                     placeholder="Image URL"
                     value={block.url}
-                    onChange={(e) => {
+                    onChange={(event) => {
                       updateContentBlock(index, {
                         ...block,
-                        url: e.target.value,
+                        url: event.target.value,
                       });
                     }}
                   />
@@ -452,10 +566,10 @@ function ProjectForm({
                   <input
                     placeholder="Image alt text"
                     value={block.alt}
-                    onChange={(e) => {
+                    onChange={(event) => {
                       updateContentBlock(index, {
                         ...block,
-                        alt: e.target.value,
+                        alt: event.target.value,
                       });
                     }}
                   />
@@ -463,8 +577,8 @@ function ProjectForm({
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
+                    onChange={async (event) => {
+                      const file = event.target.files?.[0];
                       if (!file) return;
 
                       await uploadContentImage(
@@ -504,29 +618,21 @@ function ProjectForm({
 
               {block.type === "twoColumn" && (
                 <>
-                  <select
-                    value={block.align ?? "left"}
-                    onChange={(e) => {
-                      updateContentBlock(index, {
-                        ...block,
-                        align: e.target.value as TextAlignOption,
-                      });
-                    }}
-                  >
-                    <option value="left">Left align</option>
-                    <option value="center">Center align</option>
-                    <option value="right">Right align</option>
-                    <option value="justify">Justify</option>
-                  </select>
+                  {renderAlignmentButtons(block.align, (align) => {
+                    updateContentBlock(index, {
+                      ...block,
+                      align,
+                    });
+                  })}
 
                   <textarea
                     rows={4}
                     placeholder="Left column text"
                     value={block.left}
-                    onChange={(e) => {
+                    onChange={(event) => {
                       updateContentBlock(index, {
                         ...block,
-                        left: e.target.value,
+                        left: event.target.value,
                       });
                     }}
                   />
@@ -535,10 +641,10 @@ function ProjectForm({
                     rows={4}
                     placeholder="Right column text"
                     value={block.right}
-                    onChange={(e) => {
+                    onChange={(event) => {
                       updateContentBlock(index, {
                         ...block,
-                        right: e.target.value,
+                        right: event.target.value,
                       });
                     }}
                   />
@@ -547,47 +653,28 @@ function ProjectForm({
 
               {block.type === "mediaText" && (
                 <>
-                  <select
-                    value={block.layout}
-                    onChange={(e) => {
-                      updateContentBlock(index, {
-                        ...block,
-                        layout: e.target.value as
-                          | "image-left"
-                          | "image-right"
-                          | "image-text-image",
-                      });
-                    }}
-                  >
-                    <option value="image-left">Image left + text right</option>
-                    <option value="image-right">Text left + image right</option>
-                    <option value="image-text-image">
-                      Image + text + image
-                    </option>
-                  </select>
+                  {renderMediaLayoutButtons(block.layout, (layout) => {
+                    updateContentBlock(index, {
+                      ...block,
+                      layout,
+                    });
+                  })}
 
-                  <select
-                    value={block.align ?? "left"}
-                    onChange={(e) => {
+                  {block.layout !== "image-image" &&
+                    renderAlignmentButtons(block.align, (align) => {
                       updateContentBlock(index, {
                         ...block,
-                        align: e.target.value as TextAlignOption,
+                        align,
                       });
-                    }}
-                  >
-                    <option value="left">Left align</option>
-                    <option value="center">Center align</option>
-                    <option value="right">Right align</option>
-                    <option value="justify">Justify</option>
-                  </select>
+                    })}
 
                   <input
                     placeholder="Left/main image URL"
                     value={block.imageUrl}
-                    onChange={(e) => {
+                    onChange={(event) => {
                       updateContentBlock(index, {
                         ...block,
-                        imageUrl: e.target.value,
+                        imageUrl: event.target.value,
                       });
                     }}
                   />
@@ -595,8 +682,8 @@ function ProjectForm({
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
+                    onChange={async (event) => {
+                      const file = event.target.files?.[0];
                       if (!file) return;
 
                       await uploadContentImage(
@@ -635,27 +722,30 @@ function ProjectForm({
                     </div>
                   )}
 
-                  <textarea
-                    rows={5}
-                    placeholder="Text beside image"
-                    value={block.text}
-                    onChange={(e) => {
-                      updateContentBlock(index, {
-                        ...block,
-                        text: e.target.value,
-                      });
-                    }}
-                  />
+                  {block.layout !== "image-image" && (
+                    <textarea
+                      rows={5}
+                      placeholder="Text beside image"
+                      value={block.text}
+                      onChange={(event) => {
+                        updateContentBlock(index, {
+                          ...block,
+                          text: event.target.value,
+                        });
+                      }}
+                    />
+                  )}
 
-                  {block.layout === "image-text-image" && (
+                  {(block.layout === "image-text-image" ||
+                    block.layout === "image-image") && (
                     <>
                       <input
                         placeholder="Right image URL"
                         value={block.imageUrlRight ?? ""}
-                        onChange={(e) => {
+                        onChange={(event) => {
                           updateContentBlock(index, {
                             ...block,
-                            imageUrlRight: e.target.value,
+                            imageUrlRight: event.target.value,
                           });
                         }}
                       />
@@ -663,8 +753,8 @@ function ProjectForm({
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
+                        onChange={async (event) => {
+                          const file = event.target.files?.[0];
                           if (!file) return;
 
                           await uploadContentImage(
@@ -736,8 +826,8 @@ function ProjectForm({
         <input
           type="file"
           accept="image/*"
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
+          onChange={async (event) => {
+            const file = event.target.files?.[0];
             if (!file) return;
 
             try {
@@ -792,8 +882,8 @@ function ProjectForm({
           type="file"
           accept="image/*"
           multiple
-          onChange={async (e) => {
-            const files = e.target.files;
+          onChange={async (event) => {
+            const files = event.target.files;
             if (!files) return;
 
             try {

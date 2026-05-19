@@ -2354,3 +2354,47 @@ main {
     width: 100%;
   }
 }
+
+.editor-toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.editor-toggle-button {
+  width: 46px;
+  height: 46px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #111;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.editor-toggle-button:hover {
+  transform: translateY(-2px);
+  border-color: #111;
+}
+
+.editor-toggle-button.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+.content-media-image-pair {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 800px) {
+  .content-media-image-pair {
+    grid-template-columns: 1fr;
+  }
+}
