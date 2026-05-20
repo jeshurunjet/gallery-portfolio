@@ -80,7 +80,12 @@ function SortableItem({ id, children }: SortableItemProps) {
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="sortable-card">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="sortable-card"
+      data-dragging={transform ? "true" : "false"}
+    >
       <div className="drag-handle" {...attributes} {...listeners}>
         <GripVertical size={18} />
       </div>
