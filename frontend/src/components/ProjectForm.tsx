@@ -70,8 +70,14 @@ type SortableItemProps = {
 };
 
 function SortableItem({ id, children }: SortableItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -84,7 +90,7 @@ function SortableItem({ id, children }: SortableItemProps) {
       ref={setNodeRef}
       style={style}
       className="sortable-card"
-      data-dragging={transform ? "true" : "false"}
+      data-dragging={isDragging ? "true" : "false"}
     >
       <div className="drag-handle" {...attributes} {...listeners}>
         <GripVertical size={18} />
