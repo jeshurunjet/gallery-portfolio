@@ -2405,6 +2405,12 @@ main {
   align-items: stretch;
   width: 100%;
   min-width: 0;
+  transform-origin: top left;
+}
+
+.sortable-card[data-dragging="true"] {
+  opacity: 0.95;
+  width: 100%;
 }
 
 .sortable-card .content-editor-card {

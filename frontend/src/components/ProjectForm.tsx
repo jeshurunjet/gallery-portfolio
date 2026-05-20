@@ -69,36 +69,19 @@ type SortableItemProps = {
   children: React.ReactNode;
 };
 
-function SortableItem({
-  id,
-  children,
-}: SortableItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id });
+function SortableItem({ id, children }: SortableItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
 
   const style = {
-    transform: CSS.Transform.toString(
-      transform
-    ),
+    transform: CSS.Transform.toString(transform),
     transition,
+    width: "100%",
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="sortable-card"
-    >
-      <div
-        className="drag-handle"
-        {...attributes}
-        {...listeners}
-      >
+    <div ref={setNodeRef} style={style} className="sortable-card">
+      <div className="drag-handle" {...attributes} {...listeners}>
         <GripVertical size={18} />
       </div>
 
@@ -569,330 +552,330 @@ function ProjectForm({
         </div>
 
         <DndContext
-  collisionDetection={closestCenter}
-  onDragEnd={handleDragEnd}
->
-  <SortableContext
-    items={formData.content.map((_, i) => i.toString())}
-    strategy={verticalListSortingStrategy}
-  >
-    <div className="content-editor-list">
-          {formData.content?.length === 0 && (
-            <div className="admin-empty-state">
-              <p>
-                No content blocks yet. Add paragraphs, images, quotes, and
-                layouts above. Content blocks also support **bold**, *italic*,
-                __underline__, bullet lists, numbered lists, and --- separators.
-              </p>
-            </div>
-          )}
-
-          {formData.content?.map((block,index)=>(
-   <SortableItem
-      key={index}
-      id={index.toString()}
-   >
-            <div key={index} className="content-editor-card">
-              <div className="content-editor-card-header">
-                <p>
-                  Block {index + 1}: <strong>{block.type}</strong>
-                </p>
-
-                <button
-                  type="button"
-                  className="content-editor-remove"
-                  onClick={() => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      content: prev.content.filter((_, i) => i !== index),
-                    }));
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-
-              {(block.type === "paragraph" || block.type === "quote") && (
-                <textarea
-                  rows={4}
-                  placeholder={
-                    block.type === "quote"
-                      ? "Write quote text"
-                      : "Write paragraph text"
-                  }
-                  value={block.text}
-                  onChange={(event) => {
-                    updateContentBlock(index, {
-                      ...block,
-                      text: event.target.value,
-                    });
-                  }}
-                />
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={formData.content.map((_, i) => i.toString())}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="content-editor-list">
+              {formData.content?.length === 0 && (
+                <div className="admin-empty-state">
+                  <p>
+                    No content blocks yet. Add paragraphs, images, quotes, and
+                    layouts above. Content blocks also support **bold**,
+                    *italic*, __underline__, bullet lists, numbered lists, and
+                    --- separators.
+                  </p>
+                </div>
               )}
 
-              {block.type === "paragraph" &&
-                renderAlignmentButtons(block.align, (align) => {
-                  updateContentBlock(index, {
-                    ...block,
-                    align,
-                  });
-                })}
-
-              {block.type === "image" && (
-                <>
-                  <input
-                    placeholder="Image URL"
-                    value={block.url}
-                    onChange={(event) => {
-                      updateContentBlock(index, {
-                        ...block,
-                        url: event.target.value,
-                      });
-                    }}
-                  />
-
-                  <input
-                    placeholder="Image alt text"
-                    value={block.alt}
-                    onChange={(event) => {
-                      updateContentBlock(index, {
-                        ...block,
-                        alt: event.target.value,
-                      });
-                    }}
-                  />
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={async (event) => {
-                      const file = event.target.files?.[0];
-                      if (!file) return;
-
-                      await uploadContentImage(
-                        file,
-                        (imageUrl) => {
-                          updateContentBlock(index, {
-                            ...block,
-                            url: imageUrl,
-                          });
-                        },
-                        "Uploading content image...",
-                        "Content image uploaded!",
-                        "Content image upload failed."
-                      );
-                    }}
-                  />
-
-                  {block.url && (
-                    <div className="upload-preview">
-                      <img src={block.url} alt={block.alt || "Preview"} />
+              {formData.content?.map((block, index) => (
+                <SortableItem key={index} id={index.toString()}>
+                  <div key={index} className="content-editor-card">
+                    <div className="content-editor-card-header">
+                      <p>
+                        Block {index + 1}: <strong>{block.type}</strong>
+                      </p>
 
                       <button
                         type="button"
+                        className="content-editor-remove"
                         onClick={() => {
-                          updateContentBlock(index, {
-                            ...block,
-                            url: "",
-                          });
+                          setFormData((prev) => ({
+                            ...prev,
+                            content: prev.content.filter((_, i) => i !== index),
+                          }));
                         }}
                       >
-                        Remove image
+                        Remove
                       </button>
                     </div>
-                  )}
-                </>
-              )}
 
-              {block.type === "twoColumn" && (
-                <>
-                  {renderAlignmentButtons(block.align, (align) => {
-                    updateContentBlock(index, {
-                      ...block,
-                      align,
-                    });
-                  })}
-
-                  <textarea
-                    rows={4}
-                    placeholder="Left column text"
-                    value={block.left}
-                    onChange={(event) => {
-                      updateContentBlock(index, {
-                        ...block,
-                        left: event.target.value,
-                      });
-                    }}
-                  />
-
-                  <textarea
-                    rows={4}
-                    placeholder="Right column text"
-                    value={block.right}
-                    onChange={(event) => {
-                      updateContentBlock(index, {
-                        ...block,
-                        right: event.target.value,
-                      });
-                    }}
-                  />
-                </>
-              )}
-
-              {block.type === "mediaText" && (
-                <>
-                  {renderMediaLayoutButtons(block.layout, (layout) => {
-                    updateContentBlock(index, {
-                      ...block,
-                      layout,
-                    });
-                  })}
-
-                  {block.layout !== "image-image" &&
-                    renderAlignmentButtons(block.align, (align) => {
-                      updateContentBlock(index, {
-                        ...block,
-                        align,
-                      });
-                    })}
-
-                  <input
-                    placeholder="Left/main image URL"
-                    value={block.imageUrl}
-                    onChange={(event) => {
-                      updateContentBlock(index, {
-                        ...block,
-                        imageUrl: event.target.value,
-                      });
-                    }}
-                  />
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={async (event) => {
-                      const file = event.target.files?.[0];
-                      if (!file) return;
-
-                      await uploadContentImage(
-                        file,
-                        (imageUrl) => {
-                          updateContentBlock(index, {
-                            ...block,
-                            imageUrl,
-                          });
-                        },
-                        "Uploading media image...",
-                        "Media image uploaded!",
-                        "Media image upload failed."
-                      );
-                    }}
-                  />
-
-                  {block.imageUrl && (
-                    <div className="upload-preview">
-                      <img
-                        src={block.imageUrl}
-                        alt={block.imageAlt || "Media preview"}
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          updateContentBlock(index, {
-                            ...block,
-                            imageUrl: "",
-                          });
-                        }}
-                      >
-                        Remove image
-                      </button>
-                    </div>
-                  )}
-
-                  {block.layout !== "image-image" && (
-                    <textarea
-                      rows={5}
-                      placeholder="Text beside image"
-                      value={block.text}
-                      onChange={(event) => {
-                        updateContentBlock(index, {
-                          ...block,
-                          text: event.target.value,
-                        });
-                      }}
-                    />
-                  )}
-
-                  {(block.layout === "image-text-image" ||
-                    block.layout === "image-image") && (
-                    <>
-                      <input
-                        placeholder="Right image URL"
-                        value={block.imageUrlRight ?? ""}
+                    {(block.type === "paragraph" || block.type === "quote") && (
+                      <textarea
+                        rows={4}
+                        placeholder={
+                          block.type === "quote"
+                            ? "Write quote text"
+                            : "Write paragraph text"
+                        }
+                        value={block.text}
                         onChange={(event) => {
                           updateContentBlock(index, {
                             ...block,
-                            imageUrlRight: event.target.value,
+                            text: event.target.value,
                           });
                         }}
                       />
+                    )}
 
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={async (event) => {
-                          const file = event.target.files?.[0];
-                          if (!file) return;
+                    {block.type === "paragraph" &&
+                      renderAlignmentButtons(block.align, (align) => {
+                        updateContentBlock(index, {
+                          ...block,
+                          align,
+                        });
+                      })}
 
-                          await uploadContentImage(
-                            file,
-                            (imageUrl) => {
+                    {block.type === "image" && (
+                      <>
+                        <input
+                          placeholder="Image URL"
+                          value={block.url}
+                          onChange={(event) => {
+                            updateContentBlock(index, {
+                              ...block,
+                              url: event.target.value,
+                            });
+                          }}
+                        />
+
+                        <input
+                          placeholder="Image alt text"
+                          value={block.alt}
+                          onChange={(event) => {
+                            updateContentBlock(index, {
+                              ...block,
+                              alt: event.target.value,
+                            });
+                          }}
+                        />
+
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (event) => {
+                            const file = event.target.files?.[0];
+                            if (!file) return;
+
+                            await uploadContentImage(
+                              file,
+                              (imageUrl) => {
+                                updateContentBlock(index, {
+                                  ...block,
+                                  url: imageUrl,
+                                });
+                              },
+                              "Uploading content image...",
+                              "Content image uploaded!",
+                              "Content image upload failed."
+                            );
+                          }}
+                        />
+
+                        {block.url && (
+                          <div className="upload-preview">
+                            <img src={block.url} alt={block.alt || "Preview"} />
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                updateContentBlock(index, {
+                                  ...block,
+                                  url: "",
+                                });
+                              }}
+                            >
+                              Remove image
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {block.type === "twoColumn" && (
+                      <>
+                        {renderAlignmentButtons(block.align, (align) => {
+                          updateContentBlock(index, {
+                            ...block,
+                            align,
+                          });
+                        })}
+
+                        <textarea
+                          rows={4}
+                          placeholder="Left column text"
+                          value={block.left}
+                          onChange={(event) => {
+                            updateContentBlock(index, {
+                              ...block,
+                              left: event.target.value,
+                            });
+                          }}
+                        />
+
+                        <textarea
+                          rows={4}
+                          placeholder="Right column text"
+                          value={block.right}
+                          onChange={(event) => {
+                            updateContentBlock(index, {
+                              ...block,
+                              right: event.target.value,
+                            });
+                          }}
+                        />
+                      </>
+                    )}
+
+                    {block.type === "mediaText" && (
+                      <>
+                        {renderMediaLayoutButtons(block.layout, (layout) => {
+                          updateContentBlock(index, {
+                            ...block,
+                            layout,
+                          });
+                        })}
+
+                        {block.layout !== "image-image" &&
+                          renderAlignmentButtons(block.align, (align) => {
+                            updateContentBlock(index, {
+                              ...block,
+                              align,
+                            });
+                          })}
+
+                        <input
+                          placeholder="Left/main image URL"
+                          value={block.imageUrl}
+                          onChange={(event) => {
+                            updateContentBlock(index, {
+                              ...block,
+                              imageUrl: event.target.value,
+                            });
+                          }}
+                        />
+
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (event) => {
+                            const file = event.target.files?.[0];
+                            if (!file) return;
+
+                            await uploadContentImage(
+                              file,
+                              (imageUrl) => {
+                                updateContentBlock(index, {
+                                  ...block,
+                                  imageUrl,
+                                });
+                              },
+                              "Uploading media image...",
+                              "Media image uploaded!",
+                              "Media image upload failed."
+                            );
+                          }}
+                        />
+
+                        {block.imageUrl && (
+                          <div className="upload-preview">
+                            <img
+                              src={block.imageUrl}
+                              alt={block.imageAlt || "Media preview"}
+                            />
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                updateContentBlock(index, {
+                                  ...block,
+                                  imageUrl: "",
+                                });
+                              }}
+                            >
+                              Remove image
+                            </button>
+                          </div>
+                        )}
+
+                        {block.layout !== "image-image" && (
+                          <textarea
+                            rows={5}
+                            placeholder="Text beside image"
+                            value={block.text}
+                            onChange={(event) => {
                               updateContentBlock(index, {
                                 ...block,
-                                imageUrlRight: imageUrl,
-                              });
-                            },
-                            "Uploading right media image...",
-                            "Right media image uploaded!",
-                            "Right media image upload failed."
-                          );
-                        }}
-                      />
-
-                      {block.imageUrlRight && (
-                        <div className="upload-preview">
-                          <img
-                            src={block.imageUrlRight}
-                            alt={block.imageAltRight || "Right media preview"}
-                          />
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              updateContentBlock(index, {
-                                ...block,
-                                imageUrlRight: "",
+                                text: event.target.value,
                               });
                             }}
-                          >
-                            Remove right image
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </>
-              )}
+                          />
+                        )}
+
+                        {(block.layout === "image-text-image" ||
+                          block.layout === "image-image") && (
+                          <>
+                            <input
+                              placeholder="Right image URL"
+                              value={block.imageUrlRight ?? ""}
+                              onChange={(event) => {
+                                updateContentBlock(index, {
+                                  ...block,
+                                  imageUrlRight: event.target.value,
+                                });
+                              }}
+                            />
+
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={async (event) => {
+                                const file = event.target.files?.[0];
+                                if (!file) return;
+
+                                await uploadContentImage(
+                                  file,
+                                  (imageUrl) => {
+                                    updateContentBlock(index, {
+                                      ...block,
+                                      imageUrlRight: imageUrl,
+                                    });
+                                  },
+                                  "Uploading right media image...",
+                                  "Right media image uploaded!",
+                                  "Right media image upload failed."
+                                );
+                              }}
+                            />
+
+                            {block.imageUrlRight && (
+                              <div className="upload-preview">
+                                <img
+                                  src={block.imageUrlRight}
+                                  alt={
+                                    block.imageAltRight || "Right media preview"
+                                  }
+                                />
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    updateContentBlock(index, {
+                                      ...block,
+                                      imageUrlRight: "",
+                                    });
+                                  }}
+                                >
+                                  Remove right image
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </SortableItem>
+              ))}
             </div>
-            </SortableItem>
-          ))}
-        </div>
-        </SortableContext>
-</DndContext>
+          </SortableContext>
+        </DndContext>
       </div>
 
-  <div className="admin-form-group">
+      <div className="admin-form-group">
         <label htmlFor="tags">Tags</label>
         <input
           id="tags"
