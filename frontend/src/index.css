@@ -2278,6 +2278,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
 }
 
 .content-editor-card {
@@ -2288,6 +2289,8 @@ main {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .content-editor-card-header {
@@ -2418,8 +2421,12 @@ main {
 }
 
 .sortable-card[data-dragging="true"] {
-  opacity: 0.95;
-  z-index: 10;
+  opacity: 0.4;
+}
+
+.sortable-card[data-dragging="true"] .content-editor-card {
+  width: 100%;
+  min-width: 0;
 }
 
 .sortable-card .content-editor-card {
