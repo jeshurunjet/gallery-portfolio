@@ -2401,16 +2401,6 @@ main {
     grid-template-columns: 1fr;
   }
 }
-
-.sortable-card {
-  display: flex;
-  gap: 0.75rem;
-  align-items: stretch;
-  width: 100%;
-  min-width: 0;
-  transform-origin: top left;
-}
-
 .sortable-card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -2418,15 +2408,22 @@ main {
   align-items: start;
   width: 100%;
   min-width: 0;
+  position: relative;
 }
 
 .sortable-card[data-dragging="true"] {
-  opacity: 0.4;
+  opacity: 0.15;
 }
 
-.sortable-card[data-dragging="true"] .content-editor-card {
-  width: 100%;
-  min-width: 0;
+.sortable-card[data-dragging="true"]::after {
+  content: "";
+  position: absolute;
+  left: 3.25rem;
+  right: 0;
+  bottom: -0.55rem;
+  height: 3px;
+  border-radius: 999px;
+  background: #111;
 }
 
 .sortable-card .content-editor-card {
