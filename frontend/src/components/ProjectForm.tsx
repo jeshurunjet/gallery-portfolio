@@ -11,6 +11,18 @@ import {
 } from "lucide-react";
 import { API_BASE_URL } from "../config";
 import type { ProjectContentBlock } from "../data/projects";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import type { DragEndEvent } from "@dnd-kit/core";
+
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
 
 type ProjectFormData = {
   title: string;
@@ -52,6 +64,49 @@ type MediaTextLayout =
   | "image-text-image"
   | "image-image";
 
+type SortableItemProps = {
+  id: string;
+  children: React.ReactNode;
+};
+
+function SortableItem({
+  id,
+  children,
+}: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(
+      transform
+    ),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="sortable-card"
+    >
+      <div
+        className="drag-handle"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical size={18} />
+      </div>
+
+      {children}
+    </div>
+  );
+}
+
 function ProjectForm({
   initialData,
   submitLabel,
@@ -59,6 +114,27 @@ function ProjectForm({
   onNotify,
 }: ProjectFormProps) {
   const [formData, setFormData] = useState<ProjectFormData>(initialData);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    setFormData((prev) => {
+      const oldIndex = prev.content.findIndex(
+        (_, i) => i.toString() === active.id
+      );
+
+      const newIndex = prev.content.findIndex(
+        (_, i) => i.toString() === over.id
+      );
+
+      return {
+        ...prev,
+        content: arrayMove(prev.content, oldIndex, newIndex),
+      };
+    });
+  };
 
   const addContentBlock = (type: BlockType) => {
     let block: ProjectContentBlock;
@@ -492,7 +568,15 @@ function ProjectForm({
           </button>
         </div>
 
-        <div className="content-editor-list">
+        <DndContext
+  collisionDetection={closestCenter}
+  onDragEnd={handleDragEnd}
+>
+  <SortableContext
+    items={formData.content.map((_, i) => i.toString())}
+    strategy={verticalListSortingStrategy}
+  >
+    <div className="content-editor-list">
           {formData.content?.length === 0 && (
             <div className="admin-empty-state">
               <p>
@@ -503,7 +587,11 @@ function ProjectForm({
             </div>
           )}
 
-          {formData.content?.map((block, index) => (
+          {formData.content?.map((block,index)=>(
+   <SortableItem
+      key={index}
+      id={index.toString()}
+   >
             <div key={index} className="content-editor-card">
               <div className="content-editor-card-header">
                 <p>
@@ -797,11 +885,14 @@ function ProjectForm({
                 </>
               )}
             </div>
+            </SortableItem>
           ))}
         </div>
+        </SortableContext>
+</DndContext>
       </div>
 
-      <div className="admin-form-group">
+  <div className="admin-form-group">
         <label htmlFor="tags">Tags</label>
         <input
           id="tags"

@@ -2398,3 +2398,22 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+.sortable-card {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.drag-handle {
+  cursor: grab;
+  padding: 0.8rem;
+  border-radius: 12px;
+  background: #fafafa;
+  border: 1px solid #ececec;
+  margin-top: 1rem;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
