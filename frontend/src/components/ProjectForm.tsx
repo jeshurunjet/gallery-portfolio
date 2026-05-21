@@ -112,7 +112,9 @@ function ProjectForm({
   onNotify,
 }: ProjectFormProps) {
   const [formData, setFormData] = useState<ProjectFormData>(initialData);
-  const [collapsedBlocks, setCollapsedBlocks] = useState<number[]>([]);
+  const [collapsedBlocks, setCollapsedBlocks] = useState<number[]>(
+    initialData.content?.map((_, index) => index) ?? []
+  );
   const toggleBlockCollapse = (index: number) => {
     setCollapsedBlocks((prev) =>
       prev.includes(index)
@@ -328,6 +330,43 @@ function ProjectForm({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     onSubmit(formData);
+  };
+
+  const getBlockPreview = (block: ProjectContentBlock, index: number) => {
+    switch (block.type) {
+      case "paragraph":
+        return `Paragraph — ${block.text?.slice(0, 40) || "Empty"}...`;
+
+      case "quote":
+        return `Quote — "${block.text?.slice(0, 30) || "Empty"}..."`;
+
+      case "image":
+        return "Image block";
+
+      case "twoColumn":
+        return "Two column layout";
+
+      case "mediaText":
+        switch (block.layout) {
+          case "image-left":
+            return "Media: image + text";
+
+          case "image-right":
+            return "Media: text + image";
+
+          case "image-text-image":
+            return "Media: image + text + image";
+
+          case "image-image":
+            return "Media: image + image";
+
+          default:
+            return "Media block";
+        }
+
+      default:
+        return `Block ${index + 1}`;
+    }
   };
 
   const renderAlignmentButtons = (
@@ -609,9 +648,7 @@ function ProjectForm({
                           <ChevronDown size={17} />
                         )}
 
-                        <span>
-                          Block {index + 1}: <strong>{block.type}</strong>
-                        </span>
+                        <span>{getBlockPreview(block, index)}</span>
                       </button>
 
                       <button
