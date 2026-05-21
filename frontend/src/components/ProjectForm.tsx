@@ -1279,7 +1279,7 @@ function ProjectForm({
         "Live demo, GitHub and external links."
       )}
 
-      {!collapsedSections.includes("code") && (
+      {!collapsedSections.includes("links") && (
         <>
           <div className="admin-form-grid">
             <div className="admin-form-group">
