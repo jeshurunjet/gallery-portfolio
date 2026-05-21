@@ -254,7 +254,7 @@ function ProjectForm({
         "Your session has expired. Please log in again."
       );
 
-      window.location.href = "/admin/login";
+      window.location.replace("/admin/login");
 
       throw new Error("Session expired");
     }
@@ -527,6 +527,197 @@ function ProjectForm({
     );
   };
 
+  const renderGallerySection = () => (
+    <>
+      {renderSectionHeader(
+        "gallery",
+        "Gallery Images",
+        "Optional extra images for the project page."
+      )}
+      {!collapsedSections.includes("gallery") && (
+        <div className="admin-form-group">
+          <label htmlFor="images">Image Gallery URLs</label>
+          <textarea
+            id="images"
+            rows={3}
+            placeholder="Paste image URLs separated by commas"
+            value={formData.images}
+            onChange={handleChange}
+          />
+
+          <small>Separate multiple image URLs with commas.</small>
+
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={async (event) => {
+              const files = event.target.files;
+              if (!files) return;
+
+              try {
+                onNotify?.("Uploading gallery images...");
+
+                const results = await Promise.allSettled(
+                  Array.from(files).map((file) => uploadImage(file))
+                );
+
+                const uploadedUrls = results
+                  .filter(
+                    (result): result is PromiseFulfilledResult<string> =>
+                      result.status === "fulfilled"
+                  )
+                  .map((result) => result.value);
+
+                const failedCount = results.filter(
+                  (result) => result.status === "rejected"
+                ).length;
+
+                setFormData((prev) => {
+                  const existing = prev.images
+                    ? prev.images
+                        .split(",")
+                        .map((image) => image.trim())
+                        .filter(Boolean)
+                    : [];
+
+                  const combined = [...existing, ...uploadedUrls];
+
+                  return {
+                    ...prev,
+                    images: combined.join(", "),
+                  };
+                });
+
+                if (uploadedUrls.length > 0 && failedCount === 0) {
+                  onNotify?.(`${uploadedUrls.length} image(s) uploaded!`);
+                }
+
+                if (uploadedUrls.length > 0 && failedCount > 0) {
+                  onNotify?.(
+                    `${uploadedUrls.length} uploaded, ${failedCount} failed.`
+                  );
+                }
+
+                if (uploadedUrls.length === 0 && failedCount > 0) {
+                  onNotify?.("All uploads failed. Please try again.");
+                }
+              } catch (error) {
+                console.error("Upload failed", error);
+                onNotify?.("Unexpected error during upload.");
+              }
+            }}
+          />
+
+          {formData.images && (
+            <div className="upload-preview-grid">
+              {formData.images
+                .split(",")
+                .map((image) => image.trim())
+                .filter(Boolean)
+                .map((image, index) => (
+                  <div
+                    key={`${image}-${index}`}
+                    className="upload-preview-item"
+                  >
+                    <img src={image} alt={`Gallery preview ${index + 1}`} />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const remainingImages = formData.images
+                          .split(",")
+                          .map((item) => item.trim())
+                          .filter(Boolean)
+                          .filter((_, itemIndex) => itemIndex !== index);
+
+                        setFormData((prev) => ({
+                          ...prev,
+                          images: remainingImages.join(", "),
+                        }));
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+
+  const renderMediaSection = () => (
+    <>
+      {renderSectionHeader(
+        "media",
+        "Media Content",
+        "Video, audio and PDF resources."
+      )}
+
+      {!collapsedSections.includes("media") && (
+        <>
+          <div className="admin-form-group">
+            <label htmlFor="videoUrl">Video URL</label>
+            <input
+              id="videoUrl"
+              type="text"
+              placeholder="YouTube, Vimeo, or video link"
+              value={formData.videoUrl}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="admin-form-group">
+            <label htmlFor="audioUrl">Audio URL</label>
+            <input
+              id="audioUrl"
+              type="text"
+              placeholder="SoundCloud or audio link"
+              value={formData.audioUrl}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="admin-form-group">
+            <label htmlFor="pdfUrl">PDF URL</label>
+            <input
+              id="pdfUrl"
+              type="text"
+              placeholder="/pdfs/sample-report.pdf or https://example.com/file.pdf"
+              value={formData.pdfUrl}
+              onChange={handleChange}
+            />
+          </div>
+        </>
+      )}
+    </>
+  );
+
+  const renderCodeSection = () => (
+    <>
+      {renderSectionHeader(
+        "code",
+        "Code Preview",
+        "Optional code snippets or source content."
+      )}
+
+      {!collapsedSections.includes("code") && (
+        <div className="admin-form-group">
+          <label htmlFor="codeContent">Code Content</label>
+          <textarea
+            id="codeContent"
+            rows={6}
+            placeholder="Paste code here if this project has a code preview"
+            value={formData.codeContent}
+            onChange={handleChange}
+          />
+        </div>
+      )}
+    </>
+  );
+
   return (
     <form className="admin-form" onSubmit={handleSubmit}>
       <div className="admin-form-group">
@@ -644,6 +835,11 @@ function ProjectForm({
           lists, and --- separators.
         </small>
       </div>
+
+      {renderGallerySection()}
+      {renderMediaSection()}
+      {renderCodeSection()}
+
       <div className="content-block-section">
         <div className="content-block-header">
           <h3>Content Blocks</h3>
@@ -1098,181 +1294,6 @@ function ProjectForm({
         )}
       </div>
 
-      {renderSectionHeader(
-        "gallery",
-        "Gallery Images",
-        "Optional extra images for the project page."
-      )}
-      {!collapsedSections.includes("gallery") && (
-        <div className="admin-form-group">
-          <label htmlFor="images">Image Gallery URLs</label>
-          <textarea
-            id="images"
-            rows={3}
-            placeholder="Paste image URLs separated by commas"
-            value={formData.images}
-            onChange={handleChange}
-          />
-
-          <small>Separate multiple image URLs with commas.</small>
-
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={async (event) => {
-              const files = event.target.files;
-              if (!files) return;
-
-              try {
-                onNotify?.("Uploading gallery images...");
-
-                const results = await Promise.allSettled(
-                  Array.from(files).map((file) => uploadImage(file))
-                );
-
-                const uploadedUrls = results
-                  .filter(
-                    (result): result is PromiseFulfilledResult<string> =>
-                      result.status === "fulfilled"
-                  )
-                  .map((result) => result.value);
-
-                const failedCount = results.filter(
-                  (result) => result.status === "rejected"
-                ).length;
-
-                setFormData((prev) => {
-                  const existing = prev.images
-                    ? prev.images
-                        .split(",")
-                        .map((image) => image.trim())
-                        .filter(Boolean)
-                    : [];
-
-                  const combined = [...existing, ...uploadedUrls];
-
-                  return {
-                    ...prev,
-                    images: combined.join(", "),
-                  };
-                });
-
-                if (uploadedUrls.length > 0 && failedCount === 0) {
-                  onNotify?.(`${uploadedUrls.length} image(s) uploaded!`);
-                }
-
-                if (uploadedUrls.length > 0 && failedCount > 0) {
-                  onNotify?.(
-                    `${uploadedUrls.length} uploaded, ${failedCount} failed.`
-                  );
-                }
-
-                if (uploadedUrls.length === 0 && failedCount > 0) {
-                  onNotify?.("All uploads failed. Please try again.");
-                }
-              } catch (error) {
-                console.error("Upload failed", error);
-                onNotify?.("Unexpected error during upload.");
-              }
-            }}
-          />
-
-          {formData.images && (
-            <div className="upload-preview-grid">
-              {formData.images
-                .split(",")
-                .map((image) => image.trim())
-                .filter(Boolean)
-                .map((image, index) => (
-                  <div
-                    key={`${image}-${index}`}
-                    className="upload-preview-item"
-                  >
-                    <img src={image} alt={`Gallery preview ${index + 1}`} />
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const remainingImages = formData.images
-                          .split(",")
-                          .map((item) => item.trim())
-                          .filter(Boolean)
-                          .filter((_, itemIndex) => itemIndex !== index);
-
-                        setFormData((prev) => ({
-                          ...prev,
-                          images: remainingImages.join(", "),
-                        }));
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
-      )}
-      {renderSectionHeader(
-        "media",
-        "Media Content",
-        "Video, audio and PDF resources."
-      )}
-
-      {!collapsedSections.includes("media") && (
-        <>
-          <div className="admin-form-group">
-            <label htmlFor="videoUrl">Video URL</label>
-            <input
-              id="videoUrl"
-              type="text"
-              placeholder="YouTube, Vimeo, or video link"
-              value={formData.videoUrl}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="admin-form-group">
-            <label htmlFor="audioUrl">Audio URL</label>
-            <input
-              id="audioUrl"
-              type="text"
-              placeholder="SoundCloud or audio link"
-              value={formData.audioUrl}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="admin-form-group">
-            <label htmlFor="pdfUrl">PDF URL</label>
-            <input
-              id="pdfUrl"
-              type="text"
-              placeholder="/pdfs/sample-report.pdf or https://example.com/file.pdf"
-              value={formData.pdfUrl}
-              onChange={handleChange}
-            />
-          </div>
-        </>
-      )}
-      {renderSectionHeader(
-        "code",
-        "Code Preview",
-        "Optional code snippets or source content."
-      )}
-
-      {!collapsedSections.includes("code") && (
-        <div className="admin-form-group">
-          <label htmlFor="codeContent">Code Content</label>
-          <textarea
-            id="codeContent"
-            rows={6}
-            placeholder="Paste code here if this project has a code preview"
-            value={formData.codeContent}
-            onChange={handleChange}
-          />
-        </div>
-      )}
       {renderSectionHeader(
         "links",
         "Project Links",
