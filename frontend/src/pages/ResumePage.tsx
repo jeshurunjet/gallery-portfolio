@@ -9,7 +9,7 @@ function ResumePage() {
         </div>
 
         <a
-          href="https://docs.google.com/document/d/1s7pvk6pstVVBFssVP_TyNfAvKNwUHkJzdhvS-wtD-48/edit?usp=drive_link"
+          href="https://docs.google.com/document/d/1s7pvk6pstVVBFssVP_TyNfAvKNwUHkJzdhvS-wtD-48/edit?usp=sharing"
           className="resume-download"
           download
         >
