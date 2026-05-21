@@ -1097,7 +1097,7 @@ function ProjectForm({
           </div>
         )}
       </div>
-      // ------------------------- GALLERY SECTION
+
       {renderSectionHeader(
         "gallery",
         "Gallery Images",
@@ -1214,7 +1214,7 @@ function ProjectForm({
           )}
         </div>
       )}
-      // ------------------------- VIDEO SECTION
+
       <div className="admin-form-group">
         <label htmlFor="videoUrl">Video URL</label>
         <input
@@ -1225,7 +1225,7 @@ function ProjectForm({
           onChange={handleChange}
         />
       </div>
-      // ------------------------- AUDIO SECTION
+
       <div className="admin-form-group">
         <label htmlFor="audioUrl">Audio URL</label>
         <input
