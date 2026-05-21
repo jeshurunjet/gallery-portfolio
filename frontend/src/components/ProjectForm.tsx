@@ -1214,81 +1214,108 @@ function ProjectForm({
           )}
         </div>
       )}
+      {renderSectionHeader(
+        "media",
+        "Media Content",
+        "Video, audio and PDF resources."
+      )}
 
-      <div className="admin-form-group">
-        <label htmlFor="videoUrl">Video URL</label>
-        <input
-          id="videoUrl"
-          type="text"
-          placeholder="YouTube, Vimeo, or video link"
-          value={formData.videoUrl}
-          onChange={handleChange}
-        />
-      </div>
+      {!collapsedSections.includes("media") && (
+        <>
+          <div className="admin-form-group">
+            <label htmlFor="videoUrl">Video URL</label>
+            <input
+              id="videoUrl"
+              type="text"
+              placeholder="YouTube, Vimeo, or video link"
+              value={formData.videoUrl}
+              onChange={handleChange}
+            />
+          </div>
 
-      <div className="admin-form-group">
-        <label htmlFor="audioUrl">Audio URL</label>
-        <input
-          id="audioUrl"
-          type="text"
-          placeholder="SoundCloud or audio link"
-          value={formData.audioUrl}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="admin-form-group">
-        <label htmlFor="pdfUrl">PDF URL</label>
-        <input
-          id="pdfUrl"
-          type="text"
-          placeholder="/pdfs/sample-report.pdf or https://example.com/file.pdf"
-          value={formData.pdfUrl}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="admin-form-group">
-        <label htmlFor="codeContent">Code Content</label>
-        <textarea
-          id="codeContent"
-          rows={6}
-          placeholder="Paste code here if this project has a code preview"
-          value={formData.codeContent}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="admin-form-grid">
+          <div className="admin-form-group">
+            <label htmlFor="audioUrl">Audio URL</label>
+            <input
+              id="audioUrl"
+              type="text"
+              placeholder="SoundCloud or audio link"
+              value={formData.audioUrl}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="admin-form-group">
+            <label htmlFor="pdfUrl">PDF URL</label>
+            <input
+              id="pdfUrl"
+              type="text"
+              placeholder="/pdfs/sample-report.pdf or https://example.com/file.pdf"
+              value={formData.pdfUrl}
+              onChange={handleChange}
+            />
+          </div>
+        </>
+      )}
+      {renderSectionHeader(
+        "code",
+        "Code Preview",
+        "Optional code snippets or source content."
+      )}
+
+      {!collapsedSections.includes("code") && (
         <div className="admin-form-group">
-          <label htmlFor="liveUrl">Live Demo URL</label>
-          <input
-            id="liveUrl"
-            type="text"
-            placeholder="https://your-live-demo.com"
-            value={formData.liveUrl}
+          <label htmlFor="codeContent">Code Content</label>
+          <textarea
+            id="codeContent"
+            rows={6}
+            placeholder="Paste code here if this project has a code preview"
+            value={formData.codeContent}
             onChange={handleChange}
           />
         </div>
+      )}
+      {renderSectionHeader(
+        "links",
+        "Project Links",
+        "Live demo, GitHub and external links."
+      )}
 
-        <div className="admin-form-group">
-          <label htmlFor="githubUrl">GitHub URL</label>
-          <input
-            id="githubUrl"
-            type="text"
-            placeholder="https://github.com/yourusername/project"
-            value={formData.githubUrl}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-      <div className="admin-form-group">
-        <label htmlFor="externalUrl">External URL</label>
-        <input
-          id="externalUrl"
-          type="text"
-          placeholder="https://figma.com/... or another external link"
-          value={formData.externalUrl}
-          onChange={handleChange}
-        />
-      </div>
+      {!collapsedSections.includes("code") && (
+        <>
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label htmlFor="liveUrl">Live Demo URL</label>
+              <input
+                id="liveUrl"
+                type="text"
+                placeholder="https://your-live-demo.com"
+                value={formData.liveUrl}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="admin-form-group">
+              <label htmlFor="githubUrl">GitHub URL</label>
+              <input
+                id="githubUrl"
+                type="text"
+                placeholder="https://github.com/yourusername/project"
+                value={formData.githubUrl}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          <div className="admin-form-group">
+            <label htmlFor="externalUrl">External URL</label>
+            <input
+              id="externalUrl"
+              type="text"
+              placeholder="https://figma.com/... or another external link"
+              value={formData.externalUrl}
+              onChange={handleChange}
+            />
+          </div>
+        </>
+      )}
       <div className="admin-form-actions">
         <button type="submit" className="admin-primary-button">
           {submitLabel}
