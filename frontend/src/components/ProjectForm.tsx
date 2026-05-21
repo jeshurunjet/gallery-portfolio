@@ -335,37 +335,67 @@ function ProjectForm({
   const getBlockPreview = (block: ProjectContentBlock, index: number) => {
     switch (block.type) {
       case "paragraph":
-        return `Paragraph — ${block.text?.slice(0, 40) || "Empty"}...`;
+        return {
+          label: "Paragraph",
+          text: block.text?.slice(0, 40) || "Empty",
+        };
 
       case "quote":
-        return `Quote — "${block.text?.slice(0, 30) || "Empty"}..."`;
+        return {
+          label: "Quote",
+          text: `"${block.text?.slice(0, 30) || "Empty"}..."`,
+        };
 
       case "image":
-        return "Image block";
+        return {
+          label: "Image",
+          text: "Image block",
+        };
 
       case "twoColumn":
-        return "Two column layout";
+        return {
+          label: "Two Column",
+          text: "Layout",
+        };
 
       case "mediaText":
         switch (block.layout) {
           case "image-left":
-            return "Media: image + text";
+            return {
+              label: "Image + Text",
+              text: "",
+            };
 
           case "image-right":
-            return "Media: text + image";
+            return {
+              label: "Text + Image",
+              text: "",
+            };
 
           case "image-text-image":
-            return "Media: image + text + image";
+            return {
+              label: "Image + Text + Image",
+              text: "",
+            };
 
           case "image-image":
-            return "Media: image + image";
+            return {
+              label: "Image + Image",
+              text: "",
+            };
 
           default:
-            return "Media block";
+            return {
+              label: "Media",
+              text: "",
+            };
         }
 
       default:
-        return `Block ${index + 1}`;
+        return {
+          label: `Block ${index + 1}`,
+          text: "",
+        };
     }
   };
 
@@ -648,7 +678,23 @@ function ProjectForm({
                           <ChevronDown size={17} />
                         )}
 
-                        <span>{getBlockPreview(block, index)}</span>
+                        {(() => {
+                          const preview = getBlockPreview(block, index);
+
+                          return (
+                            <span className="block-preview">
+                              <span className="block-preview-type">
+                                {preview.label}
+                              </span>
+
+                              {preview.text && (
+                                <span className="block-preview-text">
+                                  {preview.text}
+                                </span>
+                              )}
+                            </span>
+                          );
+                        })()}
                       </button>
 
                       <button
