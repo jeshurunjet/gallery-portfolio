@@ -2436,7 +2436,9 @@ main {
   border-radius: 12px;
   background: #fafafa;
   border: 1px solid #ececec;
-  margin-top: 1.2rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  font-size: 1.5rem;
   height: fit-content;
 }
 
