@@ -122,6 +122,19 @@ function ProjectForm({
         : [...prev, index]
     );
   };
+  const [collapsedSections, setCollapsedSections] = useState<string[]>([
+    "gallery",
+    "media",
+    "code",
+    "links",
+  ]);
+  const toggleSectionCollapse = (section: string) => {
+    setCollapsedSections((prev) =>
+      prev.includes(section)
+        ? prev.filter((item) => item !== section)
+        : [...prev, section]
+    );
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -399,6 +412,29 @@ function ProjectForm({
     }
   };
 
+  const renderSectionHeader = (
+    section: string,
+    title: string,
+    description: string
+  ) => {
+    const isCollapsed = collapsedSections.includes(section);
+
+    return (
+      <button
+        type="button"
+        className="admin-section-toggle"
+        onClick={() => toggleSectionCollapse(section)}
+      >
+        {isCollapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
+
+        <span>
+          <strong>{title}</strong>
+          <small>{description}</small>
+        </span>
+      </button>
+    );
+  };
+
   const renderAlignmentButtons = (
     currentAlign: TextAlignOption | undefined,
     onChange: (align: TextAlignOption) => void
@@ -503,7 +539,6 @@ function ProjectForm({
           onChange={handleChange}
         />
       </div>
-
       <div className="admin-form-group">
         <label htmlFor="category">Category</label>
         <select id="category" value={formData.category} onChange={handleChange}>
@@ -522,7 +557,6 @@ function ProjectForm({
           <option value="Technical Case Study">Technical Case Study</option>
         </select>
       </div>
-
       <div className="admin-form-group">
         <label htmlFor="description">Description</label>
 
@@ -610,7 +644,6 @@ function ProjectForm({
           lists, and --- separators.
         </small>
       </div>
-
       <div className="content-block-section">
         <div className="content-block-header">
           <h3>Content Blocks</h3>
@@ -656,9 +689,7 @@ function ProjectForm({
                 <div className="admin-empty-state">
                   <p>
                     No content blocks yet. Add paragraphs, images, quotes, and
-                    layouts above. Content blocks also support **bold**,
-                    *italic*, __underline__, bullet lists, numbered lists, and
-                    --- separators.
+                    layouts above.
                   </p>
                 </div>
               )}
@@ -1003,7 +1034,6 @@ function ProjectForm({
           </SortableContext>
         </DndContext>
       </div>
-
       <div className="admin-form-group">
         <label htmlFor="tags">Tags</label>
         <input
@@ -1015,7 +1045,6 @@ function ProjectForm({
         />
         <small>Separate tags with commas.</small>
       </div>
-
       <div className="admin-form-group">
         <label htmlFor="cover">Cover Image URL</label>
         <input
@@ -1068,114 +1097,124 @@ function ProjectForm({
           </div>
         )}
       </div>
+      // ------------------------- GALLERY SECTION
+      {renderSectionHeader(
+        "gallery",
+        "Gallery Images",
+        "Optional extra images for the project page."
+      )}
+      {!collapsedSections.includes("gallery") && (
+        <div className="admin-form-group">
+          <label htmlFor="images">Image Gallery URLs</label>
+          <textarea
+            id="images"
+            rows={3}
+            placeholder="Paste image URLs separated by commas"
+            value={formData.images}
+            onChange={handleChange}
+          />
 
-      <div className="admin-form-group">
-        <label htmlFor="images">Image Gallery URLs</label>
-        <textarea
-          id="images"
-          rows={3}
-          placeholder="Paste image URLs separated by commas"
-          value={formData.images}
-          onChange={handleChange}
-        />
+          <small>Separate multiple image URLs with commas.</small>
 
-        <small>Separate multiple image URLs with commas.</small>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={async (event) => {
+              const files = event.target.files;
+              if (!files) return;
 
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={async (event) => {
-            const files = event.target.files;
-            if (!files) return;
+              try {
+                onNotify?.("Uploading gallery images...");
 
-            try {
-              onNotify?.("Uploading gallery images...");
-
-              const results = await Promise.allSettled(
-                Array.from(files).map((file) => uploadImage(file))
-              );
-
-              const uploadedUrls = results
-                .filter(
-                  (result): result is PromiseFulfilledResult<string> =>
-                    result.status === "fulfilled"
-                )
-                .map((result) => result.value);
-
-              const failedCount = results.filter(
-                (result) => result.status === "rejected"
-              ).length;
-
-              setFormData((prev) => {
-                const existing = prev.images
-                  ? prev.images
-                      .split(",")
-                      .map((image) => image.trim())
-                      .filter(Boolean)
-                  : [];
-
-                const combined = [...existing, ...uploadedUrls];
-
-                return {
-                  ...prev,
-                  images: combined.join(", "),
-                };
-              });
-
-              if (uploadedUrls.length > 0 && failedCount === 0) {
-                onNotify?.(`${uploadedUrls.length} image(s) uploaded!`);
-              }
-
-              if (uploadedUrls.length > 0 && failedCount > 0) {
-                onNotify?.(
-                  `${uploadedUrls.length} uploaded, ${failedCount} failed.`
+                const results = await Promise.allSettled(
+                  Array.from(files).map((file) => uploadImage(file))
                 );
-              }
 
-              if (uploadedUrls.length === 0 && failedCount > 0) {
-                onNotify?.("All uploads failed. Please try again.");
-              }
-            } catch (error) {
-              console.error("Upload failed", error);
-              onNotify?.("Unexpected error during upload.");
-            }
-          }}
-        />
+                const uploadedUrls = results
+                  .filter(
+                    (result): result is PromiseFulfilledResult<string> =>
+                      result.status === "fulfilled"
+                  )
+                  .map((result) => result.value);
 
-        {formData.images && (
-          <div className="upload-preview-grid">
-            {formData.images
-              .split(",")
-              .map((image) => image.trim())
-              .filter(Boolean)
-              .map((image, index) => (
-                <div key={`${image}-${index}`} className="upload-preview-item">
-                  <img src={image} alt={`Gallery preview ${index + 1}`} />
+                const failedCount = results.filter(
+                  (result) => result.status === "rejected"
+                ).length;
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const remainingImages = formData.images
+                setFormData((prev) => {
+                  const existing = prev.images
+                    ? prev.images
                         .split(",")
-                        .map((item) => item.trim())
+                        .map((image) => image.trim())
                         .filter(Boolean)
-                        .filter((_, itemIndex) => itemIndex !== index);
+                    : [];
 
-                      setFormData((prev) => ({
-                        ...prev,
-                        images: remainingImages.join(", "),
-                      }));
-                    }}
+                  const combined = [...existing, ...uploadedUrls];
+
+                  return {
+                    ...prev,
+                    images: combined.join(", "),
+                  };
+                });
+
+                if (uploadedUrls.length > 0 && failedCount === 0) {
+                  onNotify?.(`${uploadedUrls.length} image(s) uploaded!`);
+                }
+
+                if (uploadedUrls.length > 0 && failedCount > 0) {
+                  onNotify?.(
+                    `${uploadedUrls.length} uploaded, ${failedCount} failed.`
+                  );
+                }
+
+                if (uploadedUrls.length === 0 && failedCount > 0) {
+                  onNotify?.("All uploads failed. Please try again.");
+                }
+              } catch (error) {
+                console.error("Upload failed", error);
+                onNotify?.("Unexpected error during upload.");
+              }
+            }}
+          />
+
+          {formData.images && (
+            <div className="upload-preview-grid">
+              {formData.images
+                .split(",")
+                .map((image) => image.trim())
+                .filter(Boolean)
+                .map((image, index) => (
+                  <div
+                    key={`${image}-${index}`}
+                    className="upload-preview-item"
                   >
-                    Remove
-                  </button>
-                </div>
-              ))}
-          </div>
-        )}
-      </div>
+                    <img src={image} alt={`Gallery preview ${index + 1}`} />
 
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const remainingImages = formData.images
+                          .split(",")
+                          .map((item) => item.trim())
+                          .filter(Boolean)
+                          .filter((_, itemIndex) => itemIndex !== index);
+
+                        setFormData((prev) => ({
+                          ...prev,
+                          images: remainingImages.join(", "),
+                        }));
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
+      // ------------------------- VIDEO SECTION
       <div className="admin-form-group">
         <label htmlFor="videoUrl">Video URL</label>
         <input
@@ -1186,7 +1225,7 @@ function ProjectForm({
           onChange={handleChange}
         />
       </div>
-
+      // ------------------------- AUDIO SECTION
       <div className="admin-form-group">
         <label htmlFor="audioUrl">Audio URL</label>
         <input
@@ -1197,7 +1236,6 @@ function ProjectForm({
           onChange={handleChange}
         />
       </div>
-
       <div className="admin-form-group">
         <label htmlFor="pdfUrl">PDF URL</label>
         <input
@@ -1208,7 +1246,6 @@ function ProjectForm({
           onChange={handleChange}
         />
       </div>
-
       <div className="admin-form-group">
         <label htmlFor="codeContent">Code Content</label>
         <textarea
@@ -1219,7 +1256,6 @@ function ProjectForm({
           onChange={handleChange}
         />
       </div>
-
       <div className="admin-form-grid">
         <div className="admin-form-group">
           <label htmlFor="liveUrl">Live Demo URL</label>
@@ -1243,7 +1279,6 @@ function ProjectForm({
           />
         </div>
       </div>
-
       <div className="admin-form-group">
         <label htmlFor="externalUrl">External URL</label>
         <input
@@ -1254,7 +1289,6 @@ function ProjectForm({
           onChange={handleChange}
         />
       </div>
-
       <div className="admin-form-actions">
         <button type="submit" className="admin-primary-button">
           {submitLabel}
