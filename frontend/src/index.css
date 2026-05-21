@@ -2443,3 +2443,25 @@ main {
 .drag-handle:active {
   cursor: grabbing;
 }
+
+.content-collapse-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: none;
+  background: transparent;
+  color: #111;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.content-collapse-button:hover {
+  opacity: 0.75;
+}
+
+.content-editor-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
