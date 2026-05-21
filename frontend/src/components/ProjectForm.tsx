@@ -123,6 +123,7 @@ function ProjectForm({
     );
   };
   const [collapsedSections, setCollapsedSections] = useState<string[]>([
+    "cover",
     "gallery",
     "media",
     "code",
@@ -527,6 +528,71 @@ function ProjectForm({
     );
   };
 
+  const renderCoverSection = () => (
+    <>
+      {renderSectionHeader(
+        "cover",
+        "Cover Image",
+        "Main image used for project cards and page headers."
+      )}
+
+      {!collapsedSections.includes("cover") && (
+        <div className="admin-form-group">
+          <label htmlFor="cover">Cover Image URL</label>
+          <input
+            id="cover"
+            type="text"
+            placeholder="https://example.com/image.jpg"
+            value={formData.cover}
+            onChange={handleChange}
+          />
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              if (!file) return;
+
+              try {
+                onNotify?.("Uploading cover image...");
+                const imageUrl = await uploadImage(file);
+
+                setFormData((prev) => ({
+                  ...prev,
+                  cover: imageUrl,
+                }));
+
+                onNotify?.("Cover image uploaded!");
+              } catch (error) {
+                console.error("Upload failed", error);
+                onNotify?.("Cover upload failed. Please try again.");
+              }
+            }}
+          />
+
+          {formData.cover && (
+            <div className="upload-preview">
+              <img src={formData.cover} alt="Cover preview" />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    cover: "",
+                  }))
+                }
+              >
+                Remove cover
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+
   const renderGallerySection = () => (
     <>
       {renderSectionHeader(
@@ -748,6 +814,9 @@ function ProjectForm({
           <option value="Technical Case Study">Technical Case Study</option>
         </select>
       </div>
+
+      {renderCoverSection()}
+
       <div className="admin-form-group">
         <label htmlFor="description">Description</label>
 
@@ -1241,59 +1310,6 @@ function ProjectForm({
         />
         <small>Separate tags with commas.</small>
       </div>
-      <div className="admin-form-group">
-        <label htmlFor="cover">Cover Image URL</label>
-        <input
-          id="cover"
-          type="text"
-          placeholder="https://example.com/image.jpg"
-          value={formData.cover}
-          onChange={handleChange}
-        />
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={async (event) => {
-            const file = event.target.files?.[0];
-            if (!file) return;
-
-            try {
-              onNotify?.("Uploading cover image...");
-              const imageUrl = await uploadImage(file);
-
-              setFormData((prev) => ({
-                ...prev,
-                cover: imageUrl,
-              }));
-
-              onNotify?.("Cover image uploaded!");
-            } catch (error) {
-              console.error("Upload failed", error);
-              onNotify?.("Cover upload failed. Please try again.");
-            }
-          }}
-        />
-
-        {formData.cover && (
-          <div className="upload-preview">
-            <img src={formData.cover} alt="Cover preview" />
-
-            <button
-              type="button"
-              onClick={() =>
-                setFormData((prev) => ({
-                  ...prev,
-                  cover: "",
-                }))
-              }
-            >
-              Remove cover
-            </button>
-          </div>
-        )}
-      </div>
-
       {renderSectionHeader(
         "links",
         "Project Links",
