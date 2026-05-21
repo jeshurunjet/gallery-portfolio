@@ -2487,9 +2487,9 @@ main {
   color: #666;
 }
 
-/* ----- Mobile Fix: Content Block Editor ----- */
+/* ----- Mobile version: Content Block Editor ----- */
 
-@media (max-width: 700px) {
+@media (max-width: 850px) {
   .content-block-section {
     padding: 0.85rem;
     border-radius: 14px;
@@ -2567,5 +2567,20 @@ main {
     width: 100%;
     height: auto;
     max-height: 220px;
+  }
+
+  .admin-form {
+    max-width: 100%;
+  }
+
+  .content-block-section {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .content-editor-list,
+  .sortable-card,
+  .content-editor-card {
+    max-width: 100%;
   }
 }
