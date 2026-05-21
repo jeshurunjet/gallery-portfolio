@@ -2476,12 +2476,12 @@ main {
 }
 
 .block-preview-type {
-  font-weight: 700;
+  color: #fff;
+  background: #000;
+  border-radius: 0.6rem;
+  padding: 0.4rem 1rem;
   font-size: 0.8rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  background: #111;
-  color: white;
+  font-weight: 700;
 }
 
 .block-preview-text {
