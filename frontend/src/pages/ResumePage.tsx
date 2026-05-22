@@ -25,36 +25,52 @@ const contactLinks = [
   },
 ];
 
-const skills = [
-  "ReactJS",
-  "Next.js",
-  "Vite",
-  "Redux",
-  "Gatsby.js",
-  "React Native",
-  "NodeJS",
-  "TypeScript",
-  "Java",
-  "Spring Boot",
-  "Spring Security",
-  "JWT",
-  "PHP",
-  "MySQL",
-  "PostgreSQL",
-  "Firebase",
-  "Docker",
-  "GitHub",
-  "Cloudinary",
-  "Vercel",
-  "Render",
-  "HTML5",
-  "CSS3",
-  "SASS",
-  "Photoshop",
-  "Illustrator",
-  "InDesign",
-  "Premiere",
-  "After Effects",
+const skillGroups = [
+  {
+    title: "Web",
+    skills: [
+      "ReactJS",
+      "Next.js",
+      "Vite",
+      "Redux",
+      "Gatsby.js",
+      "React Native",
+      "NodeJS",
+      "TypeScript",
+      "HTML5",
+      "CSS3",
+      "SASS",
+    ],
+  },
+  {
+    title: "Backend & Cloud",
+    skills: [
+      "Java",
+      "Spring Boot",
+      "Spring Security",
+      "JWT",
+      "PHP",
+      "MySQL",
+      "PostgreSQL",
+      "Firebase",
+      "Docker",
+      "Cloudinary",
+      "Vercel",
+      "Render",
+    ],
+  },
+  {
+    title: "Design & Media",
+    skills: [
+      "Photoshop",
+      "Illustrator",
+      "InDesign",
+      "Premiere",
+      "After Effects",
+      "UI Design",
+      "Graphic Design",
+    ],
+  },
 ];
 
 const experience = [
@@ -221,11 +237,18 @@ function ResumePage() {
         </div>
 
         <aside className="resume-sidebar">
-          <section>
+          <section className="resume-skills-section">
             <h2>Skills Summary</h2>
-            <div className="skill-list">
-              {skills.map((skill) => (
-                <span key={skill}>{skill}</span>
+            <div className="skill-group-list">
+              {skillGroups.map((group) => (
+                <div className="skill-group" key={group.title}>
+                  <h3>{group.title}</h3>
+                  <div className="skill-list">
+                    {group.skills.map((skill) => (
+                      <span key={skill}>{skill}</span>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </section>
