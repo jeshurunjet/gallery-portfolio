@@ -10,6 +10,11 @@ type AccountSummary = {
   userCount: number;
 };
 
+type CurrentUser = {
+  id: number;
+  email: string;
+};
+
 function AdminAccountPage() {
   const [account, setAccount] = useState<AccountSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,12 +49,39 @@ function AdminAccountPage() {
           return;
         }
 
-        if (!response.ok) {
+        if (response.ok) {
+          const data: AccountSummary = await response.json();
+          setAccount(data);
+          return;
+        }
+
+        // Fallback for older backend deployments that may not have /api/auth/account yet.
+        const meResponse = await fetch(`${API_BASE_URL}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (meResponse.status === 401) {
+          handleAuthExpired();
+          return;
+        }
+
+        if (!meResponse.ok) {
           throw new Error("Failed to load account details");
         }
 
-        const data: AccountSummary = await response.json();
-        setAccount(data);
+        const meData: CurrentUser = await meResponse.json();
+        setAccount({
+          id: meData.id,
+          email: meData.email,
+          registrationEnabled: false,
+          userCount: 0,
+        });
+        setToastMessage(
+          "Loaded basic account details. Update backend to enable registration status and user count."
+        );
+        setShowToast(true);
       } catch (error) {
         console.error("Failed to fetch account details:", error);
         setToastMessage("Could not load account details.");
@@ -126,9 +158,19 @@ function AdminAccountPage() {
               <LockKeyhole size={22} />
             </div>
             <p className="admin-stat-label">Registration</p>
-            <h2>{account?.registrationEnabled ? "Enabled" : "Disabled"}</h2>
+            <h2>
+              {loading
+                ? "Loading..."
+                : account?.userCount === 0 && account?.registrationEnabled === false
+                  ? "Unavailable"
+                  : account?.registrationEnabled
+                    ? "Enabled"
+                    : "Disabled"}
+            </h2>
             <small>
-              {account?.registrationEnabled
+              {account?.userCount === 0 && account?.registrationEnabled === false
+                ? "Registration status requires the /api/auth/account backend endpoint."
+                : account?.registrationEnabled
                 ? "New admin accounts can currently be created."
                 : "New account creation is currently blocked by server config."}
             </small>
@@ -139,8 +181,18 @@ function AdminAccountPage() {
               <ShieldCheck size={22} />
             </div>
             <p className="admin-stat-label">Users in database</p>
-            <h2>{loading ? "-" : account?.userCount ?? 0}</h2>
-            <small>Total stored admin user accounts.</small>
+            <h2>
+              {loading
+                ? "-"
+                : account?.userCount === 0 && account?.registrationEnabled === false
+                  ? "N/A"
+                  : account?.userCount ?? 0}
+            </h2>
+            <small>
+              {account?.userCount === 0 && account?.registrationEnabled === false
+                ? "User count requires the /api/auth/account backend endpoint."
+                : "Total stored admin user accounts."}
+            </small>
           </div>
         </section>
 
