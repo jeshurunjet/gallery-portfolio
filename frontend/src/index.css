@@ -2391,10 +2391,50 @@ main {
   border-color: #111;
 }
 
+.content-delete-confirmation {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.content-editor-confirm-delete,
+.content-editor-cancel-delete {
+  align-self: flex-start;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.content-editor-confirm-delete {
+  border: none;
+  background: #b91c1c;
+  color: #fff;
+}
+
+.content-editor-confirm-delete:hover {
+  background: #991b1b;
+}
+
+.content-editor-cancel-delete {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+}
+
+.content-editor-cancel-delete:hover {
+  border-color: #111;
+  background: #fafafa;
+}
+
 @media (max-width: 850px) {
   .content-editor-actions,
   .content-editor-duplicate,
-  .content-editor-remove {
+  .content-editor-remove,
+  .content-delete-confirmation,
+  .content-editor-confirm-delete,
+  .content-editor-cancel-delete {
     width: 100%;
   }
 }
@@ -2413,7 +2453,10 @@ main {
     align-items: flex-start;
   }
 
-  .content-editor-remove {
+  .content-editor-remove,
+  .content-delete-confirmation,
+  .content-editor-confirm-delete,
+  .content-editor-cancel-delete {
     width: 100%;
   }
 }

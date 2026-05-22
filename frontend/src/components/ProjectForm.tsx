@@ -121,6 +121,9 @@ function ProjectForm({
   const [collapsedBlocks, setCollapsedBlocks] = useState<number[]>(
     initialData.content?.map((_, index) => index) ?? []
   );
+  const [pendingDeleteBlockIndex, setPendingDeleteBlockIndex] = useState<
+    number | null
+  >(null);
   const toggleBlockCollapse = (index: number) => {
     setCollapsedBlocks((prev) =>
       prev.includes(index)
@@ -257,7 +260,27 @@ function ProjectForm({
       };
     });
 
-    setCollapsedBlocks((prev) => [...prev, index + 1]);
+    setCollapsedBlocks((prev) => {
+      const updated = prev.map((item) => (item > index ? item + 1 : item));
+      return [...new Set([...updated, index + 1])];
+    });
+    setPendingDeleteBlockIndex(null);
+    onNotify?.("Content block duplicated.");
+  };
+
+  const deleteContentBlock = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      content: prev.content.filter((_, itemIndex) => itemIndex !== index),
+    }));
+
+    setCollapsedBlocks((prev) =>
+      prev
+        .filter((item) => item !== index)
+        .map((item) => (item > index ? item - 1 : item))
+    );
+    setPendingDeleteBlockIndex(null);
+    onNotify?.("Content block deleted.");
   };
 
   const uploadImage = async (file: File) => {
@@ -1161,20 +1184,33 @@ function ProjectForm({
                             Duplicate
                           </button>
 
-                          <button
-                            type="button"
-                            className="content-editor-remove"
-                            onClick={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                content: prev.content.filter(
-                                  (_, i) => i !== index
-                                ),
-                              }));
-                            }}
-                          >
-                            Remove
-                          </button>
+                          {pendingDeleteBlockIndex === index ? (
+                            <div className="content-delete-confirmation">
+                              <button
+                                type="button"
+                                className="content-editor-confirm-delete"
+                                onClick={() => deleteContentBlock(index)}
+                              >
+                                Confirm delete
+                              </button>
+
+                              <button
+                                type="button"
+                                className="content-editor-cancel-delete"
+                                onClick={() => setPendingDeleteBlockIndex(null)}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              className="content-editor-remove"
+                              onClick={() => setPendingDeleteBlockIndex(index)}
+                            >
+                              Remove
+                            </button>
+                          )}
                         </div>
                       </div>
                       {!collapsedBlocks.includes(index) && (
