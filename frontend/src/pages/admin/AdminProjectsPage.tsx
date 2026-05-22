@@ -1,14 +1,61 @@
 import { Link } from "react-router-dom";
 import useProjects from "../../hooks/useProjects";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ConfirmModal from "../../components/ConfirmModal";
 import Toast from "../../components/Toast";
-import { ThumbsUp, Eye } from "lucide-react";
+import { AlertCircle, Eye, Search, ThumbsUp } from "lucide-react";
+
+type ProjectSortOption = "recent" | "views" | "likes" | "az";
 
 function AdminProjectsPage() {
   const { projects, deleteProject } = useProjects();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState<ProjectSortOption>("recent");
+
+  const filteredProjects = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+
+    const matches = projects.filter((project) => {
+      if (!normalizedSearch) return true;
+
+      const searchableText = [
+        project.title,
+        project.category,
+        ...(project.tags ?? []),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(normalizedSearch);
+    });
+
+    return [...matches].sort((a, b) => {
+      switch (sortBy) {
+        case "views":
+          return (b.views ?? 0) - (a.views ?? 0);
+        case "likes":
+          return (b.likes ?? 0) - (a.likes ?? 0);
+        case "az":
+          return a.title.localeCompare(b.title);
+        default:
+          return b.id - a.id;
+      }
+    });
+  }, [projects, searchTerm, sortBy]);
+
+  const getProjectWarnings = (project: (typeof projects)[number]) => {
+    const warnings: string[] = [];
+
+    if (!project.cover?.trim()) warnings.push("No cover");
+    if ((project.tags ?? []).length === 0) warnings.push("No tags");
+    if ((project.views ?? 0) === 0) warnings.push("No views");
+    if ((project.likes ?? 0) === 0) warnings.push("No likes");
+
+    return warnings;
+  };
 
   return (
     <>
@@ -24,6 +71,36 @@ function AdminProjectsPage() {
           </Link>
         </div>
 
+        <section className="admin-project-toolbar">
+          <label className="admin-search-field">
+            <Search size={18} />
+            <input
+              type="search"
+              placeholder="Search by title, category, or tag"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+            />
+          </label>
+
+          <div className="admin-sort-tabs" aria-label="Project sort options">
+            {[
+              ["recent", "Recent"],
+              ["views", "Most viewed"],
+              ["likes", "Most liked"],
+              ["az", "A-Z"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                className={sortBy === value ? "active" : ""}
+                onClick={() => setSortBy(value as ProjectSortOption)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </section>
+
         {projects.length === 0 ? (
           <div className="admin-empty-state">
             <h2>No projects yet</h2>
@@ -32,11 +109,22 @@ function AdminProjectsPage() {
               Create Project
             </Link>
           </div>
+        ) : filteredProjects.length === 0 ? (
+          <div className="admin-empty-state">
+            <h2>No matching projects</h2>
+            <p>Try a different title, category, or tag.</p>
+          </div>
         ) : (
           <div className="admin-project-list">
-            {projects.map((project) => {
+            {filteredProjects.map((project) => {
               const category = project.category ?? "Uncategorized";
               const tags = project.tags ?? [];
+              const warnings = getProjectWarnings(project);
+              const engagement =
+                (project.views ?? 0) > 0
+                  ? Math.round(((project.likes ?? 0) / (project.views ?? 0)) * 1000) /
+                    10
+                  : 0;
 
               return (
                 <div key={project.id} className="admin-project-card">
@@ -57,15 +145,14 @@ function AdminProjectsPage() {
                     <p>{category}</p>
 
                     <div className="admin-project-meta">
-                      <span>
-                        <div className="stat-item">
-                          <ThumbsUp size={16} /> {project.likes ?? 0}
-                        </div>
+                      <span className="admin-performance-chip">
+                        <ThumbsUp size={16} /> {project.likes ?? 0}
                       </span>
-                      <span>
-                        <div className="stat-item">
-                          <Eye size={16} /> {project.views ?? 0}
-                        </div>
+                      <span className="admin-performance-chip">
+                        <Eye size={16} /> {project.views ?? 0}
+                      </span>
+                      <span className="admin-performance-chip">
+                        {engagement}% engagement
                       </span>
                     </div>
 
@@ -76,6 +163,15 @@ function AdminProjectsPage() {
                         </span>
                       ))}
                     </div>
+
+                    {warnings.length > 0 && (
+                      <div className="admin-warning-row">
+                        <AlertCircle size={15} />
+                        {warnings.map((warning) => (
+                          <span key={warning}>{warning}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="admin-project-actions">
