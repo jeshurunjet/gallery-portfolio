@@ -240,6 +240,26 @@ function ProjectForm({
     });
   };
 
+  const duplicateContentBlock = (index: number) => {
+    setFormData((prev) => {
+      const blockToCopy = prev.content[index];
+
+      if (!blockToCopy) return prev;
+
+      const duplicatedBlock = structuredClone(blockToCopy);
+
+      const updated = [...prev.content];
+      updated.splice(index + 1, 0, duplicatedBlock);
+
+      return {
+        ...prev,
+        content: updated,
+      };
+    });
+
+    setCollapsedBlocks((prev) => [...prev, index + 1]);
+  };
+
   const uploadImage = async (file: File) => {
     const formDataUpload = new FormData();
     formDataUpload.append("file", file);
@@ -1132,20 +1152,30 @@ function ProjectForm({
                           })()}
                         </button>
 
-                        <button
-                          type="button"
-                          className="content-editor-remove"
-                          onClick={() => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              content: prev.content.filter(
-                                (_, i) => i !== index
-                              ),
-                            }));
-                          }}
-                        >
-                          Remove
-                        </button>
+                        <div className="content-editor-actions">
+                          <button
+                            type="button"
+                            className="content-editor-duplicate"
+                            onClick={() => duplicateContentBlock(index)}
+                          >
+                            Duplicate
+                          </button>
+
+                          <button
+                            type="button"
+                            className="content-editor-remove"
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                content: prev.content.filter(
+                                  (_, i) => i !== index
+                                ),
+                              }));
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
                       </div>
                       {!collapsedBlocks.includes(index) && (
                         <div className="content-editor-card-body">

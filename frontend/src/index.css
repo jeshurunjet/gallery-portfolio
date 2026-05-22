@@ -2367,6 +2367,38 @@ main {
   background: #dc2626;
 }
 
+.content-editor-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.content-editor-duplicate {
+  align-self: flex-start;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.content-editor-duplicate:hover {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+@media (max-width: 850px) {
+  .content-editor-actions,
+  .content-editor-duplicate,
+  .content-editor-remove {
+    width: 100%;
+  }
+}
+
 @media (max-width: 700px) {
   .content-block-section {
     padding: 1rem;
