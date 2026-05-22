@@ -36,6 +36,7 @@ export type Project = {
   category: string;
   likes: number;
   views: number;
+  pinned?: boolean;
   types: string[];
   description: string;
   tags: string[];

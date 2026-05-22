@@ -69,6 +69,7 @@ public class ProjectController {
         existingProject.setTags(updatedProject.getTags());
         existingProject.setLikes(updatedProject.getLikes());
         existingProject.setViews(updatedProject.getViews());
+        existingProject.setPinned(updatedProject.getPinned());
         existingProject.setTypes(updatedProject.getTypes());
 
         syncTags(updatedProject.getTags());

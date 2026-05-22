@@ -44,6 +44,10 @@ function HomePage() {
     });
 
     return [...matches].sort((a, b) => {
+      if (a.pinned !== b.pinned) {
+        return a.pinned ? -1 : 1;
+      }
+
       switch (sort) {
         case "views":
           return (b.views ?? 0) - (a.views ?? 0);

@@ -3,7 +3,7 @@ import useProjects from "../../hooks/useProjects";
 import { useMemo, useState } from "react";
 import ConfirmModal from "../../components/ConfirmModal";
 import Toast from "../../components/Toast";
-import { AlertCircle, Eye, Search, ThumbsUp } from "lucide-react";
+import { AlertCircle, Eye, Pin, Search, ThumbsUp } from "lucide-react";
 
 type ProjectSortOption = "recent" | "views" | "likes" | "az";
 
@@ -33,6 +33,10 @@ function AdminProjectsPage() {
     });
 
     return [...matches].sort((a, b) => {
+      if (a.pinned !== b.pinned) {
+        return a.pinned ? -1 : 1;
+      }
+
       switch (sortBy) {
         case "views":
           return (b.views ?? 0) - (a.views ?? 0);
@@ -145,6 +149,11 @@ function AdminProjectsPage() {
                     <p>{category}</p>
 
                     <div className="admin-project-meta">
+                      {project.pinned && (
+                        <span className="admin-performance-chip pinned">
+                          <Pin size={15} /> Pinned
+                        </span>
+                      )}
                       <span className="admin-performance-chip">
                         <ThumbsUp size={16} /> {project.likes ?? 0}
                       </span>

@@ -9,6 +9,7 @@ import {
   Italic,
   List,
   ListOrdered,
+  Pin,
   Minus,
   PanelLeft,
   PanelRight,
@@ -44,6 +45,7 @@ type ProjectFormData = {
   audioUrl: string;
   pdfUrl: string;
   codeContent: string;
+  pinned: boolean;
   liveUrl: string;
   githubUrl: string;
   externalUrl: string;
@@ -54,6 +56,8 @@ type ProjectFormProps = {
   submitLabel: string;
   onSubmit: (data: ProjectFormData) => void;
   onNotify?: (message: string) => void;
+  pinnedOverride?: boolean;
+  onPinnedChange?: (pinned: boolean) => void;
 };
 
 type BlockType =
@@ -116,8 +120,11 @@ function ProjectForm({
   submitLabel,
   onSubmit,
   onNotify,
+  pinnedOverride,
+  onPinnedChange,
 }: ProjectFormProps) {
   const [formData, setFormData] = useState<ProjectFormData>(initialData);
+  const pinnedValue = pinnedOverride ?? formData.pinned;
   const [collapsedBlocks, setCollapsedBlocks] = useState<number[]>(
     initialData.content?.map((_, index) => index) ?? []
   );
@@ -392,7 +399,10 @@ function ProjectForm({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      pinned: pinnedValue,
+    });
   };
 
   const getBlockPreview = (block: ProjectContentBlock, index: number) => {
@@ -963,6 +973,36 @@ function ProjectForm({
             <option value="Technical Case Study">Technical Case Study</option>
           </select>
         </div>
+
+        <button
+          type="button"
+          className={`project-pin-toggle ${pinnedValue ? "active" : ""}`}
+          onClick={() => {
+            const nextPinned = !pinnedValue;
+
+            if (onPinnedChange) {
+              onPinnedChange(nextPinned);
+              return;
+            }
+
+            setFormData((prev) => ({
+              ...prev,
+              pinned: nextPinned,
+            }));
+          }}
+        >
+          <span className="project-pin-icon">
+            <Pin size={18} />
+          </span>
+          <span>
+            <strong>{pinnedValue ? "Pinned to homepage" : "Pin project"}</strong>
+            <small>
+              {pinnedValue
+                ? "This project stays above the regular sort order."
+                : "Keep this project at the top of the gallery."}
+            </small>
+          </span>
+        </button>
 
         {renderCoverSection()}
 

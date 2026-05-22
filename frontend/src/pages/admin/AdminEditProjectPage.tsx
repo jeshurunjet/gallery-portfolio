@@ -5,12 +5,14 @@ import ProjectForm, {
 } from "../../components/ProjectForm";
 import useProjects from "../../hooks/useProjects";
 import Toast from "../../components/Toast";
+import { Pin, RotateCcw } from "lucide-react";
 
 function AdminEditProjectPage() {
   const { id } = useParams();
   const { projects, updateProject } = useProjects();
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [draftPinned, setDraftPinned] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
   const project = useMemo(
@@ -39,6 +41,7 @@ function AdminEditProjectPage() {
     audioUrl: project.audioUrl ?? "",
     pdfUrl: project.pdfUrl ?? "",
     codeContent: project.codeContent ?? "",
+    pinned: draftPinned ?? project.pinned ?? false,
     liveUrl: project.liveUrl ?? "",
     githubUrl: project.githubUrl ?? "",
     externalUrl: project.externalUrl ?? "",
@@ -97,6 +100,7 @@ function AdminEditProjectPage() {
       audioUrl: data.audioUrl,
       pdfUrl: data.pdfUrl,
       codeContent: data.codeContent,
+      pinned: data.pinned,
       liveUrl: data.liveUrl,
       githubUrl: data.githubUrl,
       externalUrl: data.externalUrl,
@@ -133,6 +137,34 @@ function AdminEditProjectPage() {
 
             <button
               type="button"
+              className={`admin-secondary-button admin-pin-action ${
+                (draftPinned ?? project.pinned) ? "active" : ""
+              }`}
+              onClick={async () => {
+                const nextPinned = !(draftPinned ?? project.pinned ?? false);
+                setDraftPinned(nextPinned);
+
+                await updateProject({
+                  ...project,
+                  pinned: nextPinned,
+                });
+
+                setToastMessage(
+                  nextPinned
+                    ? "Project pinned to homepage"
+                    : "Project unpinned from homepage"
+                );
+                setShowToast(true);
+              }}
+            >
+              <Pin size={17} />
+              {(draftPinned ?? project.pinned)
+                ? "Unpin Project"
+                : "Pin Project"}
+            </button>
+
+            <button
+              type="button"
               className="admin-secondary-button admin-reset-button"
               onClick={async () => {
                 await updateProject({
@@ -145,6 +177,7 @@ function AdminEditProjectPage() {
                 setShowToast(true);
               }}
             >
+              <RotateCcw size={17} />
               Reset Likes & Views
             </button>
           </div>
@@ -154,6 +187,8 @@ function AdminEditProjectPage() {
           initialData={initialData}
           submitLabel="Update Project"
           onSubmit={handleSubmit}
+          pinnedOverride={draftPinned ?? project.pinned ?? false}
+          onPinnedChange={setDraftPinned}
           onNotify={(message) => {
             setToastMessage(message);
             setShowToast(true);

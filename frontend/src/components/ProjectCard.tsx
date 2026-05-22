@@ -6,6 +6,7 @@ import {
   Code2,
   FileText,
   Globe,
+  Pin,
 } from "lucide-react";
 import type { Project } from "../data/projects";
 import { ThumbsUp, Eye } from "lucide-react";
@@ -19,6 +20,13 @@ function ProjectCard({ project }: { project: Project }) {
     <Link to={`/project/${project.id}`} className="card-link">
       <div className="card">
         <div className="card-image">
+          {project.pinned && (
+            <div className="card-pin-badge">
+              <Pin size={14} />
+              Pinned
+            </div>
+          )}
+
           {project.cover && project.cover.trim() !== "" ? (
             <img src={project.cover} alt={project.title} />
           ) : (

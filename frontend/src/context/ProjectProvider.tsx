@@ -19,6 +19,7 @@ function normalizeProject(project: Project): Project {
   return {
     ...project,
     content: parsedContent,
+    pinned: project.pinned ?? false,
   };
 }
 
@@ -105,6 +106,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
           tags: project.tags ?? [],
           likes: project.likes ?? 0,
           views: project.views ?? 0,
+          pinned: project.pinned ?? false,
           types: project.types ?? [],
         }),
       });
@@ -156,6 +158,7 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
             tags: updatedProject.tags ?? [],
             likes: updatedProject.likes ?? 0,
             views: updatedProject.views ?? 0,
+            pinned: updatedProject.pinned ?? false,
             types: updatedProject.types ?? [],
           }),
         }

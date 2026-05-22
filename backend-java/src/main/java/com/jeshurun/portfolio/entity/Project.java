@@ -15,6 +15,7 @@ public class Project {
 
     private Integer likes = 0;
     private Integer views = 0;
+    private Boolean pinned = false;
 
     @ElementCollection
     private List<String> types;
@@ -190,6 +191,14 @@ public class Project {
 
     public void setViews(Integer views) {
         this.views = views;
+    }
+
+    public Boolean getPinned() {
+        return pinned;
+    }
+
+    public void setPinned(Boolean pinned) {
+        this.pinned = pinned != null ? pinned : false;
     }
 
     public List<String> getTypes() {
