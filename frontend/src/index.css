@@ -1037,13 +1037,15 @@ main {
 }
 
 .format-toolbar button {
-  padding: 0.4rem 0.65rem;
+  width: 38px;
+  height: 38px;
   border: 1px solid #ddd;
-  border-radius: 10px;
+  border-radius: 9px;
   background: #fff;
   color: #333;
-  font: inherit;
-  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition:
     background 0.2s ease,
@@ -1241,6 +1243,32 @@ main {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+.admin-form-panel {
+  padding: 1.25rem;
+  border: 1px solid #ececec;
+  border-radius: 14px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.admin-form-panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.admin-form-panel-header h3 {
+  font-size: 1.05rem;
+  color: #111;
+}
+
+.admin-form-panel-header p {
+  font-size: 0.9rem;
+  color: #666;
 }
 
 .admin-form-group {
@@ -2221,10 +2249,10 @@ main {
 /* ----- Content Block Editor - Admin Form ----- */
 
 .content-block-section {
-  margin-top: 1rem;
+  margin-top: -0.25rem;
   padding: 1.25rem;
   border: 1px solid #ececec;
-  border-radius: 16px;
+  border-radius: 14px;
   background: #fff;
 }
 
@@ -2589,7 +2617,7 @@ main {
   width: 100%;
   border: 1px solid #ececec;
   background: #fafafa;
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 1rem;
   display: flex;
   align-items: center;
@@ -2600,10 +2628,12 @@ main {
   font: inherit;
 }
 
-.admin-section-toggle span {
+.admin-section-toggle-copy {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .admin-section-toggle small {
@@ -2612,7 +2642,38 @@ main {
   font-weight: 400;
 }
 
+.admin-section-status {
+  flex: 0 0 auto;
+  max-width: 42%;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid #e6e6e6;
+  border-radius: 999px;
+  background: #fff;
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .admin-section-toggle:hover {
   border-color: #111;
   background: #fff;
+}
+
+@media (max-width: 700px) {
+  .admin-form-panel {
+    padding: 1rem;
+  }
+
+  .admin-section-toggle {
+    align-items: flex-start;
+  }
+
+  .admin-section-status {
+    max-width: 36%;
+    margin-top: 0.1rem;
+  }
 }

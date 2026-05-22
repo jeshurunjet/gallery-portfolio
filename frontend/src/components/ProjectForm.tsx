@@ -4,12 +4,18 @@ import {
   AlignJustify,
   AlignLeft,
   AlignRight,
+  Bold,
   Images,
+  Italic,
+  List,
+  ListOrdered,
+  Minus,
   PanelLeft,
   PanelRight,
   PanelsLeftRight,
   ChevronDown,
   ChevronRight,
+  Underline,
 } from "lucide-react";
 import { API_BASE_URL } from "../config";
 import type { ProjectContentBlock } from "../data/projects";
@@ -128,6 +134,7 @@ function ProjectForm({
     "media",
     "code",
     "links",
+    "content",
   ]);
   const toggleSectionCollapse = (section: string) => {
     setCollapsedSections((prev) =>
@@ -413,10 +420,39 @@ function ProjectForm({
     }
   };
 
+  const getGalleryCount = () =>
+    formData.images
+      ? formData.images
+          .split(",")
+          .map((image) => image.trim())
+          .filter(Boolean).length
+      : 0;
+
+  const getMediaStatus = () => {
+    const mediaTypes = [
+      formData.videoUrl && "Video",
+      formData.audioUrl && "Audio",
+      formData.pdfUrl && "PDF",
+    ].filter(Boolean);
+
+    return mediaTypes.length > 0 ? mediaTypes.join(" / ") : "Empty";
+  };
+
+  const getLinksStatus = () => {
+    const linkCount = [
+      formData.liveUrl,
+      formData.githubUrl,
+      formData.externalUrl,
+    ].filter(Boolean).length;
+
+    return linkCount > 0 ? `${linkCount} link${linkCount === 1 ? "" : "s"}` : "Empty";
+  };
+
   const renderSectionHeader = (
     section: string,
     title: string,
-    description: string
+    description: string,
+    status?: string
   ) => {
     const isCollapsed = collapsedSections.includes(section);
 
@@ -428,10 +464,12 @@ function ProjectForm({
       >
         {isCollapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
 
-        <span>
+        <span className="admin-section-toggle-copy">
           <strong>{title}</strong>
           <small>{description}</small>
         </span>
+
+        {status && <span className="admin-section-status">{status}</span>}
       </button>
     );
   };
@@ -533,7 +571,8 @@ function ProjectForm({
       {renderSectionHeader(
         "cover",
         "Cover Image",
-        "Main image used for project cards and page headers."
+        "Main image used for project cards and page headers.",
+        formData.cover ? "Added" : "Empty"
       )}
 
       {!collapsedSections.includes("cover") && (
@@ -598,7 +637,10 @@ function ProjectForm({
       {renderSectionHeader(
         "gallery",
         "Gallery Images",
-        "Optional extra images for the project page."
+        "Optional extra images for the project page.",
+        getGalleryCount() > 0
+          ? `${getGalleryCount()} image${getGalleryCount() === 1 ? "" : "s"}`
+          : "Empty"
       )}
       {!collapsedSections.includes("gallery") && (
         <div className="admin-form-group">
@@ -719,7 +761,8 @@ function ProjectForm({
       {renderSectionHeader(
         "media",
         "Media Content",
-        "Video, audio and PDF resources."
+        "Video, audio and PDF resources.",
+        getMediaStatus()
       )}
 
       {!collapsedSections.includes("media") && (
@@ -766,7 +809,8 @@ function ProjectForm({
       {renderSectionHeader(
         "code",
         "Code Preview",
-        "Optional code snippets or source content."
+        "Optional code snippets or source content.",
+        formData.codeContent.trim() ? "Added" : "Empty"
       )}
 
       {!collapsedSections.includes("code") && (
@@ -784,73 +828,144 @@ function ProjectForm({
     </>
   );
 
+  const renderLinksSection = () => (
+    <>
+      {renderSectionHeader(
+        "links",
+        "Project Links",
+        "Live demo, GitHub and external links.",
+        getLinksStatus()
+      )}
+
+      {!collapsedSections.includes("links") && (
+        <>
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label htmlFor="liveUrl">Live Demo URL</label>
+              <input
+                id="liveUrl"
+                type="text"
+                placeholder="https://your-live-demo.com"
+                value={formData.liveUrl}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="admin-form-group">
+              <label htmlFor="githubUrl">GitHub URL</label>
+              <input
+                id="githubUrl"
+                type="text"
+                placeholder="https://github.com/yourusername/project"
+                value={formData.githubUrl}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="admin-form-group">
+            <label htmlFor="externalUrl">External URL</label>
+            <input
+              id="externalUrl"
+              type="text"
+              placeholder="https://figma.com/... or another external link"
+              value={formData.externalUrl}
+              onChange={handleChange}
+            />
+          </div>
+        </>
+      )}
+    </>
+  );
+
   return (
     <form className="admin-form" onSubmit={handleSubmit}>
-      <div className="admin-form-group">
-        <label htmlFor="title">Project Title</label>
-        <input
-          id="title"
-          type="text"
-          placeholder="Enter project title"
-          value={formData.title}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="admin-form-group">
-        <label htmlFor="category">Category</label>
-        <select id="category" value={formData.category} onChange={handleChange}>
-          <option value="">Select a category</option>
-          <option value="Photography">Photography</option>
-          <option value="Graphic Design">Graphic Design</option>
-          <option value="Audio Design">Audio Design</option>
-          <option value="Frontend/Web Design">Frontend/Web Design</option>
-          <option value="Full-Stack/Web Development">
-            Full-Stack/Web Development
-          </option>
-          <option value="Mobile Design">Mobile Design</option>
-          <option value="Machine Learning">Machine Learning</option>
-          <option value="Deep Learning">Deep Learning</option>
-          <option value="Code Project">Code Project</option>
-          <option value="Technical Case Study">Technical Case Study</option>
-        </select>
-      </div>
+      <section className="admin-form-panel">
+        <div className="admin-form-panel-header">
+          <h3>Project Basics</h3>
+          <p>Core details shown across the portfolio.</p>
+        </div>
 
-      {renderCoverSection()}
+        <div className="admin-form-group">
+          <label htmlFor="title">Project Title</label>
+          <input
+            id="title"
+            type="text"
+            placeholder="Enter project title"
+            value={formData.title}
+            onChange={handleChange}
+          />
+        </div>
 
-      <div className="admin-form-group">
-        <label htmlFor="description">Description</label>
+        <div className="admin-form-group">
+          <label htmlFor="category">Category</label>
+          <select
+            id="category"
+            value={formData.category}
+            onChange={handleChange}
+          >
+            <option value="">Select a category</option>
+            <option value="Photography">Photography</option>
+            <option value="Graphic Design">Graphic Design</option>
+            <option value="Audio Design">Audio Design</option>
+            <option value="Frontend/Web Design">Frontend/Web Design</option>
+            <option value="Full-Stack/Web Development">
+              Full-Stack/Web Development
+            </option>
+            <option value="Mobile Design">Mobile Design</option>
+            <option value="Machine Learning">Machine Learning</option>
+            <option value="Deep Learning">Deep Learning</option>
+            <option value="Code Project">Code Project</option>
+            <option value="Technical Case Study">Technical Case Study</option>
+          </select>
+        </div>
+
+        {renderCoverSection()}
+
+        <div className="admin-form-group">
+          <label htmlFor="description">Description</label>
 
         <div className="format-toolbar">
           <button
             type="button"
+            title="Bold"
+            aria-label="Bold"
             onClick={() => formatSelectedText("description", "**")}
           >
-            Bold
+            <Bold size={17} />
           </button>
 
           <button
             type="button"
+            title="Italic"
+            aria-label="Italic"
             onClick={() => formatSelectedText("description", "*")}
           >
-            Italic
+            <Italic size={17} />
           </button>
 
           <button
             type="button"
+            title="Underline"
+            aria-label="Underline"
             onClick={() => formatSelectedText("description", "__")}
           >
-            Underline
+            <Underline size={17} />
           </button>
 
           <button
             type="button"
+            title="Bullet list"
+            aria-label="Bullet list"
             onClick={() => formatSelectedText("description", "- ", "")}
           >
-            Bullet
+            <List size={17} />
           </button>
 
           <button
             type="button"
+            title="Numbered list"
+            aria-label="Numbered list"
             onClick={() => {
               const lines = formData.description.split("\n");
               let lastNumber = 0;
@@ -875,11 +990,13 @@ function ProjectForm({
               }));
             }}
           >
-            Numbered
+            <ListOrdered size={17} />
           </button>
 
           <button
             type="button"
+            title="Separator"
+            aria-label="Separator"
             onClick={() =>
               setFormData((prev) => ({
                 ...prev,
@@ -887,7 +1004,7 @@ function ProjectForm({
               }))
             }
           >
-            Separator
+            <Minus size={17} />
           </button>
         </div>
 
@@ -903,12 +1020,33 @@ function ProjectForm({
           Supports **bold**, *italic*, __underline__, bullet lists, numbered
           lists, and --- separators.
         </small>
-      </div>
+        </div>
+      </section>
 
       {renderGallerySection()}
       {renderMediaSection()}
       {renderCodeSection()}
+      {renderLinksSection()}
 
+      <div className="admin-form-group">
+        <label htmlFor="tags">Tags</label>
+        <input
+          id="tags"
+          type="text"
+          placeholder="e.g. react, ui, portfolio, machine-learning"
+          value={formData.tags}
+          onChange={handleChange}
+        />
+        <small>Separate tags with commas.</small>
+      </div>
+
+      {renderSectionHeader(
+        "content",
+        "Content Blocks",
+        "Add extra layout sections below the main project description.",
+        `${formData.content.length} block${formData.content.length === 1 ? "" : "s"}`
+      )}
+      {!collapsedSections.includes("content") && (
       <div className="content-block-section">
         <div className="content-block-header">
           <h3>Content Blocks</h3>
@@ -1299,59 +1437,6 @@ function ProjectForm({
           </SortableContext>
         </DndContext>
       </div>
-      <div className="admin-form-group">
-        <label htmlFor="tags">Tags</label>
-        <input
-          id="tags"
-          type="text"
-          placeholder="e.g. react, ui, portfolio, machine-learning"
-          value={formData.tags}
-          onChange={handleChange}
-        />
-        <small>Separate tags with commas.</small>
-      </div>
-      {renderSectionHeader(
-        "links",
-        "Project Links",
-        "Live demo, GitHub and external links."
-      )}
-
-      {!collapsedSections.includes("links") && (
-        <>
-          <div className="admin-form-grid">
-            <div className="admin-form-group">
-              <label htmlFor="liveUrl">Live Demo URL</label>
-              <input
-                id="liveUrl"
-                type="text"
-                placeholder="https://your-live-demo.com"
-                value={formData.liveUrl}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="admin-form-group">
-              <label htmlFor="githubUrl">GitHub URL</label>
-              <input
-                id="githubUrl"
-                type="text"
-                placeholder="https://github.com/yourusername/project"
-                value={formData.githubUrl}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          <div className="admin-form-group">
-            <label htmlFor="externalUrl">External URL</label>
-            <input
-              id="externalUrl"
-              type="text"
-              placeholder="https://figma.com/... or another external link"
-              value={formData.externalUrl}
-              onChange={handleChange}
-            />
-          </div>
-        </>
       )}
       <div className="admin-form-actions">
         <button type="submit" className="admin-primary-button">
