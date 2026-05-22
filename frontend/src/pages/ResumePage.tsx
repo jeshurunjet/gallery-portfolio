@@ -156,6 +156,24 @@ const education = [
   },
 ];
 
+const portfolioLinks = [
+  {
+    title: "jesh.nz",
+    description: "Main portfolio",
+    href: "https://www.jesh.nz",
+  },
+  {
+    title: "jeshport.web.app",
+    description: "Alternate portfolio build",
+    href: "https://jeshport.web.app",
+  },
+  {
+    title: "Behance",
+    description: "Design and visual work",
+    href: "https://www.behance.net/jeshurun",
+  },
+];
+
 function ResumePage() {
   return (
     <main className="resume-page">
@@ -273,31 +291,24 @@ function ResumePage() {
             ))}
           </section>
 
-          <section>
+          <section className="resume-portfolio-section">
             <h2>Portfolio</h2>
-            <p>
-              <a href="https://www.jesh.nz" target="_blank" rel="noreferrer">
-                jesh.nz
-              </a>
-            </p>
-            <p>
-              <a
-                href="https://jeshport.web.app"
-                target="_blank"
-                rel="noreferrer"
-              >
-                jeshport.web.app
-              </a>
-            </p>
-            <p>
-              <a
-                href="https://www.behance.net/jeshurun"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Behance
-              </a>
-            </p>
+            <div className="resume-portfolio-links">
+              {portfolioLinks.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>
+                    <strong>{item.title}</strong>
+                    <small>{item.description}</small>
+                  </span>
+                  <ExternalLink size={15} />
+                </a>
+              ))}
+            </div>
           </section>
 
           <section>
