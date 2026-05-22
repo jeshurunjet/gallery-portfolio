@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import ProjectCard from "../components/ProjectCard";
 import useProjects from "../hooks/useProjects";
 import LoadingPage from "../components/LoadingPage";
-import { Search } from "lucide-react";
+import { ChevronDown, Search, SlidersHorizontal } from "lucide-react";
 
 type HomeSortOption = "recent" | "views" | "likes" | "az";
 
@@ -14,6 +14,13 @@ function HomePage() {
   const sort = (searchParams.get("sort") as HomeSortOption) ?? "recent";
   const selectedTag = searchParams.get("tag");
   const [showAllTags, setShowAllTags] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortOptions: { value: HomeSortOption; label: string }[] = [
+    { value: "recent", label: "Recent" },
+    { value: "views", label: "Most viewed" },
+    { value: "likes", label: "Most liked" },
+    { value: "az", label: "A-Z" },
+  ];
 
   const availableTags = useMemo(() => {
     const allTags = projects.flatMap((project) => project.tags);
@@ -60,6 +67,7 @@ function HomePage() {
     }
 
     setSearchParams(nextParams);
+    setIsSortOpen(false);
   };
 
   const handleSortChange = (value: HomeSortOption) => {
@@ -109,22 +117,35 @@ function HomePage() {
           />
         </label>
 
-        <div className="gallery-sort-tabs" aria-label="Project sort options">
-          {[
-            ["recent", "Recent"],
-            ["views", "Most viewed"],
-            ["likes", "Most liked"],
-            ["az", "A-Z"],
-          ].map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              className={sort === value ? "active" : ""}
-              onClick={() => handleSortChange(value as HomeSortOption)}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="gallery-sort-menu">
+          <button
+            type="button"
+            className="gallery-sort-trigger"
+            aria-expanded={isSortOpen}
+            aria-haspopup="menu"
+            onClick={() => setIsSortOpen((prev) => !prev)}
+          >
+            <SlidersHorizontal size={17} />
+            <span>{sortOptions.find((option) => option.value === sort)?.label}</span>
+            <ChevronDown size={16} />
+          </button>
+
+          {isSortOpen && (
+            <div className="gallery-sort-dropdown" role="menu">
+              {sortOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={sort === option.value}
+                  className={sort === option.value ? "active" : ""}
+                  onClick={() => handleSortChange(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
