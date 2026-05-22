@@ -20,7 +20,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <Link className="logo" to="/" onClick={closeMenu}>
-        <span className="logo-full">JESHURUN SANCHEZ</span>
+        <span className="logo-full">JESH SANCHEZ</span>
         <span className="logo-short">JS</span>
       </Link>
 
