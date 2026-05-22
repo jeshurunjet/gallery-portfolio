@@ -1,106 +1,277 @@
+import { Code2, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
+
+const cvUrl =
+  "https://docs.google.com/document/d/1s7pvk6pstVVBFssVP_TyNfAvKNwUHkJzdhvS-wtD-48/edit?usp=sharing";
+
+const contactLinks = [
+  {
+    label: "Auckland, New Zealand",
+    icon: <MapPin size={16} />,
+  },
+  {
+    label: "jeshurunjet@gmail.com",
+    href: "mailto:jeshurunjet@gmail.com",
+    icon: <Mail size={16} />,
+  },
+  {
+    label: "+64 22 457 9004",
+    href: "tel:+64224579004",
+    icon: <Phone size={16} />,
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/jeshurunjet",
+    icon: <Code2 size={16} />,
+  },
+];
+
+const skills = [
+  "ReactJS",
+  "Next.js",
+  "Vite",
+  "Redux",
+  "Gatsby.js",
+  "React Native",
+  "NodeJS",
+  "TypeScript",
+  "Java",
+  "Spring Boot",
+  "Spring Security",
+  "JWT",
+  "PHP",
+  "MySQL",
+  "PostgreSQL",
+  "Firebase",
+  "Docker",
+  "GitHub",
+  "Cloudinary",
+  "Vercel",
+  "Render",
+  "HTML5",
+  "CSS3",
+  "SASS",
+  "Photoshop",
+  "Illustrator",
+  "InDesign",
+  "Premiere",
+  "After Effects",
+];
+
+const experience = [
+  {
+    role: "Web Developer / Graphic Designer",
+    company: "JMB Enterprise NZ Limited",
+    period: "2024 - Present",
+    meta: "Volunteer / Part-Time",
+    points: [
+      "Developing websites for three laundromats using Vite, ReactJS, Next.js, and Mantine.",
+      "Building a separate website for Grace Abounds NZ.",
+      "Created custom sprites, icons, branding assets, and visual interface material.",
+      "Integrated Tangerpay QR payment flows for mobile laundry machine payments.",
+      "Coordinate directly with owners and stakeholders to plan, design, and implement digital solutions.",
+    ],
+  },
+  {
+    role: "Support Worker",
+    company: "Creative Abilities Ltd.",
+    period: "August 2020 - Present",
+    points: [
+      "Provided personal care and physical support for clients with physical and intellectual disabilities.",
+      "Coordinated appointments and administration with GPs, OT nurses, physiotherapists, foundations, and other stakeholders.",
+      "Organised social and community engagement activities for client wellbeing.",
+      "Maintained logs and records to improve communication and continuity of support.",
+    ],
+  },
+  {
+    role: "Full Stack Developer",
+    company: "Aux. Limited",
+    period: "2019",
+    points: [
+      "Developed full-stack web applications using ReactJS and Firebase in a team of 10 developers.",
+      "Built responsive UI components and reusable modules.",
+      "Collaborated in Agile/Scrum sprints, testing, and debugging workflows.",
+    ],
+  },
+  {
+    role: "Front-End Developer / Graphic Designer",
+    company: "RR Donnelley",
+    period: "2017 - 2018",
+    points: [
+      "Designed automation tools using JavaScript and PHP.",
+      "Produced magazine layouts, brochures, and print-ready corporate materials.",
+    ],
+  },
+  {
+    role: "Video-Photographer / Graphic Designer",
+    company: "Azilana Digital Photography",
+    period: "2016 - 2017",
+    points: [
+      "Filmed and edited promotional AVPs for FEU campuses using DSLR cameras and professional editing tools.",
+    ],
+  },
+  {
+    role: "Web Designer / Graphic Designer",
+    company: "Orange and Bronze Software Development",
+    period: "2014 - 2015",
+    points: [
+      "Designed website layouts, ID cards, branding materials, posters, and office murals for corporate clients.",
+    ],
+  },
+];
+
+const education = [
+  {
+    title: "Diploma in Computer Science",
+    level: "Level 8",
+    school: "Auckland University of Technology (AUT)",
+    period: "In Progress - Expected February 2027",
+  },
+  {
+    title: "Diploma in Software Development",
+    level: "Level 7",
+    school: "ATMC - Australian Technical and Management College",
+    period: "2018 - 2019",
+  },
+  {
+    title: "Bachelor of Arts - Multimedia Arts",
+    school: "De La Salle - College of Saint Benilde",
+    period: "2010 - 2015",
+  },
+];
+
 function ResumePage() {
   return (
     <main className="resume-page">
-      <section className="resume-header">
+      <section className="resume-header resume-header-featured">
         <div>
           <p className="eyebrow">Resume</p>
-          <h1>Jeshurun Sanchez</h1>
-          <p>Graphic Designer / Web Designer / Software Engineer</p>
+          <h1>Jesh Sanchez</h1>
+          <p>
+            Web and cloud development professional with experience in
+            full-stack development, front-end engineering, UI design, graphic
+            design, and digital solutions.
+          </p>
+
+          <div className="resume-contact-row">
+            {contactLinks.map((item) =>
+              item.href ? (
+                <a key={item.label} href={item.href}>
+                  {item.icon}
+                  {item.label}
+                </a>
+              ) : (
+                <span key={item.label}>
+                  {item.icon}
+                  {item.label}
+                </span>
+              )
+            )}
+          </div>
         </div>
 
-        <a
-          href="https://docs.google.com/document/d/1s7pvk6pstVVBFssVP_TyNfAvKNwUHkJzdhvS-wtD-48/edit?usp=sharing"
-          className="resume-download"
-          target="_blank"
-          rel="noreferrer"
-          download
-        >
-          Download CV
-        </a>
+        <div className="resume-quick-card">
+          <span>Open full CV</span>
+          <a
+            href={cvUrl}
+            className="resume-download"
+            target="_blank"
+            rel="noreferrer"
+          >
+            View CV <ExternalLink size={16} />
+          </a>
+          <p>Currently completing a Level 8 Diploma in Computer Science at AUT.</p>
+        </div>
       </section>
 
       <section className="resume-layout">
         <div className="resume-main">
-          <section className="resume-section">
+          <section className="resume-section resume-profile-section">
             <h2>Profile</h2>
             <p>
-              A multidisciplinary creative and developer with experience across
-              design, frontend development, software engineering, and machine
-              learning projects.
+              After several years in disability support work, I am
+              transitioning back into IT to gain professional experience in web
+              development and software engineering. I bring experience
+              supporting clients, coordinating with healthcare professionals,
+              and delivering web solutions in small teams.
             </p>
           </section>
 
           <section className="resume-section">
-            <h2>Projects</h2>
+            <h2>Professional Experience</h2>
+            {experience.map((item) => (
+              <article className="resume-item resume-experience-item" key={item.role}>
+                <div className="resume-item-heading">
+                  <div>
+                    <h3>{item.role}</h3>
+                    <p>{item.company}</p>
+                  </div>
+                  <span>{item.period}</span>
+                </div>
 
-            <div className="resume-item">
-              <h3>Gallery Portfolios</h3>
-              <p>
-                Full-stack portfolio platforms using ReactJS, Spring Boot,
-                NodeJS, and PostgreSQL/PHP Laravel.
-              </p>
-            </div>
+                {item.meta && <p className="resume-item-meta">{item.meta}</p>}
 
-            <div className="resume-item">
-              <h3>Machine Learning Project</h3>
-              <p>
-                Built classification models, evaluated performance, and produced
-                technical analysis reports.
-              </p>
-            </div>
-          </section>
-
-          <section className="resume-section">
-            <h2>Education</h2>
-
-            <div className="resume-item">
-              <h3>Postgraduate Diploma in Computer & Information Sciences</h3>
-              <p>Level 8 · In Progress</p>
-              <p>Auckland University of Technology</p>
-            </div>
-
-            <div className="resume-item">
-              <h3>Diploma in Web & Software Development</h3>
-              <p>Level 7 · Completed</p>
-              <p>ATMC New Zealand, formerly Edenz Colleges Ltd.</p>
-            </div>
-
-            <div className="resume-item">
-              <h3>Bachelor of Arts in Multimedia Arts</h3>
-              <p>Level 7 · Completed</p>
-              <p>De La Salle - College of Saint Benilde</p>
-            </div>
+                <ul>
+                  {item.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
           </section>
         </div>
 
         <aside className="resume-sidebar">
           <section>
-            <h2>Skills</h2>
+            <h2>Skills Summary</h2>
             <div className="skill-list">
-              <span>React</span>
-              <span>TypeScript</span>
-              <span>Java</span>
-              <span>Spring Boot</span>
-              <span>Python</span>
-              <span>Machine Learning</span>
-              <span>PHP</span>
-              <span>Laravel</span>
-              <span>HTML/CSS</span>
-              <span>NodeJS</span>
-              <span>PostgreSQL</span>
-              <span>UI Design</span>
-              <span>Graphic Design</span>
+              {skills.map((skill) => (
+                <span key={skill}>{skill}</span>
+              ))}
             </div>
           </section>
 
           <section>
-            <h2>Tools</h2>
-            <p>VS Code, GitHub, Figma, Adobe Creative Suite, PyCharm</p>
+            <h2>Education</h2>
+            {education.map((item) => (
+              <div className="resume-sidebar-item" key={item.title}>
+                <h3>{item.title}</h3>
+                {item.level && <p>{item.level}</p>}
+                <p>{item.school}</p>
+                <p>{item.period}</p>
+              </div>
+            ))}
           </section>
 
           <section>
-            <h2>References</h2>
-            <p>Available on request.</p>
+            <h2>Portfolio</h2>
+            <p>
+              <a href="https://www.jesh.nz" target="_blank" rel="noreferrer">
+                jesh.nz
+              </a>
+            </p>
+            <p>
+              <a
+                href="https://jeshport.web.app"
+                target="_blank"
+                rel="noreferrer"
+              >
+                jeshport.web.app
+              </a>
+            </p>
+            <p>
+              <a
+                href="https://www.behance.net/jeshurun"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Behance
+              </a>
+            </p>
+          </section>
+
+          <section>
+            <h2>Referees</h2>
+            <p>Available upon request.</p>
           </section>
         </aside>
       </section>

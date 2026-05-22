@@ -1928,9 +1928,9 @@ main {
 
 .about-page,
 .resume-page {
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 2.5rem 1.5rem 4rem;
 }
 
 .about-hero,
@@ -1939,6 +1939,17 @@ main {
   grid-template-columns: minmax(0, 1fr) 320px;
   gap: 2rem;
   align-items: start;
+}
+
+.about-hero-featured,
+.resume-header-featured {
+  padding: 2rem;
+  border: 1px solid #ececec;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 42%),
+    linear-gradient(315deg, rgba(37, 99, 235, 0.08), transparent 38%),
+    #fff;
 }
 
 .about-hero h1,
@@ -1961,8 +1972,9 @@ main {
 .resume-sidebar {
   border: 1px solid #ececec;
   border-radius: 18px;
-  background: #fafafa;
+  background: #fff;
   padding: 1.5rem;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.04);
 }
 
 .about-card h2,
@@ -1970,6 +1982,45 @@ main {
 .resume-section h2 {
   font-size: 1.1rem;
   margin-bottom: 1rem;
+}
+
+.about-profile-card p,
+.about-career-note p {
+  color: #555;
+  line-height: 1.75;
+}
+
+.about-mini-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.about-mini-list span,
+.resume-contact-row a,
+.resume-contact-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #333;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.resume-contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.35rem;
+}
+
+.resume-contact-row a:hover {
+  border-color: #111;
 }
 
 /* Resume content blocks */
@@ -1984,9 +2035,16 @@ main {
   line-height: 1.8;
 }
 
+.resume-profile-section {
+  padding: 1.5rem;
+  border: 1px solid #ececec;
+  border-radius: 18px;
+  background: #fff;
+}
+
 .resume-item {
   margin-top: 1.25rem;
-  padding-bottom: 1.25rem;
+  padding: 1.25rem 0;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -2007,6 +2065,39 @@ main {
   line-height: 1.6;
 }
 
+.resume-item-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.resume-item-heading > span {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: #f5f5f5;
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.resume-item-meta {
+  color: #555;
+  font-weight: 600;
+}
+
+.resume-experience-item ul {
+  margin-top: 0.8rem;
+  padding-left: 1.1rem;
+  color: #555;
+  line-height: 1.7;
+}
+
+.resume-experience-item li + li {
+  margin-top: 0.35rem;
+}
+
 .about-card ul {
   padding-left: 1.2rem;
   color: #444;
@@ -2018,18 +2109,66 @@ main {
   max-width: 760px;
 }
 
+.about-statement {
+  max-width: 900px;
+  padding-left: 1.2rem;
+  border-left: 4px solid #0f766e;
+}
+
+.about-statement p {
+  font-size: 1.08rem;
+}
+
+.about-career-note {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 2rem;
+  max-width: none;
+  padding: 1.5rem;
+  border: 1px solid #ececec;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.about-career-note h2 {
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
 .about-grid {
   margin-top: 2rem;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
 }
 
 .about-grid div {
   border: 1px solid #ececec;
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 1.25rem;
   background: #fff;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.about-grid div:hover {
+  border-color: #d4d4d4;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.about-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  background: #ecfdf5;
+  color: #0f766e;
 }
 
 .about-grid h3 {
@@ -2045,6 +2184,7 @@ main {
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  gap: 0.5rem;
   padding: 0.8rem 1rem;
   border-radius: 12px;
   background: #111;
@@ -2060,10 +2200,33 @@ main {
   transform: translateY(-2px);
 }
 
+.resume-quick-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border: 1px solid #ececec;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 1.25rem;
+}
+
+.resume-quick-card > span {
+  color: #555;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.resume-quick-card p {
+  margin-top: 0;
+  font-size: 0.92rem;
+}
+
 .resume-layout {
   margin-top: 3rem;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 2rem;
   align-items: start;
 }
@@ -2073,6 +2236,8 @@ main {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  position: sticky;
+  top: 96px;
 }
 
 .resume-section {
@@ -2103,6 +2268,30 @@ main {
   font-size: 0.85rem;
 }
 
+.resume-sidebar-item {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #ececec;
+}
+
+.resume-sidebar-item:last-child {
+  border-bottom: none;
+}
+
+.resume-sidebar-item h3 {
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.resume-sidebar-item p {
+  margin-top: 0.3rem;
+  line-height: 1.5;
+}
+
+.resume-sidebar a {
+  color: #111;
+  font-weight: 600;
+}
+
 @media (max-width: 900px) {
   .about-hero,
   .resume-header,
@@ -2110,8 +2299,130 @@ main {
     grid-template-columns: 1fr;
   }
 
-  .about-grid {
+  .resume-layout {
+    gap: 1.5rem;
+  }
+
+  .about-grid,
+  .about-career-note {
     grid-template-columns: 1fr;
+  }
+
+  .resume-sidebar {
+    position: static;
+    gap: 1.5rem;
+  }
+
+  .resume-contact-row a,
+  .resume-contact-row span {
+    flex: 1 1 calc(50% - 0.55rem);
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-page,
+  .resume-page {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .about-hero-featured,
+  .resume-header-featured {
+    padding: 1.25rem;
+    border-radius: 18px;
+  }
+
+  .resume-header h1 {
+    font-size: 2.35rem;
+  }
+
+  .resume-header p,
+  .resume-section p,
+  .resume-sidebar p {
+    line-height: 1.65;
+  }
+
+  .resume-contact-row {
+    gap: 0.45rem;
+  }
+
+  .resume-contact-row a,
+  .resume-contact-row span {
+    flex-basis: 100%;
+    border-radius: 12px;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .resume-quick-card,
+  .resume-profile-section,
+  .resume-sidebar {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .resume-download {
+    width: 100%;
+  }
+
+  .resume-layout {
+    margin-top: 1.5rem;
+  }
+
+  .resume-main,
+  .resume-sidebar {
+    gap: 1.25rem;
+  }
+
+  .resume-section {
+    padding-bottom: 1.25rem;
+  }
+
+  .resume-item-heading {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .resume-item-heading > span {
+    width: fit-content;
+  }
+
+  .resume-item {
+    margin-top: 0.75rem;
+    padding: 1rem 0;
+  }
+
+  .resume-experience-item ul {
+    padding-left: 1rem;
+    line-height: 1.58;
+  }
+
+  .resume-experience-item li + li {
+    margin-top: 0.5rem;
+  }
+
+  .skill-list {
+    gap: 0.4rem;
+  }
+
+  .skill-list span {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .resume-header h1 {
+    font-size: 2rem;
+  }
+
+  .resume-contact-row a,
+  .resume-contact-row span,
+  .skill-list span {
+    font-size: 0.78rem;
+  }
+
+  .resume-experience-item ul {
+    font-size: 0.92rem;
   }
 }
 
