@@ -11,6 +11,8 @@ function ResumePage() {
         <a
           href="https://docs.google.com/document/d/1s7pvk6pstVVBFssVP_TyNfAvKNwUHkJzdhvS-wtD-48/edit?usp=sharing"
           className="resume-download"
+          target="_blank"
+          rel="noreferrer"
           download
         >
           Download CV
