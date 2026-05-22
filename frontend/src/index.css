@@ -1639,6 +1639,24 @@ main {
   font-size: 0.85rem;
 }
 
+.admin-page-editor {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.admin-json-editor {
+  min-height: 560px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  resize: vertical;
+  white-space: pre;
+}
+
+.admin-error-text {
+  color: #b91c1c !important;
+}
+
 .admin-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

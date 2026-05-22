@@ -39,7 +39,9 @@ private final UserRepository userRepository;
         path.matches("/api/projects/\\d+/view") ||
         path.matches("/api/projects/\\d+/like") ||
         (request.getMethod().equals("GET") &&
-                (path.startsWith("/api/projects") || path.startsWith("/api/tags")))) {
+                (path.startsWith("/api/projects") ||
+                        path.startsWith("/api/tags") ||
+                        path.startsWith("/api/pages")))) {
     filterChain.doFilter(request, response);
     return;
 }

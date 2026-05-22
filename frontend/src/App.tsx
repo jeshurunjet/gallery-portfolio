@@ -9,6 +9,7 @@ import AdminLayout from "./components/AdminLayout";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminProjectsPage from "./pages/admin/AdminProjectsPage";
 import AdminTagsPage from "./pages/admin/AdminTagsPage";
+import AdminPagesPage from "./pages/admin/AdminPagesPage";
 import AdminNewProjectPage from "./pages/admin/AdminNewProjectPage";
 import AdminEditProjectPage from "./pages/admin/AdminEditProjectPage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -49,6 +50,7 @@ function App() {
                 element={<AdminEditProjectPage />}
               />
               <Route path="tags" element={<AdminTagsPage />} />
+              <Route path="pages" element={<AdminPagesPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />

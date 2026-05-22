@@ -10,6 +10,7 @@ function AdminLayout() {
           <Link to="/admin">Dashboard</Link>
           <Link to="/admin/projects">Projects</Link>
           <Link to="/admin/tags">Tags</Link>
+          <Link to="/admin/pages">Pages</Link>
         </nav>
       </aside>
 
