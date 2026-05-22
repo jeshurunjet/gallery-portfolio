@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { API_BASE_URL } from "../../config";
+import { Eye, EyeOff } from "lucide-react";
 
 function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -54,28 +55,45 @@ function ResetPasswordPage() {
       <form className="auth-form" onSubmit={handleSubmit}>
         <h1>Reset Password</h1>
         <p className="auth-subtext">Manage your portfolio securely</p>
-        <input
-          type={showPassword ? "text" : "password"}
-          placeholder="Password"
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className="auth-password-field">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <input
-          type={showPassword ? "text" : "password"}
-          placeholder="Confirm password"
-          autoComplete="new-password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-        <button
-          type="button"
-          className="auth-secondary-button"
-          onClick={() => setShowPassword((prev) => !prev)}
-        >
-          {showPassword ? "Hide password" : "Show password"}
-        </button>
+          <button
+            type="button"
+            className="auth-password-toggle"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            title={showPassword ? "Hide password" : "Show password"}
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+
+        <div className="auth-password-field">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Confirm password"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+
+          <button
+            type="button"
+            className="auth-password-toggle"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            title={showPassword ? "Hide password" : "Show password"}
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
 
         {message && <p className="auth-success">{message}</p>}
         {error && <p className="auth-error">{error}</p>}
