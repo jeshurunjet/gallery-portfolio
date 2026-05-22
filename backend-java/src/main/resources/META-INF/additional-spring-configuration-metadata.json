@@ -1,0 +1,35 @@
+{
+  "properties": [
+    {
+      "name": "cloudinary.cloud-name",
+      "type": "java.lang.String",
+      "description": "Cloudinary cloud name used for media uploads."
+    },
+    {
+      "name": "cloudinary.api-key",
+      "type": "java.lang.String",
+      "description": "Cloudinary API key."
+    },
+    {
+      "name": "cloudinary.api-secret",
+      "type": "java.lang.String",
+      "description": "Cloudinary API secret."
+    },
+    {
+      "name": "app.admin-email",
+      "type": "java.lang.String",
+      "description": "Email address for the application administrator."
+    },
+    {
+      "name": "app.frontend-url",
+      "type": "java.lang.String",
+      "description": "Frontend application URL."
+    },
+    {
+      "name": "app.registration-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether public user registration is enabled.",
+      "defaultValue": false
+    }
+  ]
+}
