@@ -150,6 +150,7 @@ const education = [
   },
   {
     title: "Bachelor of Arts - Multimedia Arts",
+    level: "Level 7",
     school: "De La Salle - College of Saint Benilde",
     period: "2010 - 2015",
   },
@@ -163,9 +164,9 @@ function ResumePage() {
           <p className="eyebrow">Resume</p>
           <h1>Jesh Sanchez</h1>
           <p>
-            Web and cloud development professional with experience in
-            full-stack development, front-end engineering, UI design, graphic
-            design, and digital solutions.
+            Web and cloud development professional with experience in full-stack
+            development, front-end engineering, UI design, graphic design, and
+            digital solutions.
           </p>
 
           <div className="resume-contact-row">
@@ -195,7 +196,9 @@ function ResumePage() {
           >
             View CV <ExternalLink size={16} />
           </a>
-          <p>Currently completing a Level 8 Diploma in Computer Science at AUT.</p>
+          <p>
+            Currently completing a Level 8 Diploma in Computer Science at AUT.
+          </p>
         </div>
       </section>
 
@@ -204,18 +207,21 @@ function ResumePage() {
           <section className="resume-section resume-profile-section">
             <h2>Profile</h2>
             <p>
-              After several years in disability support work, I am
-              transitioning back into IT to gain professional experience in web
-              development and software engineering. I bring experience
-              supporting clients, coordinating with healthcare professionals,
-              and delivering web solutions in small teams.
+              After several years in disability support work, I am transitioning
+              back into IT to gain professional experience in web development
+              and software engineering. I bring experience supporting clients,
+              coordinating with healthcare professionals, and delivering web
+              solutions in small teams.
             </p>
           </section>
 
           <section className="resume-section">
             <h2>Professional Experience</h2>
             {experience.map((item) => (
-              <article className="resume-item resume-experience-item" key={item.role}>
+              <article
+                className="resume-item resume-experience-item"
+                key={item.role}
+              >
                 <div className="resume-item-heading">
                   <div>
                     <h3>{item.role}</h3>

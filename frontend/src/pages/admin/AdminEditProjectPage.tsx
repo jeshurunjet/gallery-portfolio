@@ -5,7 +5,7 @@ import ProjectForm, {
 } from "../../components/ProjectForm";
 import useProjects from "../../hooks/useProjects";
 import Toast from "../../components/Toast";
-import { Pin, RotateCcw } from "lucide-react";
+import { Eye, Pin, ThumbsUp } from "lucide-react";
 
 function AdminEditProjectPage() {
   const { id } = useParams();
@@ -170,15 +170,33 @@ function AdminEditProjectPage() {
                 await updateProject({
                   ...project,
                   likes: 0,
-                  views: 0,
+                  pinned: draftPinned ?? project.pinned ?? false,
                 });
 
-                setToastMessage("Stats reset (likes & views)");
+                setToastMessage("Likes reset");
                 setShowToast(true);
               }}
             >
-              <RotateCcw size={17} />
-              Reset Likes & Views
+              <ThumbsUp size={17} />
+              Reset Likes
+            </button>
+
+            <button
+              type="button"
+              className="admin-secondary-button admin-reset-button"
+              onClick={async () => {
+                await updateProject({
+                  ...project,
+                  views: 0,
+                  pinned: draftPinned ?? project.pinned ?? false,
+                });
+
+                setToastMessage("Views reset");
+                setShowToast(true);
+              }}
+            >
+              <Eye size={17} />
+              Reset Views
             </button>
           </div>
         </div>
