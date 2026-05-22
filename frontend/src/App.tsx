@@ -16,6 +16,7 @@ import RegisterPage from "./pages/admin/RegisterPage";
 import ResetPasswordPage from "./pages/admin/ResetPasswordPage";
 import ForgotPasswordPage from "./pages/admin/ForgotPasswordPage";
 import Footer from "./components/Footer";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   return (
@@ -48,7 +49,9 @@ function App() {
                 element={<AdminEditProjectPage />}
               />
               <Route path="tags" element={<AdminTagsPage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Route>
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
         <Footer />
