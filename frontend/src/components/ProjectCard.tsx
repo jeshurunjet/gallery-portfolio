@@ -23,7 +23,6 @@ function ProjectCard({ project }: { project: Project }) {
           {project.pinned && (
             <div className="card-pin-badge">
               <Pin size={14} />
-              Pinned
             </div>
           )}
 
