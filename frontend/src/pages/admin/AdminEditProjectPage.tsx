@@ -154,6 +154,10 @@ function AdminEditProjectPage() {
           initialData={initialData}
           submitLabel="Update Project"
           onSubmit={handleSubmit}
+          onNotify={(message) => {
+            setToastMessage(message);
+            setShowToast(true);
+          }}
         />
       </main>
 
