@@ -257,10 +257,12 @@ function ResumePage() {
             <h2>Education</h2>
             {education.map((item) => (
               <div className="resume-sidebar-item" key={item.title}>
-                <h3>{item.title}</h3>
-                {item.level && <p>{item.level}</p>}
-                <p>{item.school}</p>
-                <p>{item.period}</p>
+                <div className="education-heading">
+                  <h3>{item.title}</h3>
+                  {item.level && <span>{item.level}</span>}
+                </div>
+                <p className="education-school">{item.school}</p>
+                <p className="education-period">{item.period}</p>
               </div>
             ))}
           </section>
