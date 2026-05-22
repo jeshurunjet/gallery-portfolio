@@ -2000,9 +2000,9 @@ main {
   padding: 1.5rem;
   border: 1px solid #ececec;
   border-radius: 18px;
-  background:
+  /*background:
     linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 42%),
-    #fff;
+    #fff;*/
   display: flex;
   justify-content: space-between;
   gap: 1.25rem;
@@ -2640,10 +2640,10 @@ main {
   padding: 2rem;
   border: 1px solid #ececec;
   border-radius: 22px;
-  background:
+  /*background:
     linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 42%),
     linear-gradient(315deg, rgba(37, 99, 235, 0.08), transparent 38%),
-    #fff;
+    #fff;*/
 }
 
 .about-hero h1,
@@ -3256,9 +3256,9 @@ main {
   padding: 2rem;
   border: 1px solid #ececec;
   border-radius: 22px;
-  background:
+  /*background:
     linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 45%),
-    #fff;
+    #fff;*/
   text-align: center;
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.06);
 }
