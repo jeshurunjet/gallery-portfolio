@@ -10,6 +10,7 @@ import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminProjectsPage from "./pages/admin/AdminProjectsPage";
 import AdminTagsPage from "./pages/admin/AdminTagsPage";
 import AdminPagesPage from "./pages/admin/AdminPagesPage";
+import AdminAccountPage from "./pages/admin/AdminAccountPage";
 import AdminNewProjectPage from "./pages/admin/AdminNewProjectPage";
 import AdminEditProjectPage from "./pages/admin/AdminEditProjectPage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -51,6 +52,7 @@ function App() {
               />
               <Route path="tags" element={<AdminTagsPage />} />
               <Route path="pages" element={<AdminPagesPage />} />
+              <Route path="account" element={<AdminAccountPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />

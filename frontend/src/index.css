@@ -1016,7 +1016,7 @@ main {
 
   .admin-nav {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
     gap: 0.5rem;
   }
 
@@ -1736,6 +1736,87 @@ main {
   font-size: 0.82rem;
 }
 
+.admin-account-grid {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-account-panel {
+  padding: 1.25rem;
+  border: 1px solid #ececec;
+  border-radius: 14px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.admin-account-panel h2 {
+  color: #111;
+  font-size: 1.2rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-account-panel small {
+  color: #666;
+  line-height: 1.5;
+}
+
+.admin-account-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #111;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-account-danger {
+  margin-top: 1.25rem;
+  max-width: 980px;
+  padding: 1.25rem;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-account-danger > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.admin-account-danger h2 {
+  color: #111;
+  font-size: 1.05rem;
+}
+
+.admin-account-danger p {
+  margin-top: 0.25rem;
+  color: #666;
+  line-height: 1.55;
+}
+
+.admin-danger-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #b91c1c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
 .admin-json-editor {
   min-height: 560px;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
@@ -1764,6 +1845,15 @@ main {
 @media (max-width: 700px) {
   .admin-form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .admin-account-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-account-danger {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .admin-page-savebar {

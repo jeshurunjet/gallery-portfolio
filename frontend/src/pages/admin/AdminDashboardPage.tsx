@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo } from "react";
 import useProjects from "../../hooks/useProjects";
 import useTags from "../../hooks/useTags";
-import { API_BASE_URL } from "../../config";
 import {
   AlertCircle,
   Eye,
@@ -15,62 +14,6 @@ import {
 function AdminDashboardPage() {
   const { projects } = useProjects();
   const { tags } = useTags();
-  const [currentUser, setCurrentUser] = useState<{ email: string } | null>(
-    null
-  );
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) return;
-
-        const data = await response.json();
-        setCurrentUser(data);
-      } catch (err) {
-        console.error("Failed to fetch user", err);
-      }
-    };
-
-    fetchUser();
-  }, []);
-  const handleDeleteAccount = async () => {
-    const confirmed = confirm(
-      "Are you sure you want to delete your account? This cannot be undone."
-    );
-
-    if (!confirmed) return;
-
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`${API_BASE_URL}/api/auth/delete`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete account");
-      }
-
-      // logout after deletion
-      localStorage.removeItem("token");
-      localStorage.removeItem("isAuth");
-
-      window.location.replace("/admin/login");
-    } catch (err) {
-      alert("Failed to delete account");
-      console.error(err);
-    }
-  };
 
   const stats = useMemo(() => {
     const totalProjects = projects.length;
@@ -123,16 +66,6 @@ function AdminDashboardPage() {
           <h1>Admin Dashboard</h1>
 
           <p>Overview of your portfolio content and activity.</p>
-        </div>
-        <div className="account-info">
-          {currentUser && (
-            <p className="admin-user-info">
-              Logged in as: <strong>{currentUser.email}</strong>
-            </p>
-          )}
-          <button className="admin-delete-button" onClick={handleDeleteAccount}>
-            Delete Account
-          </button>
         </div>
       </div>
 

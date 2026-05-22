@@ -113,7 +113,7 @@ public class AuthController {
     }
 
     // User's identity on the admin dashboard page
-    @GetMapping("/me")
+@GetMapping("/me")
 public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
     User user = (User) request.getAttribute("user");
 
@@ -125,6 +125,24 @@ public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
             Map.of(
                     "id", user.getId(),
                     "email", user.getEmail()
+            )
+    );
+}
+
+@GetMapping("/account")
+public ResponseEntity<?> getAccountSummary(HttpServletRequest request) {
+    User user = (User) request.getAttribute("user");
+
+    if (user == null) {
+        return ResponseEntity.status(401).body("Unauthorized");
+    }
+
+    return ResponseEntity.ok(
+            Map.of(
+                    "id", user.getId(),
+                    "email", user.getEmail(),
+                    "registrationEnabled", registrationEnabled,
+                    "userCount", userRepository.count()
             )
     );
 }

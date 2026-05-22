@@ -11,6 +11,7 @@ function AdminLayout() {
           <Link to="/admin/projects">Projects</Link>
           <Link to="/admin/tags">Tags</Link>
           <Link to="/admin/pages">Pages</Link>
+          <Link to="/admin/account">Account</Link>
         </nav>
       </aside>
 
