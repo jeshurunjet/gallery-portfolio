@@ -1,19 +1,26 @@
 import { useEffect, useState } from "react";
 
-const phrases = [
+const fallbackPhrases = [
   "Full-stack developer with a designer's eye.",
   "Developer by craft. Designer by instinct.",
   "Bridging creativity and technology.",
   "Turning ideas into digital experiences.",
 ];
 
-function TypingText() {
+type TypingTextProps = {
+  phrases?: string[];
+};
+
+function TypingText({ phrases }: TypingTextProps) {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [text, setText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const activePhrases = phrases?.filter(Boolean).length
+    ? phrases.filter(Boolean)
+    : fallbackPhrases;
 
   useEffect(() => {
-    const currentPhrase = phrases[phraseIndex];
+    const currentPhrase = activePhrases[phraseIndex];
 
     const timeout = setTimeout(
       () => {
@@ -30,7 +37,7 @@ function TypingText() {
 
           if (nextText === "") {
             setIsDeleting(false);
-            setPhraseIndex((prev) => (prev + 1) % phrases.length);
+            setPhraseIndex((prev) => (prev + 1) % activePhrases.length);
           }
         }
       },
@@ -38,7 +45,13 @@ function TypingText() {
     );
 
     return () => clearTimeout(timeout);
-  }, [text, isDeleting, phraseIndex]);
+  }, [activePhrases, isDeleting, phraseIndex, text]);
+
+  useEffect(() => {
+    setPhraseIndex(0);
+    setText("");
+    setIsDeleting(false);
+  }, [activePhrases]);
 
   return (
     <span className="typing-text">

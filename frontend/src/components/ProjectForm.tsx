@@ -324,6 +324,39 @@ function ProjectForm({
     return response.text();
   };
 
+  const uploadVideo = async (file: File) => {
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+
+    const response = await fetch(`${API_BASE_URL}/api/upload/video`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: formDataUpload,
+    });
+
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("isAuth");
+
+      sessionStorage.setItem(
+        "authMessage",
+        "Your session has expired. Please log in again."
+      );
+
+      window.location.replace("/admin/login");
+
+      throw new Error("Session expired");
+    }
+
+    if (!response.ok) {
+      throw new Error("Upload failed");
+    }
+
+    return response.text();
+  };
+
   const uploadContentImage = async (
     file: File,
     onSuccess: (imageUrl: string) => void,
@@ -342,6 +375,35 @@ function ProjectForm({
     } catch (error) {
       console.error(error);
       onNotify?.(errorMessage);
+    }
+  };
+
+  const uploadContentMedia = async (
+    file: File,
+    mediaType: "image" | "video",
+    onSuccess: (mediaUrl: string) => void
+  ) => {
+    const isVideo = mediaType === "video";
+
+    try {
+      onNotify?.(
+        isVideo ? "Uploading media video..." : "Uploading media image..."
+      );
+
+      const mediaUrl = isVideo
+        ? await uploadVideo(file)
+        : await uploadImage(file);
+
+      onSuccess(mediaUrl);
+
+      onNotify?.(
+        isVideo ? "Media video uploaded!" : "Media image uploaded!"
+      );
+    } catch (error) {
+      console.error(error);
+      onNotify?.(
+        isVideo ? "Media video upload failed." : "Media image upload failed."
+      );
     }
   };
 
@@ -1439,32 +1501,44 @@ function ProjectForm({
 
                               <input
                                 type="file"
-                                accept="image/*"
+                                accept={
+                                  block.mediaType === "video"
+                                    ? "video/mp4,video/webm"
+                                    : "image/*"
+                                }
                                 onChange={async (event) => {
                                   const file = event.target.files?.[0];
                                   if (!file) return;
 
-                                  await uploadContentImage(
+                                  await uploadContentMedia(
                                     file,
+                                    block.mediaType ?? "image",
                                     (imageUrl) => {
                                       updateContentBlock(index, {
                                         ...block,
                                         imageUrl,
                                       });
-                                    },
-                                    "Uploading media image...",
-                                    "Media image uploaded!",
-                                    "Media image upload failed."
+                                    }
                                   );
                                 }}
                               />
 
                               {block.imageUrl && (
                                 <div className="upload-preview">
-                                  <img
-                                    src={block.imageUrl}
-                                    alt={block.imageAlt || "Media preview"}
-                                  />
+                                  {block.mediaType === "video" ? (
+                                    <video
+                                      src={block.imageUrl}
+                                      className="upload-preview-video"
+                                      controls
+                                      muted
+                                      playsInline
+                                    />
+                                  ) : (
+                                    <img
+                                      src={block.imageUrl}
+                                      alt={block.imageAlt || "Media preview"}
+                                    />
+                                  )}
 
                                   <button
                                     type="button"
@@ -1475,7 +1549,9 @@ function ProjectForm({
                                       });
                                     }}
                                   >
-                                    Remove image
+                                    {block.mediaType === "video"
+                                      ? "Remove video"
+                                      : "Remove image"}
                                   </button>
                                 </div>
                               )}

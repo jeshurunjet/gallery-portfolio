@@ -367,6 +367,15 @@ function AdminPagesPage() {
                   hint="One paragraph per line."
                   rows={5}
                 />
+                <TextArea
+                  label="Animated phrases"
+                  value={joinLines(aboutContent.animatedPhrases)}
+                  onChange={(value) =>
+                    updateAbout("animatedPhrases", splitLines(value))
+                  }
+                  hint="One phrase per line. These rotate in the About page typewriter text."
+                  rows={5}
+                />
               </section>
 
               <section className="admin-form-panel">

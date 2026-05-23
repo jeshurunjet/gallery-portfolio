@@ -432,6 +432,10 @@ main {
   gap: 1rem;
 }
 
+.image-gallery-main {
+  touch-action: pan-y;
+}
+
 .image-gallery-main img {
   width: 100%;
   border-radius: 16px;
@@ -1345,6 +1349,15 @@ main {
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid #ececec;
+}
+
+.upload-preview-video {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #ececec;
+  background: #f5f5f5;
 }
 
 .upload-preview button,
@@ -3970,6 +3983,12 @@ main {
     max-height: 220px;
   }
 
+  .upload-preview-video {
+    width: 100%;
+    height: auto;
+    max-height: 220px;
+  }
+
   .admin-form {
     max-width: 100%;
   }
@@ -3983,6 +4002,18 @@ main {
   .sortable-card,
   .content-editor-card {
     max-width: 100%;
+  }
+}
+
+@media (max-width: 800px) {
+  .image-gallery-main {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
+
+  .image-gallery-main img {
+    border-radius: 10px;
   }
 }
 

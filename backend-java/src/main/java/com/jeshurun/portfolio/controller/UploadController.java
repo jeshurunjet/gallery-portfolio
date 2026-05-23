@@ -27,19 +27,40 @@ public class UploadController {
     @PostMapping("/image")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
-        @SuppressWarnings("unchecked")
-Map<String, Object> uploadResult =
-(Map<String, Object>) cloudinary.uploader().upload(
-        file.getBytes(),
-        ObjectUtils.asMap(
-            "folder", "portfolio",
-            "resource_type", "image"
-        )
-);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> uploadResult =
+                    (Map<String, Object>) cloudinary.uploader().upload(
+                            file.getBytes(),
+                            ObjectUtils.asMap(
+                                    "folder", "portfolio",
+                                    "resource_type", "image"
+                            )
+                    );
             String imageUrl = (String) uploadResult.get("secure_url");
 
             return ResponseEntity.ok(imageUrl);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Upload failed: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/video")
+    public ResponseEntity<?> uploadVideo(@RequestParam("file") MultipartFile file) {
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> uploadResult =
+                    (Map<String, Object>) cloudinary.uploader().upload(
+                            file.getBytes(),
+                            ObjectUtils.asMap(
+                                    "folder", "portfolio",
+                                    "resource_type", "video"
+                            )
+                    );
+            String videoUrl = (String) uploadResult.get("secure_url");
+
+            return ResponseEntity.ok(videoUrl);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Upload failed: " + e.getMessage());

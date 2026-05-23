@@ -44,7 +44,7 @@ function AboutPage() {
         <div>
           <p className="eyebrow">{content.heroEyebrow}</p>
           <h1 className="about-typing-line">
-            <TypingText />
+            <TypingText phrases={content.animatedPhrases} />
           </h1>
           {content.heroParagraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>

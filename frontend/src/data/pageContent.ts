@@ -10,6 +10,7 @@ export type AboutContent = {
   heroEyebrow: string;
   heroTitle: string;
   heroParagraphs: string[];
+  animatedPhrases: string[];
   focusTitle: string;
   focusText: string;
   focusAreas: string[];
@@ -82,6 +83,12 @@ export const defaultAboutContent: AboutContent = {
   heroParagraphs: [
     "I am a web and cloud development professional based in Auckland, New Zealand, with experience across full-stack development, front-end engineering, UI design, graphic design, and digital solutions.",
     "After several years in disability support work, I am transitioning back into IT with a practical mix of technical skill, creative production, and client-facing experience.",
+  ],
+  animatedPhrases: [
+    "Full-stack developer with a designer's eye.",
+    "Developer by craft. Designer by instinct.",
+    "Bridging creativity and technology.",
+    "Turning ideas into digital experiences.",
   ],
   focusTitle: "Current Focus",
   focusText:
@@ -305,9 +312,11 @@ export const defaultResumeContent: ResumeContent = {
 
 export function parsePageContent<T>(content: string, fallback: T): T {
   try {
+    const parsed = JSON.parse(content);
+
     return {
       ...fallback,
-      ...JSON.parse(content),
+      ...parsed,
     };
   } catch {
     return fallback;
