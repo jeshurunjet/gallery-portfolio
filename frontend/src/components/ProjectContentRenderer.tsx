@@ -263,11 +263,7 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
                 block.layout === "image-right" ? "content-media-reverse" : ""
               }`}
             >
-              <img
-                src={block.imageUrl}
-                alt={block.imageAlt ?? ""}
-                className="content-media-image"
-              />
+              {renderMedia(block)}
 
               <div className={`content-media-copy ${alignmentClass}`}>
                 {renderTextWithLists(block.text)}
