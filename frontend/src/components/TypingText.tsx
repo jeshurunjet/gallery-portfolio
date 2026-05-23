@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const fallbackPhrases = [
   "Full-stack developer with a designer's eye.",
@@ -12,61 +12,47 @@ type TypingTextProps = {
 };
 
 function TypingText({ phrases }: TypingTextProps) {
-  const [displayText, setDisplayText] = useState("");
-  const animationStateRef = useRef({
-    phraseIndex: 0,
-    text: "",
-    isDeleting: false,
-  });
+  const activePhrases = useMemo(() => {
+    const cleaned = phrases?.map((phrase) => phrase.trim()).filter(Boolean);
+    return cleaned?.length ? cleaned : fallbackPhrases;
+  }, [phrases]);
 
-  const activePhrases = useMemo(
-    () =>
-      phrases?.filter(Boolean).length
-        ? phrases.filter(Boolean)
-        : fallbackPhrases,
-    [phrases]
-  );
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [displayText, setDisplayText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const animate = () => {
-      const state = animationStateRef.current;
-      const currentPhrase = activePhrases[state.phraseIndex];
+    const currentPhrase = activePhrases[phraseIndex] ?? fallbackPhrases[0];
 
-      if (!state.isDeleting) {
-        state.text = currentPhrase.slice(0, state.text.length + 1);
-        setDisplayText(state.text);
+    const delay = isDeleting ? 30 : 90;
 
-        if (state.text === currentPhrase) {
-          setTimeout(() => {
-            state.isDeleting = true;
-            animate();
+    const timeout = window.setTimeout(() => {
+      if (!isDeleting) {
+        const nextText = currentPhrase.slice(0, displayText.length + 1);
+        setDisplayText(nextText);
+
+        if (nextText === currentPhrase) {
+          window.setTimeout(() => {
+            setIsDeleting(true);
           }, 5000);
-          return;
         }
-      } else {
-        state.text = currentPhrase.slice(0, state.text.length - 1);
-        setDisplayText(state.text);
 
-        if (state.text === "") {
-          state.isDeleting = false;
-          state.phraseIndex = (state.phraseIndex + 1) % activePhrases.length;
-        }
+        return;
       }
 
-      setTimeout(animate, state.isDeleting ? 30 : 90);
-    };
+      const nextText = currentPhrase.slice(0, displayText.length - 1);
+      setDisplayText(nextText);
 
-    animate();
-  }, [activePhrases]);
+      if (nextText === "") {
+        setIsDeleting(false);
+        setPhraseIndex((currentIndex) => {
+          return (currentIndex + 1) % activePhrases.length;
+        });
+      }
+    }, delay);
 
-  useEffect(() => {
-    animationStateRef.current = {
-      phraseIndex: 0,
-      text: "",
-      isDeleting: false,
-    };
-    setDisplayText("");
-  }, [activePhrases]);
+    return () => window.clearTimeout(timeout);
+  }, [activePhrases, phraseIndex, displayText, isDeleting]);
 
   return (
     <span className="typing-text">
