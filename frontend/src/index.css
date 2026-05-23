@@ -2639,7 +2639,8 @@ main {
   min-height: 3.2em;
 }
 .typing-text {
-  display: inline;
+  display: inline-block;
+  min-height: 1em; /* ensures text has space even when empty */
 }
 
 .typing-cursor {
