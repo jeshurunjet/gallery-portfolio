@@ -2621,8 +2621,8 @@ main {
 /* ----- Animated Text ----- */
 .about-typing-line {
   font-size: clamp(1.4rem, 3vw, 2rem);
-  font-weight: 600;
-  color: #555;
+  font-weight: 500;
+  color: #400;
   min-height: 3em;
 }
 .typing-text {
