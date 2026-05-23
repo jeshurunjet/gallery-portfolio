@@ -2618,6 +2618,28 @@ main {
   color: #777;
   margin-bottom: 0.75rem;
 }
+/* ----- Animated Text ----- */
+.about-typing-line {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 600;
+  color: #555;
+  min-height: 2.5em;
+}
+.typing-text {
+  display: inline;
+}
+
+.typing-cursor {
+  display: inline-block;
+  margin-left: 0.15rem;
+  animation: typingBlink 1s infinite;
+}
+
+@keyframes typingBlink {
+  50% {
+    opacity: 0;
+  }
+}
 
 /* ----- Resuume Format ----- */
 

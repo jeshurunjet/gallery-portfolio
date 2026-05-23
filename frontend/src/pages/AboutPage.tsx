@@ -9,6 +9,7 @@ import {
   type AboutStrengthIcon,
   type PageContentResponse,
 } from "../data/pageContent";
+import TypingText from "../components/TypingText";
 
 const strengthIcons: Record<AboutStrengthIcon, ReactNode> = {
   code: <Code2 size={22} />,
@@ -42,7 +43,9 @@ function AboutPage() {
       <section className="about-hero about-hero-featured">
         <div>
           <p className="eyebrow">{content.heroEyebrow}</p>
-          <h1>{content.heroTitle}</h1>
+          <h1 className="about-typing-line">
+            <TypingText />
+          </h1>
           {content.heroParagraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
