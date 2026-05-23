@@ -3565,6 +3565,12 @@ main {
   color: #666;
 }
 
+.content-media-video {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #f5f5f5;
+}
+
 .content-toolbar {
   display: flex;
   flex-wrap: wrap;

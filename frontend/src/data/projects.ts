@@ -17,6 +17,7 @@ export type ProjectContentBlock =
   | {
       type: "mediaText";
       layout: "image-left" | "image-right" | "image-text-image" | "image-image";
+      mediaType?: "image" | "video";
       text: string;
       imageUrl: string;
       imageAlt?: string;

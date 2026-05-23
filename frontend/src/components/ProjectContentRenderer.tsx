@@ -115,6 +115,32 @@ function renderTextWithLists(text: string): ReactNode[] {
 }
 
 function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
+  const renderMedia = (
+    block: Extract<ProjectContentBlock, { type: "mediaText" }>
+  ) => {
+    if (block.mediaType === "video") {
+      return (
+        <video
+          src={block.imageUrl}
+          className="content-media-image content-media-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        />
+      );
+    }
+
+    return (
+      <img
+        src={block.imageUrl}
+        alt={block.imageAlt ?? ""}
+        className="content-media-image"
+      />
+    );
+  };
+
   return (
     <section className="project-content-blocks">
       {content.map((block, index) => {
@@ -195,11 +221,7 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
                 key={index}
                 className="content-media-text content-media-image-pair"
               >
-                <img
-                  src={block.imageUrl}
-                  alt={block.imageAlt ?? ""}
-                  className="content-media-image"
-                />
+                {renderMedia(block)}
 
                 {block.imageUrlRight && (
                   <img
@@ -217,11 +239,7 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
                 key={index}
                 className="content-media-text content-media-text-three"
               >
-                <img
-                  src={block.imageUrl}
-                  alt={block.imageAlt ?? ""}
-                  className="content-media-image"
-                />
+                {renderMedia(block)}
 
                 <div className={`content-media-copy ${alignmentClass}`}>
                   {renderTextWithLists(block.text)}

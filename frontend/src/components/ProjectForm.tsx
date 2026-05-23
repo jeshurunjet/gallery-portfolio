@@ -214,6 +214,7 @@ function ProjectForm({
         block = {
           type: "mediaText",
           layout: "image-left",
+          mediaType: "image",
           imageUrl: "",
           imageAlt: "",
           imageUrlRight: "",
@@ -995,7 +996,9 @@ function ProjectForm({
             <Pin size={18} />
           </span>
           <span>
-            <strong>{pinnedValue ? "Pinned to homepage" : "Pin project"}</strong>
+            <strong>
+              {pinnedValue ? "Pinned to homepage" : "Pin project"}
+            </strong>
             <small>
               {pinnedValue
                 ? "This project stays above the regular sort order."
@@ -1405,9 +1408,26 @@ function ProjectForm({
                                     align,
                                   });
                                 })}
-
+                              <select
+                                value={block.mediaType ?? "image"}
+                                onChange={(event) => {
+                                  updateContentBlock(index, {
+                                    ...block,
+                                    mediaType: event.target.value as
+                                      | "image"
+                                      | "video",
+                                  });
+                                }}
+                              >
+                                <option value="image">Image</option>
+                                <option value="video">Video</option>
+                              </select>
                               <input
-                                placeholder="Left/main image URL"
+                                placeholder={
+                                  block.mediaType === "video"
+                                    ? "MP4/WebM video URL"
+                                    : "Left/main image URL"
+                                }
                                 value={block.imageUrl}
                                 onChange={(event) => {
                                   updateContentBlock(index, {
