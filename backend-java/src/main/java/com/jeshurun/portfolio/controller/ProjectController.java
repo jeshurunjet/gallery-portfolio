@@ -8,6 +8,8 @@ import com.jeshurun.portfolio.repository.TagRepository;
 import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -120,34 +122,43 @@ public class ProjectController {
     }
 
     @DeleteMapping("/api/projects/{id}")
-    public void deleteProject(@PathVariable("id") Long id) {
+    @Transactional
+    public ResponseEntity<Void> deleteProject(@PathVariable("id") Long id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
 
-        // prefer public ids when available
-        if (project.getCoverPublicId() != null && !project.getCoverPublicId().isBlank()) {
-            deleteCloudinaryAssetById(project.getCoverPublicId(), "image");
-        } else {
-            deleteCloudinaryAsset(project.getCover(), "image");
+        try {
+            // prefer public ids when available
+            if (project.getCoverPublicId() != null && !project.getCoverPublicId().isBlank()) {
+                deleteCloudinaryAssetById(project.getCoverPublicId(), "image");
+            } else {
+                deleteCloudinaryAsset(project.getCover(), "image");
+            }
+
+            if (project.getImagesPublicIds() != null && !project.getImagesPublicIds().isEmpty()) {
+                for (String publicId : project.getImagesPublicIds()) {
+                    deleteCloudinaryAssetById(publicId, "image");
+                }
+            } else if (project.getImages() != null) {
+                for (String imageUrl : project.getImages()) {
+                    deleteCloudinaryAsset(imageUrl, "image");
+                }
+            }
+
+            if (project.getVideoPublicId() != null && !project.getVideoPublicId().isBlank()) {
+                deleteCloudinaryAssetById(project.getVideoPublicId(), "video");
+            } else {
+                deleteCloudinaryAsset(project.getVideoUrl(), "video");
+            }
+
+            deleteContentAssets(project.getContent());
+        } catch (Exception error) {
+            System.out.println("Project asset cleanup failed for id: " + id);
+            error.printStackTrace();
         }
 
-        if (project.getImagesPublicIds() != null && !project.getImagesPublicIds().isEmpty()) {
-            for (String publicId : project.getImagesPublicIds()) {
-                deleteCloudinaryAssetById(publicId, "image");
-            }
-        } else if (project.getImages() != null) {
-            for (String imageUrl : project.getImages()) {
-                deleteCloudinaryAsset(imageUrl, "image");
-            }
-        }
-
-        if (project.getVideoPublicId() != null && !project.getVideoPublicId().isBlank()) {
-            deleteCloudinaryAssetById(project.getVideoPublicId(), "video");
-        } else {
-            deleteCloudinaryAsset(project.getVideoUrl(), "video");
-        }
-        deleteContentAssets(project.getContent());
-        projectRepository.deleteById(id);
+        projectRepository.delete(project);
+        return ResponseEntity.noContent().build();
     }
 
     private void deleteCloudinaryAsset(String assetUrl, String resourceType) {

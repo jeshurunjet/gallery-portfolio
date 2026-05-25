@@ -209,9 +209,9 @@ function AdminProjectsPage() {
       {selectedId !== null && (
         <ConfirmModal
           message="Are you sure you want to delete this project?"
-          onConfirm={() => {
+          onConfirm={async () => {
             if (selectedId !== null) {
-              deleteProject(selectedId);
+              await deleteProject(selectedId);
               setShowToast(true);
             }
             setSelectedId(null);
