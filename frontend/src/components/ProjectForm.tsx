@@ -359,7 +359,11 @@ function ProjectForm({
     const blockToDelete = formData.content[index];
 
     if (blockToDelete) {
-      await deleteBlockAssets(blockToDelete);
+      try {
+        await deleteBlockAssets(blockToDelete);
+      } catch (error) {
+        console.error("Failed to clean up block assets:", error);
+      }
     }
 
     setFormData((prev) => ({
@@ -456,7 +460,7 @@ function ProjectForm({
     if (!url && !publicId) return;
 
     try {
-      await fetch(`${API_BASE_URL}/api/upload/delete`, {
+      const response = await fetch(`${API_BASE_URL}/api/upload/delete`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -464,6 +468,24 @@ function ProjectForm({
         },
         body: JSON.stringify({ url, publicId, resourceType }),
       });
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("isAuth");
+
+        sessionStorage.setItem(
+          "authMessage",
+          "Your session has expired. Please log in again."
+        );
+
+        window.location.replace("/admin/login");
+        return;
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Failed to delete media:", errorText);
+      }
     } catch (err) {
       console.error("Failed to delete media:", err);
     }
