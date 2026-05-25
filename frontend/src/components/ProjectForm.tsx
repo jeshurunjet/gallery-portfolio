@@ -83,6 +83,11 @@ type MediaTextLayout =
   | "image-text-image"
   | "image-image";
 
+type UploadResult = {
+  url: string;
+  publicId: string;
+};
+
 type SortableItemProps = {
   id: string;
   children: React.ReactNode;
@@ -513,7 +518,7 @@ function ProjectForm({
     loadingMessage = "Uploading content image...",
     successMessage = "Content image uploaded!",
     errorMessage = "Content image upload failed."
-  ) => {
+  ): Promise<UploadResult | undefined> => {
     try {
       onNotify?.(loadingMessage);
 
@@ -534,7 +539,7 @@ function ProjectForm({
     file: File,
     mediaType: "image" | "video",
     onSuccess: (mediaUrl: string) => void
-  ) => {
+  ): Promise<UploadResult | undefined> => {
     const isVideo = mediaType === "video";
 
     try {
@@ -1291,200 +1296,8 @@ function ProjectForm({
     </>
   );
 
-  return (
-    <form className="admin-form" onSubmit={handleSubmit}>
-      <section className="admin-form-panel">
-        <div className="admin-form-panel-header">
-          <h3>Project Basics</h3>
-          <p>Core details shown across the portfolio.</p>
-        </div>
-
-        <div className="admin-form-group">
-          <label htmlFor="title">Project Title</label>
-          <input
-            id="title"
-            type="text"
-            placeholder="Enter project title"
-            value={formData.title}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="admin-form-group">
-          <label htmlFor="category">Category</label>
-          <select
-            id="category"
-            value={formData.category}
-            onChange={handleChange}
-          >
-            <option value="">Select a category</option>
-            <option value="Photography">Photography</option>
-            <option value="Graphic Design">Graphic Design</option>
-            <option value="Audio Design">Audio Design</option>
-            <option value="Frontend/Web Design">Frontend/Web Design</option>
-            <option value="Full-Stack/Web Development">
-              Full-Stack/Web Development
-            </option>
-            <option value="Mobile Design">Mobile Design</option>
-            <option value="Machine Learning">Machine Learning</option>
-            <option value="Deep Learning">Deep Learning</option>
-            <option value="Code Project">Code Project</option>
-            <option value="Technical Case Study">Technical Case Study</option>
-          </select>
-        </div>
-
-        <button
-          type="button"
-          className={`project-pin-toggle ${pinnedValue ? "active" : ""}`}
-          onClick={() => {
-            const nextPinned = !pinnedValue;
-
-            if (onPinnedChange) {
-              onPinnedChange(nextPinned);
-              return;
-            }
-
-            setFormData((prev) => ({
-              ...prev,
-              pinned: nextPinned,
-            }));
-          }}
-        >
-          <span className="project-pin-icon">
-            <Pin size={18} />
-          </span>
-          <span>
-            <strong>
-              {pinnedValue ? "Pinned to homepage" : "Pin project"}
-            </strong>
-            <small>
-              {pinnedValue
-                ? "This project stays above the regular sort order."
-                : "Keep this project at the top of the gallery."}
-            </small>
-          </span>
-        </button>
-
-        {renderCoverSection()}
-
-        <div className="admin-form-group">
-          <label htmlFor="description">Description</label>
-
-          <div className="format-toolbar">
-            <button
-              type="button"
-              title="Bold"
-              aria-label="Bold"
-              onClick={() => formatSelectedText("description", "**")}
-            >
-              <Bold size={17} />
-            </button>
-
-            <button
-              type="button"
-              title="Italic"
-              aria-label="Italic"
-              onClick={() => formatSelectedText("description", "*")}
-            >
-              <Italic size={17} />
-            </button>
-
-            <button
-              type="button"
-              title="Underline"
-              aria-label="Underline"
-              onClick={() => formatSelectedText("description", "__")}
-            >
-              <Underline size={17} />
-            </button>
-
-            <button
-              type="button"
-              title="Bullet list"
-              aria-label="Bullet list"
-              onClick={() => formatSelectedText("description", "- ", "")}
-            >
-              <List size={17} />
-            </button>
-
-            <button
-              type="button"
-              title="Numbered list"
-              aria-label="Numbered list"
-              onClick={() => {
-                const lines = formData.description.split("\n");
-                let lastNumber = 0;
-
-                for (let i = lines.length - 1; i >= 0; i--) {
-                  const match = lines[i].trim().match(/^(\d+)\.\s/);
-
-                  if (match) {
-                    lastNumber = parseInt(match[1], 10);
-                    break;
-                  }
-                }
-
-                const nextNumber = lastNumber + 1;
-
-                setFormData((prev) => ({
-                  ...prev,
-                  description:
-                    prev.description +
-                    (prev.description ? "\n" : "") +
-                    `${nextNumber}. `,
-                }));
-              }}
-            >
-              <ListOrdered size={17} />
-            </button>
-
-            <button
-              type="button"
-              title="Separator"
-              aria-label="Separator"
-              onClick={() =>
-                setFormData((prev) => ({
-                  ...prev,
-                  description: `${prev.description}${prev.description ? "\n" : ""}---`,
-                }))
-              }
-            >
-              <Minus size={17} />
-            </button>
-          </div>
-
-          <textarea
-            id="description"
-            rows={7}
-            placeholder="Write a short project description"
-            value={formData.description}
-            onChange={handleChange}
-          />
-
-          <small>
-            Supports **bold**, *italic*, __underline__, bullet lists, numbered
-            lists, and --- separators.
-          </small>
-        </div>
-      </section>
-
-      {renderGallerySection()}
-      {renderMediaSection()}
-      {renderCodeSection()}
-      {renderLinksSection()}
-
-      <div className="admin-form-group">
-        <label htmlFor="tags">Tags</label>
-        <input
-          id="tags"
-          type="text"
-          placeholder="e.g. react, ui, portfolio, machine-learning"
-          value={formData.tags}
-          onChange={handleChange}
-        />
-        <small>Separate tags with commas.</small>
-      </div>
-
+  const renderContentBlocksSection = () => (
+    <>
       {renderSectionHeader(
         "content",
         "Content Blocks",
@@ -1691,11 +1504,11 @@ function ProjectForm({
                                     "Content image upload failed."
                                   );
 
-                                  if (result && (result as any).publicId) {
+                                  if (result?.publicId) {
                                     patchContentBlock(index, (currentBlock) => ({
                                       ...currentBlock,
-                                      publicId: (result as any).publicId,
-                                    }) as ProjectContentBlock);
+                                      publicId: result.publicId,
+                                    }));
                                   }
                                 }}
                               />
@@ -1766,16 +1579,11 @@ function ProjectForm({
                                     }
                                   );
 
-                                  // If the uploader returned a publicId, try to attach it to the block
-                                  if (
-                                    result &&
-                                    typeof result === "object" &&
-                                    "publicId" in result
-                                  ) {
+                                  if (result?.publicId) {
                                     patchContentBlock(index, (currentBlock) => ({
                                       ...currentBlock,
-                                      publicId: (result as any).publicId,
-                                    }) as ProjectContentBlock);
+                                      publicId: result.publicId,
+                                    }));
                                   }
                                 }}
                               />
@@ -1925,11 +1733,11 @@ function ProjectForm({
                                     }
                                   );
 
-                                  if (result && (result as any).publicId) {
+                                  if (result?.publicId) {
                                     patchContentBlock(index, (currentBlock) => ({
                                       ...currentBlock,
-                                      publicId: (result as any).publicId,
-                                    }) as ProjectContentBlock);
+                                      publicId: result.publicId,
+                                    }));
                                   }
                                 }}
                               />
@@ -2041,12 +1849,11 @@ function ProjectForm({
                                         "Right media image upload failed."
                                       );
 
-                                      if (result && (result as any).publicId) {
+                                      if (result?.publicId) {
                                         patchContentBlock(index, (currentBlock) => ({
                                           ...currentBlock,
-                                          publicIdRight: (result as any)
-                                            .publicId,
-                                        }) as ProjectContentBlock);
+                                          publicIdRight: result.publicId,
+                                        }));
                                       }
                                     }}
                                   />
@@ -2105,6 +1912,204 @@ function ProjectForm({
           </DndContext>
         </div>
       )}
+    </>
+  );
+
+  return (
+    <form className="admin-form" onSubmit={handleSubmit}>
+      <section className="admin-form-panel">
+        <div className="admin-form-panel-header">
+          <h3>Project Basics</h3>
+          <p>Core details shown across the portfolio.</p>
+        </div>
+
+        <div className="admin-form-group">
+          <label htmlFor="title">Project Title</label>
+          <input
+            id="title"
+            type="text"
+            placeholder="Enter project title"
+            value={formData.title}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="admin-form-group">
+          <label htmlFor="category">Category</label>
+          <select
+            id="category"
+            value={formData.category}
+            onChange={handleChange}
+          >
+            <option value="">Select a category</option>
+            <option value="Photography">Photography</option>
+            <option value="Graphic Design">Graphic Design</option>
+            <option value="Audio Design">Audio Design</option>
+            <option value="Frontend/Web Design">Frontend/Web Design</option>
+            <option value="Full-Stack/Web Development">
+              Full-Stack/Web Development
+            </option>
+            <option value="Mobile Design">Mobile Design</option>
+            <option value="Machine Learning">Machine Learning</option>
+            <option value="Deep Learning">Deep Learning</option>
+            <option value="Code Project">Code Project</option>
+            <option value="Technical Case Study">Technical Case Study</option>
+          </select>
+        </div>
+
+        <button
+          type="button"
+          className={`project-pin-toggle ${pinnedValue ? "active" : ""}`}
+          onClick={() => {
+            const nextPinned = !pinnedValue;
+
+            if (onPinnedChange) {
+              onPinnedChange(nextPinned);
+              return;
+            }
+
+            setFormData((prev) => ({
+              ...prev,
+              pinned: nextPinned,
+            }));
+          }}
+        >
+          <span className="project-pin-icon">
+            <Pin size={18} />
+          </span>
+          <span>
+            <strong>
+              {pinnedValue ? "Pinned to homepage" : "Pin project"}
+            </strong>
+            <small>
+              {pinnedValue
+                ? "This project stays above the regular sort order."
+                : "Keep this project at the top of the gallery."}
+            </small>
+          </span>
+        </button>
+
+        {renderCoverSection()}
+
+        <div className="admin-form-group">
+          <label htmlFor="description">Description</label>
+
+          <div className="format-toolbar">
+            <button
+              type="button"
+              title="Bold"
+              aria-label="Bold"
+              onClick={() => formatSelectedText("description", "**")}
+            >
+              <Bold size={17} />
+            </button>
+
+            <button
+              type="button"
+              title="Italic"
+              aria-label="Italic"
+              onClick={() => formatSelectedText("description", "*")}
+            >
+              <Italic size={17} />
+            </button>
+
+            <button
+              type="button"
+              title="Underline"
+              aria-label="Underline"
+              onClick={() => formatSelectedText("description", "__")}
+            >
+              <Underline size={17} />
+            </button>
+
+            <button
+              type="button"
+              title="Bullet list"
+              aria-label="Bullet list"
+              onClick={() => formatSelectedText("description", "- ", "")}
+            >
+              <List size={17} />
+            </button>
+
+            <button
+              type="button"
+              title="Numbered list"
+              aria-label="Numbered list"
+              onClick={() => {
+                const lines = formData.description.split("\n");
+                let lastNumber = 0;
+
+                for (let i = lines.length - 1; i >= 0; i--) {
+                  const match = lines[i].trim().match(/^(\d+)\.\s/);
+
+                  if (match) {
+                    lastNumber = parseInt(match[1], 10);
+                    break;
+                  }
+                }
+
+                const nextNumber = lastNumber + 1;
+
+                setFormData((prev) => ({
+                  ...prev,
+                  description:
+                    prev.description +
+                    (prev.description ? "\n" : "") +
+                    `${nextNumber}. `,
+                }));
+              }}
+            >
+              <ListOrdered size={17} />
+            </button>
+
+            <button
+              type="button"
+              title="Separator"
+              aria-label="Separator"
+              onClick={() =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: `${prev.description}${prev.description ? "\n" : ""}---`,
+                }))
+              }
+            >
+              <Minus size={17} />
+            </button>
+          </div>
+
+          <textarea
+            id="description"
+            rows={7}
+            placeholder="Write a short project description"
+            value={formData.description}
+            onChange={handleChange}
+          />
+
+          <small>
+            Supports **bold**, *italic*, __underline__, bullet lists, numbered
+            lists, and --- separators.
+          </small>
+        </div>
+      </section>
+
+      {renderGallerySection()}
+      {renderMediaSection()}
+      {renderCodeSection()}
+      {renderLinksSection()}
+
+      <div className="admin-form-group">
+        <label htmlFor="tags">Tags</label>
+        <input
+          id="tags"
+          type="text"
+          placeholder="e.g. react, ui, portfolio, machine-learning"
+          value={formData.tags}
+          onChange={handleChange}
+        />
+        <small>Separate tags with commas.</small>
+      </div>
+
+      {renderContentBlocksSection()}
       <div className="admin-form-actions">
         <button
           type="submit"
