@@ -5,10 +5,14 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.jeshurun.portfolio.repository.UserRepository;
 import com.jeshurun.portfolio.entity.User;
+
 import java.io.IOException;
+import java.util.Collections;
 
 public class AuthFilter extends OncePerRequestFilter {
 
@@ -72,8 +76,15 @@ if (user == null) {
     return;
 }
 
-// Optional: attach user to request
-request.setAttribute("user", user);
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        user.getEmail(),
+                        null,
+                        Collections.emptyList()
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        request.setAttribute("user", user);
 
         filterChain.doFilter(request, response);
     }
