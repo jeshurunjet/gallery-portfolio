@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, LockKeyhole, ShieldCheck, UserRound } from "lucide-react";
+import {
+  AlertTriangle,
+  LockKeyhole,
+  Monitor,
+  Moon,
+  ShieldCheck,
+  Sun,
+  UserRound,
+} from "lucide-react";
 import { API_BASE_URL } from "../../config";
 import Toast from "../../components/Toast";
+import useTheme from "../../hooks/useTheme";
 
 type AccountSummary = {
   id: number;
@@ -16,11 +25,33 @@ type CurrentUser = {
 };
 
 function AdminAccountPage() {
+  const { theme, setTheme } = useTheme();
   const [account, setAccount] = useState<AccountSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
+
+  const themeOptions = [
+    {
+      value: "light" as const,
+      label: "Light",
+      description: "Keep the admin and portfolio in the light theme.",
+      icon: <Sun size={18} />,
+    },
+    {
+      value: "dark" as const,
+      label: "Dark",
+      description: "Use the dark theme across the site.",
+      icon: <Moon size={18} />,
+    },
+    {
+      value: "system" as const,
+      label: "System",
+      description: "Follow your device appearance automatically.",
+      icon: <Monitor size={18} />,
+    },
+  ];
 
   const handleAuthExpired = () => {
     localStorage.removeItem("token");
@@ -193,6 +224,36 @@ function AdminAccountPage() {
                 ? "User count requires the /api/auth/account backend endpoint."
                 : "Total stored admin user accounts."}
             </small>
+          </div>
+        </section>
+
+        <section className="admin-section admin-theme-panel">
+          <div className="admin-section-header">
+            <div>
+              <p className="admin-stat-label">Appearance</p>
+              <h2>Theme preference</h2>
+            </div>
+            <small>Current: {theme}</small>
+          </div>
+
+          <p>
+            Choose how the portfolio and admin area should look on this device.
+          </p>
+
+          <div className="admin-theme-options">
+            {themeOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={`admin-theme-option ${theme === option.value ? "active" : ""}`}
+                onClick={() => setTheme(option.value)}
+                aria-pressed={theme === option.value}
+              >
+                {option.icon}
+                <strong>{option.label}</strong>
+                <span>{option.description}</span>
+              </button>
+            ))}
           </div>
         </section>
 

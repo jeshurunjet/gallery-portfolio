@@ -1,0 +1,651 @@
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-soft: #fafafa;
+  --surface-muted: #f5f5f5;
+  --surface-tag: #f4f4f4;
+  --text: #111111;
+  --text-soft: #333333;
+  --muted: #666666;
+  --muted-2: #777777;
+  --border: #ececec;
+  --border-strong: #dddddd;
+  --overlay: rgba(255, 255, 255, 0.96);
+  --overlay-dark: rgba(17, 17, 17, 0.72);
+  --overlay-darker: rgba(17, 17, 17, 0.88);
+  --pill-border: #e6e6e6;
+  --danger: #ef4444;
+  --danger-strong: #dc2626;
+  --danger-deeper: #b91c1c;
+  --danger-deepest: #991b1b;
+  --warn: #f59e0b;
+  --warn-soft: rgba(245, 158, 11, 0.14);
+  --focus-ring: rgba(17, 17, 17, 0.08);
+  --shadow-soft: 0 8px 22px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 14px 32px rgba(0, 0, 0, 0.09);
+  --shadow-float: 0 18px 42px rgba(0, 0, 0, 0.12);
+}
+
+.theme-dark {
+  color-scheme: dark;
+  --bg: #0d1014;
+  --surface: ##0d1014;
+  --surface-soft: #1a2027;
+  --surface-muted: #1f2630;
+  --surface-tag: #202833;
+  --text: #edf2f7;
+  --text-soft: #d7dfe8;
+  --muted: #a5b0bc;
+  --muted-2: #b6c0cb;
+  --border: #28313b;
+  --border-strong: #36414d;
+  --overlay: rgba(21, 26, 32, 0.96);
+  --overlay-dark: rgba(8, 12, 16, 0.72);
+  --overlay-darker: rgba(8, 12, 16, 0.88);
+  --pill-border: #3a4653;
+  --danger: #f87171;
+  --danger-strong: #ef4444;
+  --danger-deeper: #dc2626;
+  --danger-deepest: #b91c1c;
+  --warn: #fbbf24;
+  --warn-soft: rgba(251, 191, 36, 0.18);
+  --focus-ring: rgba(155, 215, 255, 0.16);
+  --shadow-soft: 0 8px 22px rgba(0, 0, 0, 0.32);
+  /*--shadow-card: 0 14px 32px rgba(0, 0, 0, 0.36);*/
+  --shadow-float: 0 18px 42px rgba(0, 0, 0, 0.42);
+}
+
+.theme-dark,
+.theme-dark html {
+  background: var(--bg);
+}
+
+.theme-dark body,
+.theme-dark #root {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.theme-dark a,
+.theme-dark h1,
+.theme-dark h2,
+.theme-dark h3,
+.theme-dark h4,
+.theme-dark h5,
+.theme-dark h6,
+.theme-dark strong,
+.theme-dark .content-block-header h3,
+.theme-dark .content-collapse-button,
+.theme-dark .admin-title,
+.theme-dark .block-preview-type {
+  color: var(--text);
+}
+
+.theme-dark .about-typing-line,
+.theme-dark .logo,
+.theme-dark .logo-full,
+.theme-dark .logo-short,
+.theme-dark .not-found-icon,
+.theme-dark .not-found-icon svg {
+  color: #ffffff;
+}
+
+.theme-dark .typing-text,
+.theme-dark .typing-cursor {
+  color: #ffffff;
+}
+
+.theme-dark p,
+.theme-dark li,
+.theme-dark small,
+.theme-dark span,
+.theme-dark label,
+.theme-dark .card-category,
+.theme-dark .project-category,
+.theme-dark .card-meta,
+.theme-dark .project-stats,
+.theme-dark .footer-copy,
+.theme-dark .footer-name,
+.theme-dark .auth-subtext,
+.theme-dark .auth-helper-text,
+.theme-dark .content-block-header p,
+.theme-dark .block-preview-text {
+  color: var(--muted);
+}
+
+.theme-dark nav,
+.theme-dark .footer,
+.theme-dark .navbar,
+.theme-dark .card,
+.theme-dark .empty-media,
+.theme-dark .project-facts,
+.theme-dark .gallery-search,
+.theme-dark .gallery-sort-trigger,
+.theme-dark .gallery-sort-dropdown,
+.theme-dark .tag-button,
+.theme-dark .tag,
+.theme-dark .card-tag,
+.theme-dark .project-link-button,
+.theme-dark .stat-item,
+.theme-dark .thumb-button.active,
+.theme-dark .pdf-viewer,
+.theme-dark .pdf-open-link,
+.theme-dark .code-viewer,
+.theme-dark .code-viewer-header,
+.theme-dark .audio-player,
+.theme-dark .video-player,
+.theme-dark .about-card,
+.theme-dark .about-strength-grid > div,
+.theme-dark .about-section,
+.theme-dark .resume-header-featured,
+.theme-dark .resume-skills-section,
+.theme-dark .resume-sidebar,
+.theme-dark .resume-sidebar-item,
+.theme-dark .resume-quick-card,
+.theme-dark .resume-portfolio-links a,
+.theme-dark .admin-sidebar,
+.theme-dark .admin-stat-card,
+.theme-dark .admin-insight-card,
+.theme-dark .admin-project-card,
+.theme-dark .admin-account-panel,
+.theme-dark .admin-account-danger,
+.theme-dark .admin-empty-state,
+.theme-dark .admin-section,
+.theme-dark .admin-hero-panel,
+.theme-dark .admin-form-panel,
+.theme-dark .admin-section-toggle,
+.theme-dark .admin-section-status,
+.theme-dark .admin-add-row-button,
+.theme-dark .admin-back-button,
+.theme-dark .admin-reset-button,
+.theme-dark .admin-sort-tabs,
+.theme-dark .admin-page-savebar,
+.theme-dark .admin-edit-item,
+.theme-dark .admin-tag-row,
+.theme-dark .admin-tag-edit-input,
+.theme-dark .auth-form,
+.theme-dark .loading-logo,
+.theme-dark .loading-progress,
+.theme-dark .toast,
+.theme-dark .modal,
+.theme-dark .content-block-section,
+.theme-dark .content-editor-card,
+.theme-dark .content-editor-card textarea,
+.theme-dark .content-editor-card input,
+.theme-dark .content-editor-card select,
+.theme-dark .content-toolbar button,
+.theme-dark .editor-toggle-button,
+.theme-dark .drag-handle,
+.theme-dark .admin-form input,
+.theme-dark .admin-form textarea,
+.theme-dark .admin-form select,
+.theme-dark .admin-search-field,
+.theme-dark .admin-inline-form input,
+.theme-dark .admin-inline-form textarea,
+.theme-dark .admin-inline-form select,
+.theme-dark .content-editor-duplicate,
+.theme-dark .content-editor-cancel-delete,
+.theme-dark .auth-form input,
+.theme-dark .auth-form textarea {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.theme-dark .gallery-search,
+.theme-dark .gallery-sort-trigger,
+.theme-dark .tag-button,
+.theme-dark .thumb-button.active,
+.theme-dark .content-editor-card textarea:focus,
+.theme-dark .content-editor-card input:focus,
+.theme-dark .content-editor-card select:focus,
+.theme-dark .admin-form input:focus,
+.theme-dark .admin-form textarea:focus,
+.theme-dark .admin-form select:focus,
+.theme-dark .auth-form input:focus,
+.theme-dark .auth-form textarea:focus {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.theme-dark .gallery-search:focus-within {
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.theme-dark .gallery-search input,
+.theme-dark .admin-search-field input,
+.theme-dark .admin-inline-form input,
+.theme-dark .admin-tag-edit-input,
+.theme-dark .content-editor-card textarea,
+.theme-dark .content-editor-card input,
+.theme-dark .content-editor-card select,
+.theme-dark .admin-form input,
+.theme-dark .admin-form textarea,
+.theme-dark .admin-form select,
+.theme-dark .auth-form input,
+.theme-dark .auth-form textarea,
+.theme-dark input,
+.theme-dark textarea,
+.theme-dark select,
+.theme-dark .gallery-sort-trigger,
+.theme-dark .gallery-sort-dropdown button,
+.theme-dark .tag-button,
+.theme-dark .project-link-button,
+.theme-dark .back-button,
+.theme-dark .admin-secondary-button,
+.theme-dark .admin-back-button,
+.theme-dark .admin-reset-button,
+.theme-dark .admin-add-row-button,
+.theme-dark .admin-inline-form button,
+.theme-dark .admin-sort-tabs button,
+.theme-dark .admin-page-toolbar button,
+.theme-dark .content-toolbar button,
+.theme-dark .editor-toggle-button,
+.theme-dark .theme-toggle-button,
+.theme-dark .admin-theme-option {
+  color: var(--text);
+}
+
+.theme-dark .resume-section,
+.theme-dark .resume-profile-section,
+.theme-dark .resume-experience-item {
+  background: transparent;
+  box-shadow: none;
+}
+
+.theme-dark .about-statement,
+.theme-dark .about-statement p {
+  background: transparent;
+}
+
+.theme-dark .card,
+.theme-dark .project-facts,
+.theme-dark .about-card,
+.theme-dark .resume-sidebar-item,
+.theme-dark .resume-quick-card,
+.theme-dark .resume-portfolio-links a,
+.theme-dark .resume-skills-section,
+.theme-dark .resume-sidebar,
+.theme-dark .admin-stat-card,
+.theme-dark .admin-insight-card,
+.theme-dark .admin-project-card,
+.theme-dark .admin-account-panel,
+.theme-dark .admin-account-danger,
+.theme-dark .admin-empty-state,
+.theme-dark .admin-section,
+.theme-dark .admin-hero-panel,
+.theme-dark .auth-form,
+.theme-dark .modal,
+.theme-dark .toast,
+.theme-dark .content-block-section,
+.theme-dark .content-editor-card,
+.theme-dark .admin-form-panel,
+.theme-dark .admin-section-toggle,
+.theme-dark .admin-page-savebar,
+.theme-dark .admin-edit-item,
+.theme-dark .admin-sort-tabs {
+  box-shadow: var(--shadow-card);
+}
+
+.theme-dark .card:hover,
+.theme-dark .gallery-sort-trigger:hover,
+.theme-dark .admin-section-toggle:hover,
+.theme-dark .content-toolbar button:hover,
+.theme-dark .editor-toggle-button:hover,
+.theme-dark .admin-theme-option:hover {
+  box-shadow: var(--shadow-soft);
+}
+
+.theme-dark .gallery-sort-dropdown,
+.theme-dark .toast {
+  background: var(--overlay);
+  box-shadow: var(--shadow-float);
+}
+
+.theme-dark .resume-sidebar {
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: none;
+}
+
+.theme-dark .resume-sidebar > section,
+.theme-dark .resume-sidebar-item {
+  box-shadow: none;
+}
+
+.theme-dark .app-layout,
+.theme-dark .app-main,
+.theme-dark main,
+.theme-dark .project-page,
+.theme-dark .about-page,
+.theme-dark .resume-page,
+.theme-dark .auth-page,
+.theme-dark .not-found-page,
+.theme-dark .loading-page {
+  background: transparent;
+}
+
+.theme-dark .card-icons {
+  background: var(--overlay-dark);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.34);
+}
+
+.theme-dark .card-pin-badge {
+  background: var(--overlay-darker);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.38);
+}
+
+.theme-dark .loading-logo,
+.theme-dark .gallery-sort-dropdown button.active,
+.theme-dark .content-toolbar button:hover,
+.theme-dark .editor-toggle-button.active,
+.theme-dark .admin-primary-button,
+.theme-dark .admin-sort-tabs button.active,
+.theme-dark .admin-theme-option.active {
+  border-color: var(--text);
+}
+
+.theme-dark .project-link-button,
+.theme-dark .resume-download,
+.theme-dark .admin-primary-button {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+.theme-dark .project-link-button:hover,
+.theme-dark .resume-download:hover,
+.theme-dark .admin-primary-button:hover {
+  background: #e7edf3;
+  color: #000000;
+  border-color: #e7edf3;
+}
+
+.theme-dark .loading-progress {
+  background: var(--surface-muted);
+}
+
+.theme-dark .loading-progress-fill {
+  background: var(--text);
+}
+
+.theme-dark .card-tag,
+.theme-dark .tag,
+.theme-dark .about-mini-list span,
+.theme-dark .skill-list span,
+.theme-dark .resume-contact-row a,
+.theme-dark .resume-contact-row span,
+.theme-dark .admin-performance-chip,
+.theme-dark .admin-tag,
+.theme-dark .admin-section-status,
+.theme-dark .block-preview-type {
+  background: var(--surface-tag);
+  color: var(--text);
+  border-color: var(--pill-border);
+}
+
+.about-hero-featured,
+.resume-header-featured {
+  padding: 2rem;
+  border: 1px solid transparent;
+  border-radius: 22px;
+  /*background:
+    linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 42%),
+    linear-gradient(315deg, rgba(37, 99, 235, 0.08), transparent 38%),
+    #fff;*/
+  box-shadow: 0 14px 34px #0000000a;
+}
+
+.admin-attention-list span {
+  color: #000;
+}
+
+.theme-dark .resume-skills-section {
+  box-shadow: none;
+}
+
+.theme-dark .resume-item-heading span,
+.theme-dark .education-heading span {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.theme-dark .more-tag,
+.theme-dark .empty-media,
+.theme-dark .card-image-fallback,
+.theme-dark .admin-project-image-fallback,
+.theme-dark .upload-preview-item,
+.theme-dark .content-editor-card,
+.theme-dark .content-media-video {
+  background: var(--surface-soft);
+}
+
+.theme-dark .project-description,
+.theme-dark .content-paragraph,
+.theme-dark .content-quote,
+.theme-dark .content-media-caption,
+.theme-dark .education-school,
+.theme-dark .education-period,
+.theme-dark .resume-item-meta {
+  color: var(--text-soft);
+}
+
+.theme-dark .back-button:hover,
+.theme-dark .btn-back:hover,
+.theme-dark .tag-button:hover,
+.theme-dark .admin-nav a:hover,
+.theme-dark .nav-link-text:hover,
+.theme-dark .logout:hover,
+.theme-dark .footer-link:hover {
+  color: var(--text);
+}
+
+.theme-dark .gallery-sort-dropdown button:hover,
+.theme-dark .gallery-sort-trigger:hover,
+.theme-dark .gallery-sort-trigger[aria-expanded="true"],
+.theme-dark .tag-button.active,
+.theme-dark .thumb-button.active,
+.theme-dark .admin-nav a:hover,
+.theme-dark .admin-sort-tabs button:hover,
+.theme-dark .admin-sort-tabs button.active,
+.theme-dark .admin-add-row-button:hover,
+.theme-dark .admin-back-button:hover,
+.theme-dark .admin-reset-button:hover,
+.theme-dark .admin-page-toolbar button:hover,
+.theme-dark .admin-section-toggle:hover,
+.theme-dark .content-editor-duplicate:hover,
+.theme-dark .content-editor-cancel-delete:hover,
+.theme-dark .gallery-sort-dropdown button.active,
+.theme-dark .content-editor-duplicate:hover,
+.theme-dark .content-editor-cancel-delete:hover {
+  background: var(--surface-muted);
+}
+
+.theme-dark .gallery-sort-trigger,
+.theme-dark .gallery-sort-dropdown button,
+.theme-dark .admin-sort-tabs button,
+.theme-dark .admin-secondary-button,
+.theme-dark .admin-page-savebar strong,
+.theme-dark .admin-edit-item-header strong,
+.theme-dark .admin-tag-name,
+.theme-dark .admin-form-group label,
+.theme-dark .admin-form-panel-header h3,
+.theme-dark .content-editor-card,
+.theme-dark .content-editor-card-header p,
+.theme-dark .content-block-header h3,
+.theme-dark .modal p {
+  color: var(--text);
+}
+
+.theme-dark .gallery-sort-trigger svg,
+.theme-dark .gallery-search svg,
+.theme-dark .admin-search-field svg,
+.theme-dark .auth-password-toggle,
+.theme-dark .admin-add-row-button,
+.theme-dark .admin-back-button,
+.theme-dark .admin-reset-button {
+  color: var(--muted);
+}
+
+.theme-dark .admin-secondary-button {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+}
+
+.theme-dark .admin-secondary-button:hover {
+  background: var(--surface-tag);
+  color: #ffffff;
+}
+
+.theme-dark input,
+.theme-dark textarea,
+.theme-dark select,
+.theme-dark .admin-form input,
+.theme-dark .admin-form textarea,
+.theme-dark .admin-form select,
+.theme-dark .admin-inline-form input,
+.theme-dark .admin-tag-edit-input,
+.theme-dark .content-editor-card textarea,
+.theme-dark .content-editor-card input,
+.theme-dark .content-editor-card select,
+.theme-dark .auth-form input,
+.theme-dark .auth-form textarea {
+  background: var(--surface-soft);
+  color: #ffffff;
+  border-color: var(--border);
+}
+
+.theme-dark input::placeholder,
+.theme-dark textarea::placeholder,
+.theme-dark .admin-form input::placeholder,
+.theme-dark .admin-form textarea::placeholder,
+.theme-dark .admin-inline-form input::placeholder,
+.theme-dark .admin-tag-edit-input::placeholder,
+.theme-dark .content-editor-card textarea::placeholder,
+.theme-dark .content-editor-card input::placeholder,
+.theme-dark .auth-form input::placeholder,
+.theme-dark .auth-form textarea::placeholder {
+  color: var(--muted);
+}
+
+.theme-dark .admin-page-savebar span,
+.theme-dark .admin-form-panel-header p,
+.theme-dark .admin-page-summary,
+.theme-dark .content-block-header p,
+.theme-dark .admin-tag-actions,
+.theme-dark .admin-inline-form input::placeholder,
+.theme-dark .admin-tag-edit-input::placeholder,
+.theme-dark .content-editor-card textarea::placeholder,
+.theme-dark .content-editor-card input::placeholder,
+.theme-dark .admin-form input::placeholder,
+.theme-dark .admin-form textarea::placeholder {
+  color: var(--muted);
+}
+
+.theme-dark .admin-sort-tabs button {
+  background: transparent;
+  color: var(--muted);
+}
+
+.theme-dark .gallery-sort-dropdown button.active,
+.theme-dark .admin-sort-tabs button.active {
+  color: var(--text);
+}
+
+.theme-dark .admin-danger-button,
+.theme-dark .content-editor-remove {
+  background: var(--danger);
+  color: #fff;
+  border-color: transparent;
+}
+
+.theme-dark .admin-danger-button:hover,
+.theme-dark .content-editor-remove:hover {
+  background: var(--danger-strong);
+}
+
+.theme-dark .content-editor-confirm-delete {
+  background: var(--danger-deeper);
+}
+
+.theme-dark .content-editor-confirm-delete:hover {
+  background: var(--danger-deepest);
+}
+
+.theme-dark .admin-warning-row,
+.theme-dark .admin-danger-icon {
+  color: var(--warn);
+}
+
+.theme-dark .admin-danger-icon {
+  background: var(--warn-soft);
+}
+
+.theme-dark .not-found-path,
+.theme-dark .content-divider,
+.theme-dark hr {
+  border-color: var(--border);
+}
+
+.theme-dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.62);
+}
+
+.theme-dark .theme-toggle-button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.admin-theme-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-theme-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.admin-theme-option {
+  flex: 1 1 180px;
+  text-align: left;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-theme-option:hover {
+  transform: translateY(-1px);
+  border-color: var(--text);
+}
+
+.admin-theme-option.active {
+  border-color: var(--text);
+}
+
+.admin-theme-option strong,
+.admin-theme-option span {
+  display: block;
+}
+
+.admin-theme-option strong {
+  margin: 0.55rem 0 0.25rem;
+}
+
+.admin-theme-option span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
