@@ -63,6 +63,7 @@ type ProjectFormProps = {
 type BlockType =
   | "paragraph"
   | "image"
+  | "video"
   | "quote"
   | "divider"
   | "twoColumn"
@@ -191,6 +192,14 @@ function ProjectForm({
           type: "image",
           url: "",
           alt: "",
+        };
+        break;
+
+      case "video":
+        block = {
+          type: "video",
+          url: "",
+          caption: "",
         };
         break;
 
@@ -486,6 +495,12 @@ function ProjectForm({
         return {
           label: "Image",
           text: "Image block",
+        };
+
+      case "video":
+        return {
+          label: "Video",
+          text: "Video block",
         };
 
       case "twoColumn":
@@ -1211,6 +1226,10 @@ function ProjectForm({
               + Image
             </button>
 
+            <button type="button" onClick={() => addContentBlock("video")}>
+              + Video
+            </button>
+
             <button type="button" onClick={() => addContentBlock("quote")}>
               + Quote
             </button>
@@ -1410,6 +1429,76 @@ function ProjectForm({
                                     }}
                                   >
                                     Remove image
+                                  </button>
+                                </div>
+                              )}
+                            </>
+                          )}
+
+                          {block.type === "video" && (
+                            <>
+                              <input
+                                placeholder="MP4/WebM video URL"
+                                value={block.url}
+                                onChange={(event) => {
+                                  updateContentBlock(index, {
+                                    ...block,
+                                    url: event.target.value,
+                                  });
+                                }}
+                              />
+
+                              <input
+                                placeholder="Optional caption"
+                                value={block.caption ?? ""}
+                                onChange={(event) => {
+                                  updateContentBlock(index, {
+                                    ...block,
+                                    caption: event.target.value,
+                                  });
+                                }}
+                              />
+
+                              <input
+                                type="file"
+                                accept="video/mp4,video/webm,video/ogg"
+                                onChange={async (event) => {
+                                  const file = event.target.files?.[0];
+                                  if (!file) return;
+
+                                  await uploadContentMedia(
+                                    file,
+                                    "video",
+                                    (videoUrl) => {
+                                      updateContentBlock(index, {
+                                        ...block,
+                                        url: videoUrl,
+                                      });
+                                    }
+                                  );
+                                }}
+                              />
+
+                              {block.url && (
+                                <div className="upload-preview">
+                                  <video
+                                    src={block.url}
+                                    className="upload-preview-video"
+                                    controls
+                                    muted
+                                    playsInline
+                                  />
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      updateContentBlock(index, {
+                                        ...block,
+                                        url: "",
+                                      });
+                                    }}
+                                  >
+                                    Remove video
                                   </button>
                                 </div>
                               )}

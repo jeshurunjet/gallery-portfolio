@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.jeshurun.portfolio.PortfolioApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 22.71 s <<< FAILURE! -- in com.jeshurun.portfolio.PortfolioApplicationTests
-com.jeshurun.portfolio.PortfolioApplicationTests.contextLoads -- Time elapsed: 21.29 s <<< ERROR!
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 22.73 s <<< FAILURE! -- in com.jeshurun.portfolio.PortfolioApplicationTests
+com.jeshurun.portfolio.PortfolioApplicationTests.contextLoads -- Time elapsed: 21.31 s <<< ERROR!
 java.lang.IllegalStateException: Could not initialize plugin: interface org.mockito.plugins.MockMaker (alternate: null)
 	at org.mockito.internal.configuration.plugins.PluginLoader$1.invoke(PluginLoader.java:85)
 	at jdk.proxy2/jdk.proxy2.$Proxy144.getHandler(Unknown Source)
@@ -62,7 +62,7 @@ JVM name           : OpenJDK 64-Bit Server VM
 JVM version        : 25.0.2
 JVM info           : mixed mode, sharing
 OS name            : Mac OS X
-OS version         : 26.4.1
+OS version         : 26.5
 
 		at org.mockito.internal.creation.bytebuddy.InlineDelegateByteBuddyMockMaker.<init>(InlineDelegateByteBuddyMockMaker.java:275)
 		at org.mockito.internal.creation.bytebuddy.InlineByteBuddyMockMaker.<init>(InlineByteBuddyMockMaker.java:23)

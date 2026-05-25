@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @CrossOrigin(origins = {
         "http://localhost:5173",
@@ -52,6 +55,8 @@ public class ProjectController {
     ) {
         Project existingProject = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+
+        deleteRemovedAssets(existingProject, updatedProject);
 
         existingProject.setTitle(updatedProject.getTitle());
         existingProject.setCategory(updatedProject.getCategory());
@@ -114,94 +119,190 @@ public class ProjectController {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
 
-        deleteCloudinaryImage(project.getCover());
+        deleteCloudinaryAsset(project.getCover(), "image");
 
         if (project.getImages() != null) {
             for (String imageUrl : project.getImages()) {
-                deleteCloudinaryImage(imageUrl);
+                deleteCloudinaryAsset(imageUrl, "image");
             }
         }
 
-        deleteContentImages(project.getContent());
+        deleteCloudinaryAsset(project.getVideoUrl(), "video");
+        deleteContentAssets(project.getContent());
         projectRepository.deleteById(id);
     }
 
-    private void deleteCloudinaryImage(String imageUrl) {
+    private void deleteCloudinaryAsset(String assetUrl, String resourceType) {
         try {
-            String publicId = extractPublicId(imageUrl);
+            String publicId = extractPublicId(assetUrl);
 
             if (publicId == null) return;
 
             cloudinary.uploader().destroy(
-    publicId,
-    ObjectUtils.asMap(
-        "resource_type", "image"
-    )
-);
+                    publicId,
+                    ObjectUtils.asMap("resource_type", resourceType)
+            );
         } catch (Exception error) {
-            System.out.println("Failed to delete Cloudinary image: " + imageUrl);
+            System.out.println("Failed to delete Cloudinary " + resourceType + ": " + assetUrl);
             error.printStackTrace();
         }
     }
 
-    private void deleteContentImages(String contentJson) {
-    if (contentJson == null || contentJson.isBlank()) return;
+    private void deleteContentAssets(String contentJson) {
+        if (contentJson == null || contentJson.isBlank()) return;
 
-    try {
-        ObjectMapper mapper = new ObjectMapper();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode blocks = mapper.readTree(contentJson);
 
-        JsonNode blocks = mapper.readTree(contentJson);
+            for (JsonNode block : blocks) {
+                String type = block.path("type").asText();
 
-        for (JsonNode block : blocks) {
+                if ("image".equals(type)) {
+                    deleteCloudinaryAsset(block.path("url").asText(), "image");
+                }
 
-            String type = block.path("type").asText();
+                if ("video".equals(type)) {
+                    deleteCloudinaryAsset(block.path("url").asText(), "video");
+                }
 
-            if ("image".equals(type)) {
-                deleteCloudinaryImage(
-                        block.path("url").asText()
-                );
+                if ("mediaText".equals(type)) {
+                    String mediaType = block.path("mediaType").asText("image");
+
+                    deleteCloudinaryAsset(block.path("imageUrl").asText(), mediaType);
+                    deleteCloudinaryAsset(block.path("imageUrlRight").asText(), "image");
+                }
             }
+        } catch (Exception error) {
+            System.out.println("Failed parsing content blocks");
+            error.printStackTrace();
+        }
+    }
 
-            if ("mediaText".equals(type)) {
+    private void deleteRemovedAssets(Project existingProject, Project updatedProject) {
+        deleteRemovedAsset(existingProject.getCover(), updatedProject.getCover(), "image");
+        deleteRemovedAsset(existingProject.getVideoUrl(), updatedProject.getVideoUrl(), "video");
 
-                deleteCloudinaryImage(
-                        block.path("imageUrl").asText()
-                );
+        deleteRemovedListAssets(existingProject.getImages(), updatedProject.getImages(), "image");
+        deleteRemovedContentAssets(existingProject.getContent(), updatedProject.getContent());
+    }
 
-                deleteCloudinaryImage(
-                        block.path("imageUrlRight").asText()
-                );
-            }
+    private void deleteRemovedAsset(String existingUrl, String updatedUrl, String resourceType) {
+        if (existingUrl == null || existingUrl.isBlank()) return;
+        if (existingUrl.equals(updatedUrl)) return;
+
+        deleteCloudinaryAsset(existingUrl, resourceType);
+    }
+
+    private void deleteRemovedListAssets(
+            List<String> existingUrls,
+            List<String> updatedUrls,
+            String resourceType
+    ) {
+        if (existingUrls == null || existingUrls.isEmpty()) return;
+
+        Set<String> updatedUrlSet = new HashSet<>();
+
+        if (updatedUrls != null) {
+            updatedUrlSet.addAll(updatedUrls);
         }
 
-    } catch (Exception error) {
-        System.out.println("Failed parsing content blocks");
-        error.printStackTrace();
+        for (String existingUrl : existingUrls) {
+            if (existingUrl == null || existingUrl.isBlank()) continue;
+            if (updatedUrlSet.contains(existingUrl)) continue;
+
+            deleteCloudinaryAsset(existingUrl, resourceType);
+        }
     }
-}
+
+    private void deleteRemovedContentAssets(String existingContentJson, String updatedContentJson) {
+        List<CloudinaryAssetRef> existingAssets = extractContentAssets(existingContentJson);
+        List<CloudinaryAssetRef> updatedAssets = extractContentAssets(updatedContentJson);
+
+        Set<String> updatedKeys = new HashSet<>();
+
+        for (CloudinaryAssetRef asset : updatedAssets) {
+            updatedKeys.add(asset.key());
+        }
+
+        for (CloudinaryAssetRef asset : existingAssets) {
+            if (updatedKeys.contains(asset.key())) continue;
+
+            deleteCloudinaryAsset(asset.url(), asset.resourceType());
+        }
+    }
+
+    private List<CloudinaryAssetRef> extractContentAssets(String contentJson) {
+        List<CloudinaryAssetRef> assets = new ArrayList<>();
+
+        if (contentJson == null || contentJson.isBlank()) {
+            return assets;
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode blocks = mapper.readTree(contentJson);
+
+            for (JsonNode block : blocks) {
+                String type = block.path("type").asText();
+
+                if ("image".equals(type)) {
+                    addAssetRef(assets, block.path("url").asText(), "image");
+                }
+
+                if ("video".equals(type)) {
+                    addAssetRef(assets, block.path("url").asText(), "video");
+                }
+
+                if ("mediaText".equals(type)) {
+                    String mediaType = block.path("mediaType").asText("image");
+
+                    addAssetRef(assets, block.path("imageUrl").asText(), mediaType);
+                    addAssetRef(assets, block.path("imageUrlRight").asText(), "image");
+                }
+            }
+        } catch (Exception error) {
+            System.out.println("Failed parsing content blocks");
+            error.printStackTrace();
+        }
+
+        return assets;
+    }
+
+    private void addAssetRef(List<CloudinaryAssetRef> assets, String url, String resourceType) {
+        if (url == null || url.isBlank()) return;
+
+        assets.add(new CloudinaryAssetRef(url, resourceType));
+    }
+
+    private record CloudinaryAssetRef(String url, String resourceType) {
+        private String key() {
+            return resourceType + "::" + url;
+        }
+    }
 
     private String extractPublicId(String url) {
-    if (url == null || !url.contains("/upload/")) {
-        return null;
-    }
-
-    try {
-        String path = url.split("/upload/")[1];
-
-        path = path.replaceFirst("v\\d+/", "");
-
-        int extensionIndex = path.lastIndexOf(".");
-
-        if (extensionIndex != -1) {
-            path = path.substring(0, extensionIndex);
+        if (url == null || !url.contains("/upload/")) {
+            return null;
         }
 
-        return path;
+        try {
+            String path = url.split("/upload/")[1];
 
-    } catch (Exception e) {
-        return null;
+            path = path.replaceFirst("v\\d+/", "");
+
+            int extensionIndex = path.lastIndexOf(".");
+
+            if (extensionIndex != -1) {
+                path = path.substring(0, extensionIndex);
+            }
+
+            return path;
+
+        } catch (Exception e) {
+            return null;
+        }
     }
-}
 
     private void syncTags(List<String> tags) {
         if (tags == null) return;

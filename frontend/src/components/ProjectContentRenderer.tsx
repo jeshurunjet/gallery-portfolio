@@ -184,6 +184,23 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
           );
         }
 
+        if (block.type === "video") {
+          return (
+            <div key={index} className="content-image-wrap">
+              <video
+                src={block.url}
+                className="content-image content-media-video"
+                controls
+                playsInline
+                preload="metadata"
+              />
+              {block.caption ? (
+                <p className="content-media-caption">{block.caption}</p>
+              ) : null}
+            </div>
+          );
+        }
+
         if (block.type === "list") {
           return (
             <ul key={index} className="content-list">

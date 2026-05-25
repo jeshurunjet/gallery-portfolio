@@ -6,6 +6,7 @@ export type ProjectContentBlock =
   | { type: "paragraph"; text: string; align?: TextAlignOption }
   | { type: "quote"; text: string }
   | { type: "image"; url: string; alt: string; caption?: string }
+  | { type: "video"; url: string; caption?: string }
   | { type: "list"; items: string[] }
   | { type: "divider" }
   | {
