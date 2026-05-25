@@ -63,10 +63,15 @@ public class ProjectController {
         existingProject.setDescription(updatedProject.getDescription());
         existingProject.setContent(updatedProject.getContent());
         existingProject.setCover(updatedProject.getCover());
+        existingProject.setCoverPublicId(updatedProject.getCoverPublicId());
         existingProject.setImages(updatedProject.getImages());
+        existingProject.setImagesPublicIds(updatedProject.getImagesPublicIds());
         existingProject.setVideoUrl(updatedProject.getVideoUrl());
+        existingProject.setVideoPublicId(updatedProject.getVideoPublicId());
         existingProject.setAudioUrl(updatedProject.getAudioUrl());
+        existingProject.setAudioPublicId(updatedProject.getAudioPublicId());
         existingProject.setPdfUrl(updatedProject.getPdfUrl());
+        existingProject.setPdfPublicId(updatedProject.getPdfPublicId());
         existingProject.setCodeContent(updatedProject.getCodeContent());
         existingProject.setLiveUrl(updatedProject.getLiveUrl());
         existingProject.setGithubUrl(updatedProject.getGithubUrl());
@@ -119,15 +124,28 @@ public class ProjectController {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
 
-        deleteCloudinaryAsset(project.getCover(), "image");
+        // prefer public ids when available
+        if (project.getCoverPublicId() != null && !project.getCoverPublicId().isBlank()) {
+            deleteCloudinaryAssetById(project.getCoverPublicId(), "image");
+        } else {
+            deleteCloudinaryAsset(project.getCover(), "image");
+        }
 
-        if (project.getImages() != null) {
+        if (project.getImagesPublicIds() != null && !project.getImagesPublicIds().isEmpty()) {
+            for (String publicId : project.getImagesPublicIds()) {
+                deleteCloudinaryAssetById(publicId, "image");
+            }
+        } else if (project.getImages() != null) {
             for (String imageUrl : project.getImages()) {
                 deleteCloudinaryAsset(imageUrl, "image");
             }
         }
 
-        deleteCloudinaryAsset(project.getVideoUrl(), "video");
+        if (project.getVideoPublicId() != null && !project.getVideoPublicId().isBlank()) {
+            deleteCloudinaryAssetById(project.getVideoPublicId(), "video");
+        } else {
+            deleteCloudinaryAsset(project.getVideoUrl(), "video");
+        }
         deleteContentAssets(project.getContent());
         projectRepository.deleteById(id);
     }
@@ -148,6 +166,20 @@ public class ProjectController {
         }
     }
 
+    private void deleteCloudinaryAssetById(String publicId, String resourceType) {
+        try {
+            if (publicId == null || publicId.isBlank()) return;
+
+            cloudinary.uploader().destroy(
+                    publicId,
+                    ObjectUtils.asMap("resource_type", resourceType)
+            );
+        } catch (Exception error) {
+            System.out.println("Failed to delete Cloudinary by id: " + publicId);
+            error.printStackTrace();
+        }
+    }
+
     private void deleteContentAssets(String contentJson) {
         if (contentJson == null || contentJson.isBlank()) return;
 
@@ -159,18 +191,36 @@ public class ProjectController {
                 String type = block.path("type").asText();
 
                 if ("image".equals(type)) {
-                    deleteCloudinaryAsset(block.path("url").asText(), "image");
+                    // prefer block publicId when present
+                    if (block.has("publicId") && !block.path("publicId").asText().isBlank()) {
+                        deleteCloudinaryAssetById(block.path("publicId").asText(), "image");
+                    } else {
+                        deleteCloudinaryAsset(block.path("url").asText(), "image");
+                    }
                 }
 
                 if ("video".equals(type)) {
-                    deleteCloudinaryAsset(block.path("url").asText(), "video");
+                    if (block.has("publicId") && !block.path("publicId").asText().isBlank()) {
+                        deleteCloudinaryAssetById(block.path("publicId").asText(), "video");
+                    } else {
+                        deleteCloudinaryAsset(block.path("url").asText(), "video");
+                    }
                 }
 
                 if ("mediaText".equals(type)) {
                     String mediaType = block.path("mediaType").asText("image");
 
-                    deleteCloudinaryAsset(block.path("imageUrl").asText(), mediaType);
-                    deleteCloudinaryAsset(block.path("imageUrlRight").asText(), "image");
+                    if (block.has("publicId") && !block.path("publicId").asText().isBlank()) {
+                        deleteCloudinaryAssetById(block.path("publicId").asText(), mediaType);
+                    } else {
+                        deleteCloudinaryAsset(block.path("imageUrl").asText(), mediaType);
+                    }
+
+                    if (block.has("publicIdRight") && !block.path("publicIdRight").asText().isBlank()) {
+                        deleteCloudinaryAssetById(block.path("publicIdRight").asText(), "image");
+                    } else {
+                        deleteCloudinaryAsset(block.path("imageUrlRight").asText(), "image");
+                    }
                 }
             }
         } catch (Exception error) {

@@ -46,6 +46,11 @@ export type Project = {
   videoUrl?: string;
   audioUrl?: string;
   pdfUrl?: string;
+  videoPublicId?: string;
+  audioPublicId?: string;
+  pdfPublicId?: string;
+  coverPublicId?: string;
+  imagesPublicIds?: string[];
   codeContent?: string;
   content?: ProjectContentBlock[];
   facts?: {

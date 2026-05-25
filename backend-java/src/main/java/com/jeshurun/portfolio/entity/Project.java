@@ -26,17 +26,32 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     private String cover;
 
+    @Column(columnDefinition = "TEXT")
+    private String coverPublicId;
+
     @ElementCollection
     private List<String> images;
+
+    @ElementCollection
+    private List<String> imagesPublicIds;
 
     @Column(columnDefinition = "TEXT")
     private String videoUrl;
 
     @Column(columnDefinition = "TEXT")
+    private String videoPublicId;
+
+    @Column(columnDefinition = "TEXT")
     private String audioUrl;
 
     @Column(columnDefinition = "TEXT")
+    private String audioPublicId;
+
+    @Column(columnDefinition = "TEXT")
     private String pdfUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String pdfPublicId;
 
     @Column(columnDefinition = "TEXT")
     private String codeContent;
@@ -105,12 +120,28 @@ public class Project {
         this.cover = cover;
     }
 
+    public String getCoverPublicId() {
+        return coverPublicId;
+    }
+
+    public void setCoverPublicId(String coverPublicId) {
+        this.coverPublicId = coverPublicId;
+    }
+
     public List<String> getImages() {
     return images;
     }
 
     public void setImages(List<String> images) {
         this.images = images;
+    }
+
+    public List<String> getImagesPublicIds() {
+        return imagesPublicIds;
+    }
+
+    public void setImagesPublicIds(List<String> imagesPublicIds) {
+        this.imagesPublicIds = imagesPublicIds;
     }
 
     public String getVideoUrl() {
@@ -121,6 +152,14 @@ public class Project {
         this.videoUrl = videoUrl;
     }
 
+    public String getVideoPublicId() {
+        return videoPublicId;
+    }
+
+    public void setVideoPublicId(String videoPublicId) {
+        this.videoPublicId = videoPublicId;
+    }
+
     public String getAudioUrl() {
         return audioUrl;
     }
@@ -129,12 +168,28 @@ public class Project {
         this.audioUrl = audioUrl;
     }
 
+    public String getAudioPublicId() {
+        return audioPublicId;
+    }
+
+    public void setAudioPublicId(String audioPublicId) {
+        this.audioPublicId = audioPublicId;
+    }
+
     public String getPdfUrl() {
         return pdfUrl;
     }
 
     public void setPdfUrl(String pdfUrl) {
         this.pdfUrl = pdfUrl;
+    }
+
+    public String getPdfPublicId() {
+        return pdfPublicId;
+    }
+
+    public void setPdfPublicId(String pdfPublicId) {
+        this.pdfPublicId = pdfPublicId;
     }
 
     public String getCodeContent() {

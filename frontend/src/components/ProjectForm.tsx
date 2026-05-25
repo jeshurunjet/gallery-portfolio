@@ -32,6 +32,7 @@ import type { DragEndEvent } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
+import ConfirmModal from "./ConfirmModal";
 
 type ProjectFormData = {
   title: string;
@@ -40,10 +41,15 @@ type ProjectFormData = {
   content: ProjectContentBlock[];
   tags: string;
   cover: string;
+  coverPublicId?: string;
   images: string;
+  imagesPublicIds?: string[];
   videoUrl: string;
+  videoPublicId?: string;
   audioUrl: string;
+  audioPublicId?: string;
   pdfUrl: string;
+  pdfPublicId?: string;
   codeContent: string;
   pinned: boolean;
   liveUrl: string;
@@ -132,6 +138,11 @@ function ProjectForm({
   const [pendingDeleteBlockIndex, setPendingDeleteBlockIndex] = useState<
     number | null
   >(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState<() => Promise<void>>(
+    async () => {}
+  );
   const toggleBlockCollapse = (index: number) => {
     setCollapsedBlocks((prev) =>
       prev.includes(index)
@@ -330,7 +341,8 @@ function ProjectForm({
       throw new Error("Upload failed");
     }
 
-    return response.text();
+    const data = await response.json();
+    return { url: data.url as string, publicId: data.public_id as string };
   };
 
   const uploadVideo = async (file: File) => {
@@ -363,7 +375,25 @@ function ProjectForm({
       throw new Error("Upload failed");
     }
 
-    return response.text();
+    const data = await response.json();
+    return { url: data.url as string, publicId: data.public_id as string };
+  };
+
+  const deleteMedia = async (url: string | undefined) => {
+    if (!url) return;
+
+    try {
+      await fetch(`${API_BASE_URL}/api/upload/delete`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ url }),
+      });
+    } catch (err) {
+      console.error("Failed to delete media:", err);
+    }
   };
 
   const uploadContentImage = async (
@@ -376,9 +406,11 @@ function ProjectForm({
     try {
       onNotify?.(loadingMessage);
 
-      const imageUrl = await uploadImage(file);
+      const result = await uploadImage(file);
 
-      onSuccess(imageUrl);
+      onSuccess(result.url);
+
+      return result;
 
       onNotify?.(successMessage);
     } catch (error) {
@@ -399,15 +431,15 @@ function ProjectForm({
         isVideo ? "Uploading media video..." : "Uploading media image..."
       );
 
-      const mediaUrl = isVideo
+      const result = isVideo
         ? await uploadVideo(file)
         : await uploadImage(file);
 
-      onSuccess(mediaUrl);
+      onSuccess(result.url);
 
-      onNotify?.(
-        isVideo ? "Media video uploaded!" : "Media image uploaded!"
-      );
+      onNotify?.(isVideo ? "Media video uploaded!" : "Media image uploaded!");
+
+      return result;
     } catch (error) {
       console.error(error);
       onNotify?.(
@@ -475,6 +507,27 @@ function ProjectForm({
       ...formData,
       pinned: pinnedValue,
     });
+  };
+
+  // Render confirm modal
+  const renderConfirmModal = () => {
+    if (!confirmOpen) return null;
+
+    return (
+      <ConfirmModal
+        message={confirmMessage}
+        onConfirm={async () => {
+          setConfirmOpen(false);
+          try {
+            await confirmAction();
+          } catch (err) {
+            console.error(err);
+            onNotify?.("Delete failed");
+          }
+        }}
+        onCancel={() => setConfirmOpen(false)}
+      />
+    );
   };
 
   const getBlockPreview = (block: ProjectContentBlock, index: number) => {
@@ -727,11 +780,12 @@ function ProjectForm({
 
               try {
                 onNotify?.("Uploading cover image...");
-                const imageUrl = await uploadImage(file);
+                const result = await uploadImage(file);
 
                 setFormData((prev) => ({
                   ...prev,
-                  cover: imageUrl,
+                  cover: result.url,
+                  coverPublicId: result.publicId,
                 }));
 
                 onNotify?.("Cover image uploaded!");
@@ -802,12 +856,19 @@ function ProjectForm({
                   Array.from(files).map((file) => uploadImage(file))
                 );
 
-                const uploadedUrls = results
+                const uploaded = results
                   .filter(
-                    (result): result is PromiseFulfilledResult<string> =>
-                      result.status === "fulfilled"
+                    (
+                      result
+                    ): result is PromiseFulfilledResult<{
+                      url: string;
+                      publicId: string;
+                    }> => result.status === "fulfilled"
                   )
                   .map((result) => result.value);
+
+                const uploadedUrls = uploaded.map((r) => r.url);
+                const uploadedPublicIds = uploaded.map((r) => r.publicId);
 
                 const failedCount = results.filter(
                   (result) => result.status === "rejected"
@@ -821,11 +882,15 @@ function ProjectForm({
                         .filter(Boolean)
                     : [];
 
+                  const existingIds = prev.imagesPublicIds ?? [];
+
                   const combined = [...existing, ...uploadedUrls];
+                  const combinedIds = [...existingIds, ...uploadedPublicIds];
 
                   return {
                     ...prev,
                     images: combined.join(", "),
+                    imagesPublicIds: combinedIds,
                   };
                 });
 
@@ -865,16 +930,29 @@ function ProjectForm({
                     <button
                       type="button"
                       onClick={() => {
-                        const remainingImages = formData.images
+                        const removed = formData.images
                           .split(",")
                           .map((item) => item.trim())
-                          .filter(Boolean)
-                          .filter((_, itemIndex) => itemIndex !== index);
+                          .filter(Boolean)[index];
 
-                        setFormData((prev) => ({
-                          ...prev,
-                          images: remainingImages.join(", "),
-                        }));
+                        setConfirmMessage("Delete this gallery image?");
+                        setConfirmAction(async () => {
+                          await deleteMedia(removed);
+
+                          const remainingImages = formData.images
+                            .split(",")
+                            .map((item) => item.trim())
+                            .filter(Boolean)
+                            .filter((_, itemIndex) => itemIndex !== index);
+
+                          setFormData((prev) => ({
+                            ...prev,
+                            images: remainingImages.join(", "),
+                          }));
+                          onNotify?.("Image deleted");
+                        });
+
+                        setConfirmOpen(true);
                       }}
                     >
                       Remove
@@ -908,6 +986,31 @@ function ProjectForm({
               value={formData.videoUrl}
               onChange={handleChange}
             />
+            {formData.videoUrl && (
+              <div className="upload-preview">
+                <div className="media-url-preview">{formData.videoUrl}</div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmMessage("Delete this video?");
+                    setConfirmAction(async () => {
+                      await deleteMedia(formData.videoUrl);
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        videoUrl: "",
+                      }));
+                      onNotify?.("Video deleted");
+                    });
+
+                    setConfirmOpen(true);
+                  }}
+                >
+                  Remove video
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="admin-form-group">
@@ -919,6 +1022,31 @@ function ProjectForm({
               value={formData.audioUrl}
               onChange={handleChange}
             />
+            {formData.audioUrl && (
+              <div className="upload-preview">
+                <div className="media-url-preview">{formData.audioUrl}</div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmMessage("Delete this audio?");
+                    setConfirmAction(async () => {
+                      await deleteMedia(formData.audioUrl);
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        audioUrl: "",
+                      }));
+                      onNotify?.("Audio deleted");
+                    });
+
+                    setConfirmOpen(true);
+                  }}
+                >
+                  Remove audio
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="admin-form-group">
@@ -930,6 +1058,31 @@ function ProjectForm({
               value={formData.pdfUrl}
               onChange={handleChange}
             />
+            {formData.pdfUrl && (
+              <div className="upload-preview">
+                <div className="media-url-preview">{formData.pdfUrl}</div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmMessage("Delete this PDF?");
+                    setConfirmAction(async () => {
+                      await deleteMedia(formData.pdfUrl);
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        pdfUrl: "",
+                      }));
+                      onNotify?.("PDF deleted");
+                    });
+
+                    setConfirmOpen(true);
+                  }}
+                >
+                  Remove PDF
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}
@@ -1397,7 +1550,7 @@ function ProjectForm({
                                   const file = event.target.files?.[0];
                                   if (!file) return;
 
-                                  await uploadContentImage(
+                                  const result = await uploadContentImage(
                                     file,
                                     (imageUrl) => {
                                       updateContentBlock(index, {
@@ -1409,6 +1562,13 @@ function ProjectForm({
                                     "Content image uploaded!",
                                     "Content image upload failed."
                                   );
+
+                                  if (result && (result as any).publicId) {
+                                    updateContentBlock(index, {
+                                      ...block,
+                                      publicId: (result as any).publicId,
+                                    } as any);
+                                  }
                                 }}
                               />
 
@@ -1466,7 +1626,7 @@ function ProjectForm({
                                   const file = event.target.files?.[0];
                                   if (!file) return;
 
-                                  await uploadContentMedia(
+                                  const result = await uploadContentMedia(
                                     file,
                                     "video",
                                     (videoUrl) => {
@@ -1476,6 +1636,19 @@ function ProjectForm({
                                       });
                                     }
                                   );
+
+                                  // If the uploader returned a publicId, try to attach it to the block
+                                  if (
+                                    result &&
+                                    typeof result === "object" &&
+                                    "publicId" in result
+                                  ) {
+                                    updateContentBlock(index, {
+                                      ...block,
+                                      // attach a new field for block public id
+                                      publicId: (result as any).publicId,
+                                    } as any);
+                                  }
                                 }}
                               />
 
@@ -1492,10 +1665,19 @@ function ProjectForm({
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      updateContentBlock(index, {
-                                        ...block,
-                                        url: "",
+                                      setConfirmMessage("Delete this video?");
+                                      setConfirmAction(async () => {
+                                        await deleteMedia(block.url);
+
+                                        updateContentBlock(index, {
+                                          ...block,
+                                          url: "",
+                                        });
+
+                                        onNotify?.("Video deleted");
                                       });
+
+                                      setConfirmOpen(true);
                                     }}
                                   >
                                     Remove video
@@ -1632,10 +1814,28 @@ function ProjectForm({
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      updateContentBlock(index, {
-                                        ...block,
-                                        imageUrl: "",
+                                      setConfirmMessage(
+                                        block.mediaType === "video"
+                                          ? "Delete this video?"
+                                          : "Delete this image?"
+                                      );
+
+                                      setConfirmAction(async () => {
+                                        await deleteMedia(block.imageUrl);
+
+                                        updateContentBlock(index, {
+                                          ...block,
+                                          imageUrl: "",
+                                        });
+
+                                        onNotify?.(
+                                          block.mediaType === "video"
+                                            ? "Video deleted"
+                                            : "Image deleted"
+                                        );
                                       });
+
+                                      setConfirmOpen(true);
                                     }}
                                   >
                                     {block.mediaType === "video"
@@ -1680,7 +1880,7 @@ function ProjectForm({
                                       const file = event.target.files?.[0];
                                       if (!file) return;
 
-                                      await uploadContentImage(
+                                      const result = await uploadContentImage(
                                         file,
                                         (imageUrl) => {
                                           updateContentBlock(index, {
@@ -1692,6 +1892,14 @@ function ProjectForm({
                                         "Right media image uploaded!",
                                         "Right media image upload failed."
                                       );
+
+                                      if (result && (result as any).publicId) {
+                                        updateContentBlock(index, {
+                                          ...block,
+                                          publicIdRight: (result as any)
+                                            .publicId,
+                                        } as any);
+                                      }
                                     }}
                                   />
 
@@ -1708,10 +1916,24 @@ function ProjectForm({
                                       <button
                                         type="button"
                                         onClick={() => {
-                                          updateContentBlock(index, {
-                                            ...block,
-                                            imageUrlRight: "",
+                                          setConfirmMessage(
+                                            "Delete this image?"
+                                          );
+
+                                          setConfirmAction(async () => {
+                                            await deleteMedia(
+                                              block.imageUrlRight
+                                            );
+
+                                            updateContentBlock(index, {
+                                              ...block,
+                                              imageUrlRight: "",
+                                            });
+
+                                            onNotify?.("Image deleted");
                                           });
+
+                                          setConfirmOpen(true);
                                         }}
                                       >
                                         Remove right image
