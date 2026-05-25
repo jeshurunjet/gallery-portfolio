@@ -1032,7 +1032,7 @@ function ProjectForm({
                           .filter(Boolean)[index];
 
                         setConfirmMessage("Delete this gallery image?");
-                        setConfirmAction(async () => {
+                        setConfirmAction(() => async () => {
                           await deleteMedia({ url: removed, resourceType: "image" });
 
                           const remainingImages = formData.images
@@ -1093,7 +1093,7 @@ function ProjectForm({
                   type="button"
                   onClick={() => {
                     setConfirmMessage("Delete this video?");
-                    setConfirmAction(async () => {
+                    setConfirmAction(() => async () => {
                       await deleteMedia({
                         url: formData.videoUrl,
                         publicId: formData.videoPublicId,
@@ -1134,7 +1134,7 @@ function ProjectForm({
                   type="button"
                   onClick={() => {
                     setConfirmMessage("Delete this audio?");
-                    setConfirmAction(async () => {
+                    setConfirmAction(() => async () => {
                       await deleteMedia({ url: formData.audioUrl });
 
                       setFormData((prev) => ({
@@ -1171,7 +1171,7 @@ function ProjectForm({
                   type="button"
                   onClick={() => {
                     setConfirmMessage("Delete this PDF?");
-                    setConfirmAction(async () => {
+                    setConfirmAction(() => async () => {
                       await deleteMedia({ url: formData.pdfUrl });
 
                       setFormData((prev) => ({
@@ -1772,7 +1772,7 @@ function ProjectForm({
                                     type="button"
                                     onClick={() => {
                                       setConfirmMessage("Delete this video?");
-                                      setConfirmAction(async () => {
+                                      setConfirmAction(() => async () => {
                                         await deleteMedia({
                                           url: block.url,
                                           publicId: block.publicId,
@@ -1938,7 +1938,7 @@ function ProjectForm({
                                           : "Delete this image?"
                                       );
 
-                                      setConfirmAction(async () => {
+                                      setConfirmAction(() => async () => {
                                         await deleteMedia({
                                           url: block.imageUrl,
                                           publicId: block.publicId,
@@ -2046,7 +2046,7 @@ function ProjectForm({
                                             "Delete this image?"
                                           );
 
-                                          setConfirmAction(async () => {
+                                          setConfirmAction(() => async () => {
                                             await deleteMedia({
                                               url: block.imageUrlRight,
                                               publicId: block.publicIdRight,
