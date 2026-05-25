@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 Test set: com.jeshurun.portfolio.PortfolioApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 22.73 s <<< FAILURE! -- in com.jeshurun.portfolio.PortfolioApplicationTests
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 22.85 s <<< FAILURE! -- in com.jeshurun.portfolio.PortfolioApplicationTests
 com.jeshurun.portfolio.PortfolioApplicationTests.contextLoads -- Time elapsed: 21.31 s <<< ERROR!
 java.lang.IllegalStateException: Could not initialize plugin: interface org.mockito.plugins.MockMaker (alternate: null)
 	at org.mockito.internal.configuration.plugins.PluginLoader$1.invoke(PluginLoader.java:85)

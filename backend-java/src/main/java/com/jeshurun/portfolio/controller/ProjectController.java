@@ -278,7 +278,11 @@ public class ProjectController {
         for (CloudinaryAssetRef asset : existingAssets) {
             if (updatedKeys.contains(asset.key())) continue;
 
-            deleteCloudinaryAsset(asset.url(), asset.resourceType());
+            if (asset.publicId() != null && !asset.publicId().isBlank()) {
+                deleteCloudinaryAssetById(asset.publicId(), asset.resourceType());
+            } else {
+                deleteCloudinaryAsset(asset.url(), asset.resourceType());
+            }
         }
     }
 
@@ -297,18 +301,38 @@ public class ProjectController {
                 String type = block.path("type").asText();
 
                 if ("image".equals(type)) {
-                    addAssetRef(assets, block.path("url").asText(), "image");
+                    addAssetRef(
+                            assets,
+                            block.path("url").asText(),
+                            block.path("publicId").asText(null),
+                            "image"
+                    );
                 }
 
                 if ("video".equals(type)) {
-                    addAssetRef(assets, block.path("url").asText(), "video");
+                    addAssetRef(
+                            assets,
+                            block.path("url").asText(),
+                            block.path("publicId").asText(null),
+                            "video"
+                    );
                 }
 
                 if ("mediaText".equals(type)) {
                     String mediaType = block.path("mediaType").asText("image");
 
-                    addAssetRef(assets, block.path("imageUrl").asText(), mediaType);
-                    addAssetRef(assets, block.path("imageUrlRight").asText(), "image");
+                    addAssetRef(
+                            assets,
+                            block.path("imageUrl").asText(),
+                            block.path("publicId").asText(null),
+                            mediaType
+                    );
+                    addAssetRef(
+                            assets,
+                            block.path("imageUrlRight").asText(),
+                            block.path("publicIdRight").asText(null),
+                            "image"
+                    );
                 }
             }
         } catch (Exception error) {
@@ -319,15 +343,24 @@ public class ProjectController {
         return assets;
     }
 
-    private void addAssetRef(List<CloudinaryAssetRef> assets, String url, String resourceType) {
-        if (url == null || url.isBlank()) return;
+    private void addAssetRef(
+            List<CloudinaryAssetRef> assets,
+            String url,
+            String publicId,
+            String resourceType
+    ) {
+        if ((url == null || url.isBlank()) && (publicId == null || publicId.isBlank())) return;
 
-        assets.add(new CloudinaryAssetRef(url, resourceType));
+        assets.add(new CloudinaryAssetRef(url, publicId, resourceType));
     }
 
-    private record CloudinaryAssetRef(String url, String resourceType) {
+    private record CloudinaryAssetRef(String url, String publicId, String resourceType) {
         private String key() {
-            return resourceType + "::" + url;
+            if (publicId != null && !publicId.isBlank()) {
+                return resourceType + "::id::" + publicId;
+            }
+
+            return resourceType + "::url::" + url;
         }
     }
 

@@ -190,9 +190,12 @@ function ProjectContentRenderer({ content }: ProjectContentRendererProps) {
               <video
                 src={block.url}
                 className="content-image content-media-video"
-                controls
+                autoPlay
+                muted
+                loop
                 playsInline
                 preload="metadata"
+                controls
               />
               {block.caption ? (
                 <p className="content-media-caption">{block.caption}</p>

@@ -379,8 +379,16 @@ function ProjectForm({
     return { url: data.url as string, publicId: data.public_id as string };
   };
 
-  const deleteMedia = async (url: string | undefined) => {
-    if (!url) return;
+  const deleteMedia = async ({
+    url,
+    publicId,
+    resourceType,
+  }: {
+    url?: string;
+    publicId?: string;
+    resourceType?: "image" | "video";
+  }) => {
+    if (!url && !publicId) return;
 
     try {
       await fetch(`${API_BASE_URL}/api/upload/delete`, {
@@ -389,7 +397,7 @@ function ProjectForm({
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, publicId, resourceType }),
       });
     } catch (err) {
       console.error("Failed to delete media:", err);
@@ -806,6 +814,7 @@ function ProjectForm({
                   setFormData((prev) => ({
                     ...prev,
                     cover: "",
+                    coverPublicId: undefined,
                   }))
                 }
               >
@@ -937,7 +946,7 @@ function ProjectForm({
 
                         setConfirmMessage("Delete this gallery image?");
                         setConfirmAction(async () => {
-                          await deleteMedia(removed);
+                          await deleteMedia({ url: removed, resourceType: "image" });
 
                           const remainingImages = formData.images
                             .split(",")
@@ -948,6 +957,9 @@ function ProjectForm({
                           setFormData((prev) => ({
                             ...prev,
                             images: remainingImages.join(", "),
+                            imagesPublicIds: (prev.imagesPublicIds ?? []).filter(
+                              (_, itemIndex) => itemIndex !== index
+                            ),
                           }));
                           onNotify?.("Image deleted");
                         });
@@ -995,11 +1007,16 @@ function ProjectForm({
                   onClick={() => {
                     setConfirmMessage("Delete this video?");
                     setConfirmAction(async () => {
-                      await deleteMedia(formData.videoUrl);
+                      await deleteMedia({
+                        url: formData.videoUrl,
+                        publicId: formData.videoPublicId,
+                        resourceType: "video",
+                      });
 
                       setFormData((prev) => ({
                         ...prev,
                         videoUrl: "",
+                        videoPublicId: undefined,
                       }));
                       onNotify?.("Video deleted");
                     });
@@ -1031,11 +1048,12 @@ function ProjectForm({
                   onClick={() => {
                     setConfirmMessage("Delete this audio?");
                     setConfirmAction(async () => {
-                      await deleteMedia(formData.audioUrl);
+                      await deleteMedia({ url: formData.audioUrl });
 
                       setFormData((prev) => ({
                         ...prev,
                         audioUrl: "",
+                        audioPublicId: undefined,
                       }));
                       onNotify?.("Audio deleted");
                     });
@@ -1067,11 +1085,12 @@ function ProjectForm({
                   onClick={() => {
                     setConfirmMessage("Delete this PDF?");
                     setConfirmAction(async () => {
-                      await deleteMedia(formData.pdfUrl);
+                      await deleteMedia({ url: formData.pdfUrl });
 
                       setFormData((prev) => ({
                         ...prev,
                         pdfUrl: "",
+                        pdfPublicId: undefined,
                       }));
                       onNotify?.("PDF deleted");
                     });
@@ -1585,6 +1604,7 @@ function ProjectForm({
                                       updateContentBlock(index, {
                                         ...block,
                                         url: "",
+                                        publicId: undefined,
                                       });
                                     }}
                                   >
@@ -1667,11 +1687,16 @@ function ProjectForm({
                                     onClick={() => {
                                       setConfirmMessage("Delete this video?");
                                       setConfirmAction(async () => {
-                                        await deleteMedia(block.url);
+                                        await deleteMedia({
+                                          url: block.url,
+                                          publicId: block.publicId,
+                                          resourceType: "video",
+                                        });
 
                                         updateContentBlock(index, {
                                           ...block,
                                           url: "",
+                                          publicId: undefined,
                                         });
 
                                         onNotify?.("Video deleted");
@@ -1821,11 +1846,19 @@ function ProjectForm({
                                       );
 
                                       setConfirmAction(async () => {
-                                        await deleteMedia(block.imageUrl);
+                                        await deleteMedia({
+                                          url: block.imageUrl,
+                                          publicId: block.publicId,
+                                          resourceType:
+                                            block.mediaType === "video"
+                                              ? "video"
+                                              : "image",
+                                        });
 
                                         updateContentBlock(index, {
                                           ...block,
                                           imageUrl: "",
+                                          publicId: undefined,
                                         });
 
                                         onNotify?.(
@@ -1921,13 +1954,16 @@ function ProjectForm({
                                           );
 
                                           setConfirmAction(async () => {
-                                            await deleteMedia(
-                                              block.imageUrlRight
-                                            );
+                                            await deleteMedia({
+                                              url: block.imageUrlRight,
+                                              publicId: block.publicIdRight,
+                                              resourceType: "image",
+                                            });
 
                                             updateContentBlock(index, {
                                               ...block,
                                               imageUrlRight: "",
+                                              publicIdRight: undefined,
                                             });
 
                                             onNotify?.("Image deleted");
@@ -1959,6 +1995,7 @@ function ProjectForm({
           {submitLabel}
         </button>
       </div>
+      {renderConfirmModal()}
     </form>
   );
 }

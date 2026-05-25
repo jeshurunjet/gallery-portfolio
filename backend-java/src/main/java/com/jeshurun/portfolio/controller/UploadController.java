@@ -79,44 +79,24 @@ public class UploadController {
     public ResponseEntity<?> deleteMedia(@RequestBody Map<String, String> body) {
         try {
             String url = body.get("url");
+            String publicId = body.get("publicId");
+            String resourceType = body.get("resourceType");
 
-            if (url == null || url.isEmpty()) {
-                return ResponseEntity.badRequest().body("Missing url");
-            }
-
-            // Attempt to extract public_id from the URL by removing the extension and folders before the portfolio folder
-            // Example secure_url: https://res.cloudinary.com/<cloud>/video/upload/v162.../portfolio/my-video.mp4
-            String publicId = null;
-
-            try {
-                java.net.URI parsed = java.net.URI.create(url);
-                String path = parsed.getPath();
-
-                // find /portfolio/ in the path
-                int idx = path.indexOf("/portfolio/");
-                if (idx >= 0) {
-                    String after = path.substring(idx + 1); // remove leading '/'
-                    // remove version segments (v12345) and file extension
-                    // split by '/' and drop the v* segment if present
-                    String[] parts = after.split("/");
-                    java.util.List<String> filtered = new java.util.ArrayList<>();
-                    for (String p : parts) {
-                        if (!p.matches("v[0-9]+")) filtered.add(p);
-                    }
-
-                    String joined = String.join("/", filtered);
-                    // remove extension
-                    int dot = joined.lastIndexOf('.');
-                    publicId = dot > 0 ? joined.substring(0, dot) : joined;
-                }
-            } catch (Exception ignored) {
+            if ((url == null || url.isEmpty()) && (publicId == null || publicId.isEmpty())) {
+                return ResponseEntity.badRequest().body("Missing url or publicId");
             }
 
             if (publicId == null) {
+                publicId = derivePublicId(url);
+            }
+
+            if (publicId == null || publicId.isBlank()) {
                 return ResponseEntity.status(400).body("Could not derive public_id from url");
             }
 
-            String resourceType = url.contains("/video/") ? "video" : "image";
+            if (resourceType == null || resourceType.isBlank()) {
+                resourceType = url != null && url.contains("/video/") ? "video" : "image";
+            }
 
             @SuppressWarnings("unchecked")
             Map<String, Object> result = (Map<String, Object>) cloudinary.uploader().destroy(
@@ -128,6 +108,39 @@ public class UploadController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Delete failed: " + e.getMessage());
+        }
+    }
+
+    private String derivePublicId(String url) {
+        if (url == null || url.isBlank()) {
+            return null;
+        }
+
+        try {
+            java.net.URI parsed = java.net.URI.create(url);
+            String path = parsed.getPath();
+
+            int idx = path.indexOf("/portfolio/");
+            if (idx < 0) {
+                return null;
+            }
+
+            String after = path.substring(idx + 1);
+            String[] parts = after.split("/");
+            java.util.List<String> filtered = new java.util.ArrayList<>();
+
+            for (String p : parts) {
+                if (!p.matches("v[0-9]+")) {
+                    filtered.add(p);
+                }
+            }
+
+            String joined = String.join("/", filtered);
+            int dot = joined.lastIndexOf('.');
+
+            return dot > 0 ? joined.substring(0, dot) : joined;
+        } catch (Exception ignored) {
+            return null;
         }
     }
 }

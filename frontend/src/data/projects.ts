@@ -5,8 +5,14 @@ export type ProjectContentBlock =
   | { type: "subheading"; text: string }
   | { type: "paragraph"; text: string; align?: TextAlignOption }
   | { type: "quote"; text: string }
-  | { type: "image"; url: string; alt: string; caption?: string }
-  | { type: "video"; url: string; caption?: string }
+  | {
+      type: "image";
+      url: string;
+      alt: string;
+      caption?: string;
+      publicId?: string;
+    }
+  | { type: "video"; url: string; caption?: string; publicId?: string }
   | { type: "list"; items: string[] }
   | { type: "divider" }
   | {
@@ -24,6 +30,8 @@ export type ProjectContentBlock =
       imageAlt?: string;
       imageUrlRight?: string;
       imageAltRight?: string;
+      publicId?: string;
+      publicIdRight?: string;
       align?: TextAlignOption;
     }
   | {
