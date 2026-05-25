@@ -3,10 +3,18 @@ package com.jeshurun.portfolio.controller;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @CrossOrigin(origins = {
         "http://localhost:5173",
@@ -18,6 +26,7 @@ import java.util.Map;
 @RequestMapping("/api/upload")
 public class UploadController {
 
+    private static final Path UPLOAD_ROOT = Paths.get("uploads");
     private final Cloudinary cloudinary;
 
     public UploadController(Cloudinary cloudinary) {
@@ -27,6 +36,10 @@ public class UploadController {
     @PostMapping("/image")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
+            if (useLocalStorage()) {
+                return ResponseEntity.ok(storeLocally(file, "image"));
+            }
+
             @SuppressWarnings("unchecked")
             Map<String, Object> uploadResult =
                     (Map<String, Object>) cloudinary.uploader().upload(
@@ -53,6 +66,10 @@ public class UploadController {
     @PostMapping("/video")
     public ResponseEntity<?> uploadVideo(@RequestParam("file") MultipartFile file) {
         try {
+            if (useLocalStorage()) {
+                return ResponseEntity.ok(storeLocally(file, "video"));
+            }
+
             @SuppressWarnings("unchecked")
             Map<String, Object> uploadResult =
                     (Map<String, Object>) cloudinary.uploader().upload(
@@ -86,6 +103,10 @@ public class UploadController {
                 return ResponseEntity.badRequest().body("Missing url or publicId");
             }
 
+            if (isLocalUpload(url, publicId)) {
+                return ResponseEntity.ok(deleteLocalFile(url, publicId));
+            }
+
             if (publicId == null) {
                 publicId = derivePublicId(url);
             }
@@ -109,6 +130,74 @@ public class UploadController {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Delete failed: " + e.getMessage());
         }
+    }
+
+    private boolean useLocalStorage() {
+        Object cloudName = cloudinary.config.cloudName;
+
+        if (!(cloudName instanceof String name)) {
+            return true;
+        }
+
+        return !StringUtils.hasText(name) || "test".equalsIgnoreCase(name);
+    }
+
+    private Map<String, Object> storeLocally(MultipartFile file, String resourceType) throws Exception {
+        Files.createDirectories(UPLOAD_ROOT);
+
+        String originalName = file.getOriginalFilename();
+        String extension = "";
+
+        if (StringUtils.hasText(originalName) && originalName.contains(".")) {
+            extension = originalName.substring(originalName.lastIndexOf("."));
+        }
+
+        String publicId = "local/" + resourceType + "/" + UUID.randomUUID();
+        String filename = publicId.replace("/", "_") + extension;
+        Path destination = UPLOAD_ROOT.resolve(filename);
+
+        Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+
+        String url = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/uploads/")
+                .path(filename)
+                .toUriString();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("url", url);
+        result.put("public_id", publicId);
+
+        return result;
+    }
+
+    private boolean isLocalUpload(String url, String publicId) {
+        return (url != null && url.contains("/uploads/")) ||
+                (publicId != null && publicId.startsWith("local/"));
+    }
+
+    private Map<String, Object> deleteLocalFile(String url, String publicId) throws Exception {
+        Files.createDirectories(UPLOAD_ROOT);
+
+        String filename = null;
+
+        if (url != null && url.contains("/uploads/")) {
+            filename = url.substring(url.lastIndexOf("/uploads/") + "/uploads/".length());
+        } else if (publicId != null && publicId.startsWith("local/")) {
+            try (var stream = Files.list(UPLOAD_ROOT)) {
+                filename = stream
+                        .map(path -> path.getFileName().toString())
+                        .filter(name -> name.startsWith(publicId.replace("/", "_")))
+                        .findFirst()
+                        .orElse(null);
+            }
+        }
+
+        if (filename == null) {
+            return Map.of("result", "not found");
+        }
+
+        Files.deleteIfExists(UPLOAD_ROOT.resolve(filename));
+        return Map.of("result", "ok");
     }
 
     private String derivePublicId(String url) {

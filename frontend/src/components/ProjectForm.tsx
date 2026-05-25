@@ -143,6 +143,7 @@ function ProjectForm({
   const [confirmAction, setConfirmAction] = useState<() => Promise<void>>(
     async () => {}
   );
+  const [pendingUploads, setPendingUploads] = useState(0);
   const toggleBlockCollapse = (index: number) => {
     setCollapsedBlocks((prev) =>
       prev.includes(index)
@@ -163,6 +164,17 @@ function ProjectForm({
         ? prev.filter((item) => item !== section)
         : [...prev, section]
     );
+  };
+  const hasPendingUploads = pendingUploads > 0;
+
+  const runWithUploadLock = async <T,>(task: () => Promise<T>) => {
+    setPendingUploads((prev) => prev + 1);
+
+    try {
+      return await task();
+    } finally {
+      setPendingUploads((prev) => Math.max(0, prev - 1));
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -381,71 +393,75 @@ function ProjectForm({
   };
 
   const uploadImage = async (file: File) => {
-    const formDataUpload = new FormData();
-    formDataUpload.append("file", file);
+    return runWithUploadLock(async () => {
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
 
-    const response = await fetch(`${API_BASE_URL}/api/upload/image`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: formDataUpload,
+      const response = await fetch(`${API_BASE_URL}/api/upload/image`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formDataUpload,
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("isAuth");
+
+        sessionStorage.setItem(
+          "authMessage",
+          "Your session has expired. Please log in again."
+        );
+
+        window.location.replace("/admin/login");
+
+        throw new Error("Session expired");
+      }
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      return { url: data.url as string, publicId: data.public_id as string };
     });
-
-    if (response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("isAuth");
-
-      sessionStorage.setItem(
-        "authMessage",
-        "Your session has expired. Please log in again."
-      );
-
-      window.location.replace("/admin/login");
-
-      throw new Error("Session expired");
-    }
-
-    if (!response.ok) {
-      throw new Error("Upload failed");
-    }
-
-    const data = await response.json();
-    return { url: data.url as string, publicId: data.public_id as string };
   };
 
   const uploadVideo = async (file: File) => {
-    const formDataUpload = new FormData();
-    formDataUpload.append("file", file);
+    return runWithUploadLock(async () => {
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
 
-    const response = await fetch(`${API_BASE_URL}/api/upload/video`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: formDataUpload,
+      const response = await fetch(`${API_BASE_URL}/api/upload/video`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formDataUpload,
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("isAuth");
+
+        sessionStorage.setItem(
+          "authMessage",
+          "Your session has expired. Please log in again."
+        );
+
+        window.location.replace("/admin/login");
+
+        throw new Error("Session expired");
+      }
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      return { url: data.url as string, publicId: data.public_id as string };
     });
-
-    if (response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("isAuth");
-
-      sessionStorage.setItem(
-        "authMessage",
-        "Your session has expired. Please log in again."
-      );
-
-      window.location.replace("/admin/login");
-
-      throw new Error("Session expired");
-    }
-
-    if (!response.ok) {
-      throw new Error("Upload failed");
-    }
-
-    const data = await response.json();
-    return { url: data.url as string, publicId: data.public_id as string };
   };
 
   const deleteMedia = async ({
@@ -598,6 +614,12 @@ function ProjectForm({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (hasPendingUploads) {
+      onNotify?.("Please wait for uploads to finish before saving.");
+      return;
+    }
+
     onSubmit({
       ...formData,
       pinned: pinnedValue,
@@ -2084,9 +2106,18 @@ function ProjectForm({
         </div>
       )}
       <div className="admin-form-actions">
-        <button type="submit" className="admin-primary-button">
+        <button
+          type="submit"
+          className="admin-primary-button"
+          disabled={hasPendingUploads}
+        >
           {submitLabel}
         </button>
+        {hasPendingUploads ? (
+          <p className="admin-form-status">
+            Upload in progress. Please wait before saving.
+          </p>
+        ) : null}
       </div>
       {renderConfirmModal()}
     </form>
