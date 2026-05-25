@@ -271,6 +271,27 @@ function ProjectForm({
     });
   };
 
+  const patchContentBlock = (
+    index: number,
+    updater: (block: ProjectContentBlock) => ProjectContentBlock
+  ) => {
+    setFormData((prev) => {
+      const existingBlock = prev.content[index];
+
+      if (!existingBlock) {
+        return prev;
+      }
+
+      const updated = [...prev.content];
+      updated[index] = updater(existingBlock);
+
+      return {
+        ...prev,
+        content: updated,
+      };
+    });
+  };
+
   const duplicateContentBlock = (index: number) => {
     setFormData((prev) => {
       const blockToCopy = prev.content[index];
@@ -296,7 +317,51 @@ function ProjectForm({
     onNotify?.("Content block duplicated.");
   };
 
-  const deleteContentBlock = (index: number) => {
+  const deleteBlockAssets = async (block: ProjectContentBlock) => {
+    if (block.type === "image" && (block.url || block.publicId)) {
+      await deleteMedia({
+        url: block.url,
+        publicId: block.publicId,
+        resourceType: "image",
+      });
+      return;
+    }
+
+    if (block.type === "video" && (block.url || block.publicId)) {
+      await deleteMedia({
+        url: block.url,
+        publicId: block.publicId,
+        resourceType: "video",
+      });
+      return;
+    }
+
+    if (block.type === "mediaText") {
+      if (block.imageUrl || block.publicId) {
+        await deleteMedia({
+          url: block.imageUrl,
+          publicId: block.publicId,
+          resourceType: block.mediaType === "video" ? "video" : "image",
+        });
+      }
+
+      if (block.imageUrlRight || block.publicIdRight) {
+        await deleteMedia({
+          url: block.imageUrlRight,
+          publicId: block.publicIdRight,
+          resourceType: "image",
+        });
+      }
+    }
+  };
+
+  const deleteContentBlock = async (index: number) => {
+    const blockToDelete = formData.content[index];
+
+    if (blockToDelete) {
+      await deleteBlockAssets(blockToDelete);
+    }
+
     setFormData((prev) => ({
       ...prev,
       content: prev.content.filter((_, itemIndex) => itemIndex !== index),
@@ -1572,10 +1637,10 @@ function ProjectForm({
                                   const result = await uploadContentImage(
                                     file,
                                     (imageUrl) => {
-                                      updateContentBlock(index, {
-                                        ...block,
+                                      patchContentBlock(index, (currentBlock) => ({
+                                        ...currentBlock,
                                         url: imageUrl,
-                                      });
+                                      }));
                                     },
                                     "Uploading content image...",
                                     "Content image uploaded!",
@@ -1583,10 +1648,10 @@ function ProjectForm({
                                   );
 
                                   if (result && (result as any).publicId) {
-                                    updateContentBlock(index, {
-                                      ...block,
+                                    patchContentBlock(index, (currentBlock) => ({
+                                      ...currentBlock,
                                       publicId: (result as any).publicId,
-                                    } as any);
+                                    }) as ProjectContentBlock);
                                   }
                                 }}
                               />
@@ -1650,10 +1715,10 @@ function ProjectForm({
                                     file,
                                     "video",
                                     (videoUrl) => {
-                                      updateContentBlock(index, {
-                                        ...block,
+                                      patchContentBlock(index, (currentBlock) => ({
+                                        ...currentBlock,
                                         url: videoUrl,
-                                      });
+                                      }));
                                     }
                                   );
 
@@ -1663,11 +1728,10 @@ function ProjectForm({
                                     typeof result === "object" &&
                                     "publicId" in result
                                   ) {
-                                    updateContentBlock(index, {
-                                      ...block,
-                                      // attach a new field for block public id
+                                    patchContentBlock(index, (currentBlock) => ({
+                                      ...currentBlock,
                                       publicId: (result as any).publicId,
-                                    } as any);
+                                    }) as ProjectContentBlock);
                                   }
                                 }}
                               />
@@ -1806,16 +1870,23 @@ function ProjectForm({
                                   const file = event.target.files?.[0];
                                   if (!file) return;
 
-                                  await uploadContentMedia(
+                                  const result = await uploadContentMedia(
                                     file,
                                     block.mediaType ?? "image",
                                     (imageUrl) => {
-                                      updateContentBlock(index, {
-                                        ...block,
+                                      patchContentBlock(index, (currentBlock) => ({
+                                        ...currentBlock,
                                         imageUrl,
-                                      });
+                                      }));
                                     }
                                   );
+
+                                  if (result && (result as any).publicId) {
+                                    patchContentBlock(index, (currentBlock) => ({
+                                      ...currentBlock,
+                                      publicId: (result as any).publicId,
+                                    }) as ProjectContentBlock);
+                                  }
                                 }}
                               />
 
@@ -1916,10 +1987,10 @@ function ProjectForm({
                                       const result = await uploadContentImage(
                                         file,
                                         (imageUrl) => {
-                                          updateContentBlock(index, {
-                                            ...block,
+                                          patchContentBlock(index, (currentBlock) => ({
+                                            ...currentBlock,
                                             imageUrlRight: imageUrl,
-                                          });
+                                          }));
                                         },
                                         "Uploading right media image...",
                                         "Right media image uploaded!",
@@ -1927,11 +1998,11 @@ function ProjectForm({
                                       );
 
                                       if (result && (result as any).publicId) {
-                                        updateContentBlock(index, {
-                                          ...block,
+                                        patchContentBlock(index, (currentBlock) => ({
+                                          ...currentBlock,
                                           publicIdRight: (result as any)
                                             .publicId,
-                                        } as any);
+                                        }) as ProjectContentBlock);
                                       }
                                     }}
                                   />

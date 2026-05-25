@@ -38,7 +38,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/auth/forgot").permitAll()
                         .requestMatchers("/api/auth/reset").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/projects/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/tags/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/pages/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/api/projects/*/view").permitAll()
+                        .requestMatchers("/api/projects/*/like").permitAll()
+                        .anyRequest().authenticated()
                 );
 
         return http.build();
