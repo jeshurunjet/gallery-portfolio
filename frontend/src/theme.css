@@ -152,7 +152,6 @@
 .theme-dark .admin-account-panel,
 .theme-dark .admin-account-danger,
 .theme-dark .admin-empty-state,
-.theme-dark .admin-hero-panel,
 .theme-dark .admin-form-panel,
 .theme-dark .admin-section-toggle,
 .theme-dark .admin-section-status,
@@ -245,6 +244,17 @@
 .theme-dark .theme-toggle-button,
 .theme-dark .admin-theme-option {
   color: var(--text);
+}
+
+.theme-dark .admin-hero-panel {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 1.25rem;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .theme-dark .resume-section,
