@@ -152,7 +152,6 @@
 .theme-dark .admin-account-panel,
 .theme-dark .admin-account-danger,
 .theme-dark .admin-empty-state,
-.theme-dark .admin-section,
 .theme-dark .admin-hero-panel,
 .theme-dark .admin-form-panel,
 .theme-dark .admin-section-toggle,
@@ -691,20 +690,20 @@
   border: 1px solid var(--border);
 }
 
-.admin-theme-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.admin-theme-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.admin-section admin-theme-panel {
+.theme-dark .admin-section {
   background: #0d1014;
+}
+
+.admin-theme-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-theme-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .admin-theme-options {
