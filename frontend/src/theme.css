@@ -636,6 +636,10 @@
   color: var(--muted);
 }
 
+.theme-dark .about-hero-featured {
+  border: 1px solid transparent;
+}
+
 .theme-dark .admin-sort-tabs button {
   background: transparent;
   color: var(--muted);
