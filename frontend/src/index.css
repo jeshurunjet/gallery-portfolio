@@ -1991,7 +1991,7 @@ main {
 
 @media (max-width: 600px) {
   .admin-stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .admin-insight-grid {
@@ -2041,6 +2041,12 @@ main {
   .admin-attention-list a,
   .admin-attention-list span {
     overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
   }
 }
 @media (max-width: 700px) {
@@ -2721,8 +2727,7 @@ main {
   align-items: start;
 }
 
-.about-hero-featured,
-.resume-header-featured {
+.about-hero-featured {
   padding: 2rem;
   border: 1px solid #ececec;
   border-radius: 22px;
@@ -2731,6 +2736,13 @@ main {
     linear-gradient(315deg, rgba(37, 99, 235, 0.08), transparent 38%),
     #fff;*/
   box-shadow: 0 14px 34px #0000000a;
+}
+
+.resume-header-featured {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .about-hero h1,
@@ -2770,6 +2782,10 @@ main {
   color: #555;
   line-height: 1.75;
   font-size: 1rem;
+}
+
+.about-profile-card {
+  background: transparent;
 }
 
 .about-mini-list {
@@ -2871,9 +2887,27 @@ main {
 
 .resume-experience-item ul {
   margin-top: 0.8rem;
-  padding-left: 1.1rem;
+  padding-left: 0;
+  list-style: none;
   color: #555;
   line-height: 1.7;
+}
+
+.resume-experience-item li {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.resume-experience-item li::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 0.28rem solid transparent;
+  border-bottom: 0.28rem solid transparent;
+  border-left: 0.42rem solid currentColor;
 }
 
 .resume-experience-item li + li {
@@ -3079,7 +3113,7 @@ main {
 }
 
 .resume-sidebar-item::before {
-  content: "";
+  content: none;
   position: absolute;
   top: 1.12rem;
   left: 0;
@@ -3288,7 +3322,7 @@ main {
   }
 
   .resume-experience-item ul {
-    padding-left: 1rem;
+    padding-left: 0;
     line-height: 1.58;
   }
 

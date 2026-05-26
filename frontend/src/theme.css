@@ -255,6 +255,18 @@
   box-shadow: none;
 }
 
+.theme-dark .about-profile-card {
+  background: transparent;
+}
+
+.theme-dark .resume-header-featured {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
 .theme-dark .about-statement,
 .theme-dark .about-statement p {
   background: transparent;
@@ -319,6 +331,10 @@
 
 .theme-dark .resume-sidebar > section {
   background: transparent;
+}
+
+.theme-dark .resume-sidebar-item::before {
+  content: none;
 }
 
 .theme-dark .app-layout,
@@ -392,16 +408,66 @@
   border-color: var(--pill-border);
 }
 
-.about-hero-featured,
-.resume-header-featured {
-  padding: 2rem;
-  border: 1px solid transparent;
-  border-radius: 22px;
-  /*background:
-    linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 42%),
-    linear-gradient(315deg, rgba(37, 99, 235, 0.08), transparent 38%),
-    #fff;*/
-  box-shadow: 0 14px 34px #0000000a;
+.theme-dark .gallery-search,
+.theme-dark .gallery-sort-trigger,
+.theme-dark .tag-button {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.theme-dark .gallery-search:focus-within,
+.theme-dark .gallery-sort-trigger:hover,
+.theme-dark .gallery-sort-trigger[aria-expanded="true"],
+.theme-dark .tag-button:hover,
+.theme-dark .tag-button.active {
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.theme-dark .admin-layout,
+.theme-dark .admin-content,
+.theme-dark .admin-sidebar {
+  background: transparent;
+}
+
+.theme-dark .admin-add-row-button,
+.theme-dark .upload-preview button,
+.theme-dark .upload-preview-item button,
+.theme-dark .content-editor-duplicate,
+.theme-dark .content-editor-cancel-delete,
+.theme-dark .project-pin-toggle,
+.theme-dark .project-pin-icon {
+  background: var(--surface-muted);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.theme-dark .admin-add-row-button:hover,
+.theme-dark .upload-preview button:hover,
+.theme-dark .upload-preview-item button:hover,
+.theme-dark .project-pin-toggle:hover {
+  background: var(--surface-tag);
+  color: #ffffff;
+  border-color: var(--border-strong);
+}
+
+.theme-dark .project-pin-toggle.active {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+.theme-dark .project-pin-toggle.active .project-pin-icon {
+  background: rgba(0, 0, 0, 0.08);
+  color: #000000;
+}
+
+.theme-dark .project-pin-toggle small {
+  color: var(--muted);
+}
+
+.theme-dark .project-pin-toggle.active small {
+  color: rgba(0, 0, 0, 0.62);
 }
 
 .admin-attention-list span {
