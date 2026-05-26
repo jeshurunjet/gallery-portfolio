@@ -1991,7 +1991,7 @@ main {
 
 @media (max-width: 600px) {
   .admin-stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .admin-insight-grid {
@@ -2022,6 +2022,17 @@ main {
     min-width: 0;
   }
 
+  .admin-stat-card {
+    padding: 1.1rem;
+  }
+
+  .admin-stat-card h2,
+  .admin-top-project-card h2,
+  .admin-top-project-card h3 {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
   .admin-page-header .admin-project-actions,
   .admin-quick-actions {
     display: grid;
@@ -2034,6 +2045,15 @@ main {
   }
 
   .admin-performance-row span {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .admin-top-project-image {
+    height: 160px;
+  }
+
+  .admin-top-project-card .admin-secondary-button {
     width: 100%;
     justify-content: center;
   }
@@ -2165,6 +2185,15 @@ main {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-width: 0;
+}
+
+.admin-top-project-card h2,
+.admin-top-project-card h3,
+.admin-top-project-card p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .admin-top-project-image {

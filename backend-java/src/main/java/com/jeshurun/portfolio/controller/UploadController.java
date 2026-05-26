@@ -148,8 +148,12 @@ public class UploadController {
         String originalName = file.getOriginalFilename();
         String extension = "";
 
-        if (StringUtils.hasText(originalName) && originalName.contains(".")) {
-            extension = originalName.substring(originalName.lastIndexOf("."));
+        if (originalName != null) {
+            int extensionIndex = originalName.lastIndexOf(".");
+
+            if (extensionIndex >= 0) {
+                extension = originalName.substring(extensionIndex);
+            }
         }
 
         String publicId = "local/" + resourceType + "/" + UUID.randomUUID();
