@@ -1994,8 +1994,13 @@ main {
     grid-template-columns: 1fr;
   }
 
+  .admin-insight-grid {
+    grid-template-columns: 1fr;
+  }
+
   .admin-hero-panel {
     padding: 1.15rem;
+    align-items: stretch;
   }
 
   .admin-quick-actions,
@@ -2009,6 +2014,33 @@ main {
   .admin-sort-tabs {
     display: grid;
     grid-template-columns: 1fr 1fr;
+  }
+
+  .admin-stat-card,
+  .admin-insight-card,
+  .admin-top-project-card {
+    min-width: 0;
+  }
+
+  .admin-page-header .admin-project-actions,
+  .admin-quick-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .admin-performance-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .admin-performance-row span {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .admin-attention-list a,
+  .admin-attention-list span {
+    overflow-wrap: anywhere;
   }
 }
 @media (max-width: 700px) {
