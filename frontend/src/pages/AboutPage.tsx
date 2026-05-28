@@ -19,24 +19,35 @@ const strengthIcons: Record<AboutStrengthIcon, ReactNode> = {
 };
 
 function AboutPage() {
-  const [content, setContent] = useState<AboutContent>(defaultAboutContent);
+  const [content, setContent] = useState<AboutContent | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadContent = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/pages/about`);
 
-        if (!response.ok) return;
+        if (!response.ok) {
+          setContent(defaultAboutContent);
+          return;
+        }
 
         const data: PageContentResponse = await response.json();
         setContent(parsePageContent(data.content, defaultAboutContent));
       } catch (error) {
         console.error("Failed to load about content:", error);
+        setContent(defaultAboutContent);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     void loadContent();
   }, []);
+
+  if (isLoading || !content) {
+    return <main className="about-page" aria-busy="true" />;
+  }
 
   return (
     <main className="about-page">
