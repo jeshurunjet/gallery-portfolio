@@ -469,6 +469,42 @@ function ProjectForm({
     });
   };
 
+  const uploadPdf = async (file: File) => {
+    return runWithUploadLock(async () => {
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+
+      const response = await fetch(`${API_BASE_URL}/api/upload/pdf`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formDataUpload,
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("isAuth");
+
+        sessionStorage.setItem(
+          "authMessage",
+          "Your session has expired. Please log in again."
+        );
+
+        window.location.replace("/admin/login");
+
+        throw new Error("Session expired");
+      }
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      return { url: data.url as string, publicId: data.public_id as string };
+    });
+  };
+
   const deleteMedia = async ({
     url,
     publicId,
@@ -476,7 +512,7 @@ function ProjectForm({
   }: {
     url?: string;
     publicId?: string;
-    resourceType?: "image" | "video";
+    resourceType?: "image" | "video" | "raw";
   }) => {
     if (!url && !publicId) return;
 
@@ -1190,6 +1226,32 @@ function ProjectForm({
               value={formData.pdfUrl}
               onChange={handleChange}
             />
+
+            <input
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={async (event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+
+                try {
+                  onNotify?.("Uploading PDF...");
+                  const result = await uploadPdf(file);
+
+                  setFormData((prev) => ({
+                    ...prev,
+                    pdfUrl: result.url,
+                    pdfPublicId: result.publicId,
+                  }));
+
+                  onNotify?.("PDF uploaded!");
+                } catch (error) {
+                  console.error("Upload failed", error);
+                  onNotify?.("PDF upload failed. Please try again.");
+                }
+              }}
+            />
+
             {formData.pdfUrl && (
               <div className="upload-preview">
                 <div className="media-url-preview">{formData.pdfUrl}</div>
@@ -1199,7 +1261,11 @@ function ProjectForm({
                   onClick={() => {
                     setConfirmMessage("Delete this PDF?");
                     setConfirmAction(() => async () => {
-                      await deleteMedia({ url: formData.pdfUrl });
+                      await deleteMedia({
+                        url: formData.pdfUrl,
+                        publicId: formData.pdfPublicId,
+                        resourceType: "raw",
+                      });
 
                       setFormData((prev) => ({
                         ...prev,

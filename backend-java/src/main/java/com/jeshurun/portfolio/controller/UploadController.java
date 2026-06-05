@@ -92,6 +92,35 @@ public class UploadController {
         }
     }
 
+    @PostMapping("/pdf")
+    public ResponseEntity<?> uploadPdf(@RequestParam("file") MultipartFile file) {
+        try {
+            if (useLocalStorage()) {
+                return ResponseEntity.ok(storeLocally(file, "raw"));
+            }
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> uploadResult =
+                    (Map<String, Object>) cloudinary.uploader().upload(
+                            file.getBytes(),
+                            ObjectUtils.asMap(
+                                    "folder", "portfolio",
+                                    "resource_type", "raw"
+                            )
+                    );
+            String pdfUrl = (String) uploadResult.get("secure_url");
+            String publicId = (String) uploadResult.get("public_id");
+
+            return ResponseEntity.ok(ObjectUtils.asMap(
+                    "url", pdfUrl,
+                    "public_id", publicId
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Upload failed: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteMedia(@RequestBody Map<String, String> body) {
         try {
@@ -116,7 +145,13 @@ public class UploadController {
             }
 
             if (resourceType == null || resourceType.isBlank()) {
-                resourceType = url != null && url.contains("/video/") ? "video" : "image";
+                if (url != null && url.contains("/video/")) {
+                    resourceType = "video";
+                } else if (url != null && url.toLowerCase().contains(".pdf")) {
+                    resourceType = "raw";
+                } else {
+                    resourceType = "image";
+                }
             }
 
             @SuppressWarnings("unchecked")

@@ -42,6 +42,7 @@ function AdminNewProjectPage() {
 
     if (data.cover) typesSet.add("image");
     if (data.githubUrl) typesSet.add("code");
+    if (data.pdfUrl) typesSet.add("pdf");
 
     const urlFields = [data.liveUrl, data.externalUrl];
 

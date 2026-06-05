@@ -151,6 +151,12 @@ public class ProjectController {
                 deleteCloudinaryAsset(project.getVideoUrl(), "video");
             }
 
+            if (project.getPdfPublicId() != null && !project.getPdfPublicId().isBlank()) {
+                deleteCloudinaryAssetById(project.getPdfPublicId(), "raw");
+            } else {
+                deleteCloudinaryAsset(project.getPdfUrl(), "raw");
+            }
+
             deleteContentAssets(project.getContent());
         } catch (Exception error) {
             System.out.println("Project asset cleanup failed for id: " + id);
@@ -243,6 +249,7 @@ public class ProjectController {
     private void deleteRemovedAssets(Project existingProject, Project updatedProject) {
         deleteRemovedAsset(existingProject.getCover(), updatedProject.getCover(), "image");
         deleteRemovedAsset(existingProject.getVideoUrl(), updatedProject.getVideoUrl(), "video");
+        deleteRemovedAsset(existingProject.getPdfUrl(), updatedProject.getPdfUrl(), "raw");
 
         deleteRemovedListAssets(existingProject.getImages(), updatedProject.getImages(), "image");
         deleteRemovedContentAssets(existingProject.getContent(), updatedProject.getContent());

@@ -56,6 +56,11 @@ function ProjectPage() {
   const views = project.views ?? 0;
   const content = project.content ?? [];
   const facts = project.facts;
+  const hasHeroMedia =
+    Boolean(project.videoUrl) ||
+    Boolean(project.audioUrl) ||
+    Boolean(project.codeContent) ||
+    images.length > 0;
 
   const handleLike = async () => {
     if (hasLiked) return;
@@ -100,26 +105,17 @@ function ProjectPage() {
         ← Back
       </button>
 
-      <div className="project-hero">
-        {project.videoUrl && <VideoPlayer url={project.videoUrl} />}
-        {project.audioUrl && <AudioPlayer url={project.audioUrl} />}
-        {project.pdfUrl && <PdfViewer url={project.pdfUrl} />}
-        {project.codeContent && <CodeViewer code={project.codeContent} />}
+      {hasHeroMedia && (
+        <div className="project-hero">
+          {project.videoUrl && <VideoPlayer url={project.videoUrl} />}
+          {project.audioUrl && <AudioPlayer url={project.audioUrl} />}
+          {project.codeContent && <CodeViewer code={project.codeContent} />}
 
-        {images.length > 0 && (
-          <ImageGallery images={images} title={project.title} />
-        )}
-
-        {!project.videoUrl &&
-          !project.audioUrl &&
-          !project.pdfUrl &&
-          !project.codeContent &&
-          images.length === 0 && (
-            <div className="empty-media">
-              <p>No media available for this project.</p>
-            </div>
+          {images.length > 0 && (
+            <ImageGallery images={images} title={project.title} />
           )}
-      </div>
+        </div>
+      )}
 
       <div className="project-layout">
         <section className="project-main">
@@ -129,6 +125,8 @@ function ProjectPage() {
           <div className="project-description">
             <FormattedText text={description} />
           </div>
+
+          {project.pdfUrl && <PdfViewer url={project.pdfUrl} />}
 
           <div className="project-tags">
             <hr className="content-divider"></hr>
@@ -140,6 +138,12 @@ function ProjectPage() {
           </div>
 
           {content.length > 0 && <ProjectContentRenderer content={content} />}
+
+          {!hasHeroMedia && !project.pdfUrl && content.length === 0 && (
+            <div className="empty-media">
+              <p>No media available for this project.</p>
+            </div>
+          )}
         </section>
 
         <aside className="project-side">

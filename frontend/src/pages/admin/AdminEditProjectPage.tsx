@@ -65,6 +65,10 @@ function AdminEditProjectPage() {
       typesSet.add("code");
     }
 
+    if (data.pdfUrl) {
+      typesSet.add("pdf");
+    }
+
     // WEB / VIDEO / AUDIO / PDF detection
     const urlFields = [data.liveUrl, data.externalUrl];
 
