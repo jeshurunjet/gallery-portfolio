@@ -132,6 +132,7 @@
 .theme-dark .thumb-button.active,
 .theme-dark .pdf-viewer,
 .theme-dark .pdf-open-link,
+.theme-dark .pdf-toggle-button,
 .theme-dark .code-viewer,
 .theme-dark .code-viewer-header,
 .theme-dark .audio-player,
@@ -323,6 +324,10 @@
 .theme-dark .toast {
   background: var(--overlay);
   box-shadow: var(--shadow-float);
+}
+
+.theme-dark .pdf-toggle-button:hover {
+  background: var(--surface-muted);
 }
 
 .theme-dark .resume-sidebar {
