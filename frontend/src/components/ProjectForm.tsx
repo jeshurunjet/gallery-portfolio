@@ -518,7 +518,7 @@ function ProjectForm({
   }: {
     url?: string;
     publicId?: string;
-    resourceType?: "image" | "video" | "raw";
+    resourceType?: "image" | "video";
   }) => {
     if (!url && !publicId) return;
 
@@ -1271,7 +1271,7 @@ function ProjectForm({
                       await deleteMedia({
                         url: formData.pdfUrl,
                         publicId: formData.pdfPublicId,
-                        resourceType: "raw",
+                        resourceType: "image",
                       });
 
                       setFormData((prev) => ({

@@ -103,24 +103,14 @@ public class UploadController {
             }
 
             if (useLocalStorage()) {
-                Map<String, Object> localResult = storeLocally(file, "raw");
+                Map<String, Object> localResult = storeLocally(file, "pdf");
                 localResult.put("storage", "local");
                 return ResponseEntity.ok(localResult);
             }
 
-            String publicId = "portfolio/" + UUID.randomUUID() + ".pdf";
-
-            @SuppressWarnings("unchecked")
-            Map<String, Object> uploadResult =
-                    (Map<String, Object>) cloudinary.uploader().upload(
-                            file.getBytes(),
-                            ObjectUtils.asMap(
-                                    "resource_type", "raw",
-                                    "public_id", publicId,
-                                    "overwrite", true
-                            )
-                    );
-            String pdfUrl = buildCloudinaryRawUrl((String) uploadResult.get("public_id"));
+            String sanitizedBaseName = sanitizePdfBaseName(originalName);
+            Map<String, Object> uploadResult = uploadPdfToCloudinary(file, originalName, sanitizedBaseName);
+            String pdfUrl = (String) uploadResult.get("secure_url");
             String returnedPublicId = (String) uploadResult.get("public_id");
 
             return ResponseEntity.ok(ObjectUtils.asMap(
@@ -160,8 +150,6 @@ public class UploadController {
             if (resourceType == null || resourceType.isBlank()) {
                 if (url != null && url.contains("/video/")) {
                     resourceType = "video";
-                } else if (url != null && url.toLowerCase().contains(".pdf")) {
-                    resourceType = "raw";
                 } else {
                     resourceType = "image";
                 }
@@ -190,11 +178,58 @@ public class UploadController {
         return !StringUtils.hasText(name) || "test".equalsIgnoreCase(name);
     }
 
-    private String buildCloudinaryRawUrl(String publicId) {
-        return cloudinary.url()
-                .resourceType("raw")
-                .secure(true)
-                .generate(publicId);
+    private String sanitizePdfBaseName(String originalName) {
+        String withoutExtension = originalName.replaceFirst("(?i)\\.pdf$", "");
+        String sanitized = withoutExtension
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9-_]+", "-")
+                .replaceAll("-{2,}", "-")
+                .replaceAll("^-|-$", "");
+
+        if (sanitized.isBlank()) {
+            return "document";
+        }
+
+        return sanitized;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> uploadPdfToCloudinary(
+            MultipartFile file,
+            String originalName,
+            String sanitizedBaseName
+    ) throws Exception {
+        String primaryPublicId = "portfolio/pdfs/" + sanitizedBaseName;
+
+        try {
+            return (Map<String, Object>) cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "resource_type", "image",
+                            "public_id", primaryPublicId,
+                            "format", "pdf",
+                            "overwrite", false,
+                            "use_filename", true,
+                            "unique_filename", false,
+                            "filename_override", originalName
+                    )
+            );
+        } catch (Exception exception) {
+            String fallbackPublicId = primaryPublicId + "-" + UUID.randomUUID().toString().substring(0, 8);
+
+            return (Map<String, Object>) cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "resource_type", "image",
+                            "public_id", fallbackPublicId,
+                            "format", "pdf",
+                            "overwrite", false,
+                            "use_filename", true,
+                            "unique_filename", false,
+                            "filename_override", originalName
+                    )
+            );
+        }
     }
 
     private Map<String, Object> storeLocally(MultipartFile file, String resourceType) throws Exception {

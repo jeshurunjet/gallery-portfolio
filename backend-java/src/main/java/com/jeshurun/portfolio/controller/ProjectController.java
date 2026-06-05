@@ -152,9 +152,9 @@ public class ProjectController {
             }
 
             if (project.getPdfPublicId() != null && !project.getPdfPublicId().isBlank()) {
-                deleteCloudinaryAssetById(project.getPdfPublicId(), "raw");
+                deleteCloudinaryAssetById(project.getPdfPublicId(), "image");
             } else {
-                deleteCloudinaryAsset(project.getPdfUrl(), "raw");
+                deleteCloudinaryAsset(project.getPdfUrl(), "image");
             }
 
             deleteContentAssets(project.getContent());
@@ -249,7 +249,7 @@ public class ProjectController {
     private void deleteRemovedAssets(Project existingProject, Project updatedProject) {
         deleteRemovedAsset(existingProject.getCover(), updatedProject.getCover(), "image");
         deleteRemovedAsset(existingProject.getVideoUrl(), updatedProject.getVideoUrl(), "video");
-        deleteRemovedAsset(existingProject.getPdfUrl(), updatedProject.getPdfUrl(), "raw");
+        deleteRemovedAsset(existingProject.getPdfUrl(), updatedProject.getPdfUrl(), "image");
 
         deleteRemovedListAssets(existingProject.getImages(), updatedProject.getImages(), "image");
         deleteRemovedContentAssets(existingProject.getContent(), updatedProject.getContent());
