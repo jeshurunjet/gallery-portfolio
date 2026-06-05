@@ -86,6 +86,7 @@ type MediaTextLayout =
 type UploadResult = {
   url: string;
   publicId: string;
+  storage?: "cloudinary" | "local";
 };
 
 type SortableItemProps = {
@@ -397,7 +398,7 @@ function ProjectForm({
     onNotify?.("Content block deleted.");
   };
 
-  const uploadImage = async (file: File) => {
+  const uploadImage = async (file: File): Promise<UploadResult> => {
     return runWithUploadLock(async () => {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
@@ -425,15 +426,20 @@ function ProjectForm({
       }
 
       if (!response.ok) {
-        throw new Error("Upload failed");
+        const errorText = await response.text();
+        throw new Error(errorText || "Upload failed");
       }
 
       const data = await response.json();
-      return { url: data.url as string, publicId: data.public_id as string };
+      return {
+        url: data.url as string,
+        publicId: data.public_id as string,
+        storage: data.storage as "cloudinary" | "local" | undefined,
+      };
     });
   };
 
-  const uploadVideo = async (file: File) => {
+  const uploadVideo = async (file: File): Promise<UploadResult> => {
     return runWithUploadLock(async () => {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
@@ -469,7 +475,7 @@ function ProjectForm({
     });
   };
 
-  const uploadPdf = async (file: File) => {
+  const uploadPdf = async (file: File): Promise<UploadResult> => {
     return runWithUploadLock(async () => {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
@@ -1015,16 +1021,9 @@ function ProjectForm({
                   Array.from(files).map((file) => uploadImage(file))
                 );
 
-                const uploaded = results
-                  .filter(
-                    (
-                      result
-                    ): result is PromiseFulfilledResult<{
-                      url: string;
-                      publicId: string;
-                    }> => result.status === "fulfilled"
-                  )
-                  .map((result) => result.value);
+                const uploaded = results.flatMap((result) =>
+                  result.status === "fulfilled" ? [result.value] : []
+                );
 
                 const uploadedUrls = uploaded.map((r) => r.url);
                 const uploadedPublicIds = uploaded.map((r) => r.publicId);
@@ -1244,10 +1243,18 @@ function ProjectForm({
                     pdfPublicId: result.publicId,
                   }));
 
-                  onNotify?.("PDF uploaded!");
+                  onNotify?.(
+                    result.storage === "local"
+                      ? "PDF uploaded locally. Cloudinary is not configured in this environment."
+                      : "PDF uploaded!"
+                  );
                 } catch (error) {
                   console.error("Upload failed", error);
-                  onNotify?.("PDF upload failed. Please try again.");
+                  onNotify?.(
+                    error instanceof Error
+                      ? error.message
+                      : "PDF upload failed. Please try again."
+                  );
                 }
               }}
             />

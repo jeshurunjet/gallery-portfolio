@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Locale;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -95,25 +96,37 @@ public class UploadController {
     @PostMapping("/pdf")
     public ResponseEntity<?> uploadPdf(@RequestParam("file") MultipartFile file) {
         try {
-            if (useLocalStorage()) {
-                return ResponseEntity.ok(storeLocally(file, "raw"));
+            String originalName = file.getOriginalFilename();
+
+            if (originalName == null || !originalName.toLowerCase(Locale.ROOT).endsWith(".pdf")) {
+                return ResponseEntity.badRequest().body("Only PDF files are supported.");
             }
+
+            if (useLocalStorage()) {
+                Map<String, Object> localResult = storeLocally(file, "raw");
+                localResult.put("storage", "local");
+                return ResponseEntity.ok(localResult);
+            }
+
+            String publicId = "portfolio/" + UUID.randomUUID() + ".pdf";
 
             @SuppressWarnings("unchecked")
             Map<String, Object> uploadResult =
                     (Map<String, Object>) cloudinary.uploader().upload(
                             file.getBytes(),
                             ObjectUtils.asMap(
-                                    "folder", "portfolio",
-                                    "resource_type", "raw"
+                                    "resource_type", "raw",
+                                    "public_id", publicId,
+                                    "overwrite", true
                             )
                     );
-            String pdfUrl = (String) uploadResult.get("secure_url");
-            String publicId = (String) uploadResult.get("public_id");
+            String pdfUrl = buildCloudinaryRawUrl((String) uploadResult.get("public_id"));
+            String returnedPublicId = (String) uploadResult.get("public_id");
 
             return ResponseEntity.ok(ObjectUtils.asMap(
                     "url", pdfUrl,
-                    "public_id", publicId
+                    "public_id", returnedPublicId,
+                    "storage", "cloudinary"
             ));
         } catch (Exception e) {
             e.printStackTrace();
@@ -175,6 +188,13 @@ public class UploadController {
         }
 
         return !StringUtils.hasText(name) || "test".equalsIgnoreCase(name);
+    }
+
+    private String buildCloudinaryRawUrl(String publicId) {
+        return cloudinary.url()
+                .resourceType("raw")
+                .secure(true)
+                .generate(publicId);
     }
 
     private Map<String, Object> storeLocally(MultipartFile file, String resourceType) throws Exception {

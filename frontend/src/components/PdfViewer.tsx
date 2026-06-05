@@ -5,7 +5,14 @@ type PdfViewerProps = {
 function PdfViewer({ url }: PdfViewerProps) {
   return (
     <div className="pdf-viewer">
-      <iframe src={url} title="Project PDF" />
+      <object data={url} type="application/pdf" aria-label="Project PDF">
+        <p>
+          This PDF preview is unavailable in your browser.
+          <a href={url} target="_blank" rel="noreferrer">
+            Open PDF in a new tab
+          </a>
+        </p>
+      </object>
       <a href={url} target="_blank" rel="noreferrer" className="pdf-open-link">
         Open PDF in new tab
       </a>
