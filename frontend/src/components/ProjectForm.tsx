@@ -4,9 +4,16 @@ import {
   AlignJustify,
   AlignLeft,
   AlignRight,
+  AudioLines,
+  Blocks,
   Bold,
+  Clapperboard,
+  Code2,
   Images,
   Italic,
+  FileText,
+  Image as ImageIcon,
+  Link2,
   List,
   ListOrdered,
   Pin,
@@ -776,13 +783,17 @@ function ProjectForm({
       : 0;
 
   const getMediaStatus = () => {
-    const mediaTypes = [
-      formData.videoUrl && "Video",
-      formData.audioUrl && "Audio",
-      formData.pdfUrl && "PDF",
+    const mediaIcons = [
+      formData.videoUrl ? <Clapperboard key="video" size={15} /> : null,
+      formData.audioUrl ? <AudioLines key="audio" size={15} /> : null,
+      formData.pdfUrl ? <FileText key="pdf" size={15} /> : null,
     ].filter(Boolean);
 
-    return mediaTypes.length > 0 ? mediaTypes.join(" / ") : "Empty";
+    return mediaIcons.length > 0 ? (
+      <span className="admin-section-status-icons">{mediaIcons}</span>
+    ) : (
+      "Empty"
+    );
   };
 
   const getLinksStatus = () => {
@@ -799,9 +810,10 @@ function ProjectForm({
 
   const renderSectionHeader = (
     section: string,
+    icon: React.ReactNode,
     title: string,
     description: string,
-    status?: string
+    status?: React.ReactNode
   ) => {
     const isCollapsed = collapsedSections.includes(section);
 
@@ -812,6 +824,7 @@ function ProjectForm({
         onClick={() => toggleSectionCollapse(section)}
       >
         {isCollapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
+        <span className="admin-section-icon">{icon}</span>
 
         <span className="admin-section-toggle-copy">
           <strong>{title}</strong>
@@ -919,6 +932,7 @@ function ProjectForm({
     <>
       {renderSectionHeader(
         "cover",
+        <ImageIcon size={18} />,
         "Cover Image",
         "Main image used for project cards and page headers.",
         formData.cover ? "Added" : "Empty"
@@ -987,6 +1001,7 @@ function ProjectForm({
     <>
       {renderSectionHeader(
         "gallery",
+        <Images size={18} />,
         "Gallery Images",
         "Optional extra images for the project page.",
         getGalleryCount() > 0
@@ -1131,6 +1146,7 @@ function ProjectForm({
     <>
       {renderSectionHeader(
         "media",
+        <Clapperboard size={18} />,
         "Media Content",
         "Video, audio and PDF resources.",
         getMediaStatus()
@@ -1299,6 +1315,7 @@ function ProjectForm({
     <>
       {renderSectionHeader(
         "code",
+        <Code2 size={18} />,
         "Code Preview",
         "Optional code snippets or source content.",
         formData.codeContent.trim() ? "Added" : "Empty"
@@ -1323,6 +1340,7 @@ function ProjectForm({
     <>
       {renderSectionHeader(
         "links",
+        <Link2 size={18} />,
         "Project Links",
         "Live demo, GitHub and external links.",
         getLinksStatus()
@@ -1373,6 +1391,7 @@ function ProjectForm({
     <>
       {renderSectionHeader(
         "content",
+        <Blocks size={18} />,
         "Content Blocks",
         "Add extra layout sections below the main project description.",
         `${formData.content.length} block${formData.content.length === 1 ? "" : "s"}`

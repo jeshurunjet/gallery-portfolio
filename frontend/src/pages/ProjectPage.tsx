@@ -56,7 +56,9 @@ function ProjectPage() {
   const views = project.views ?? 0;
   const content = project.content ?? [];
   const facts = project.facts;
+  const hasPdf = Boolean(project.pdfUrl);
   const hasHeroMedia =
+    hasPdf ||
     Boolean(project.videoUrl) ||
     Boolean(project.audioUrl) ||
     Boolean(project.codeContent) ||
@@ -105,8 +107,20 @@ function ProjectPage() {
         ← Back
       </button>
 
+      {hasPdf && (
+        <section className="project-main">
+          <p className="project-category">{category}</p>
+          <h1>{project.title}</h1>
+
+          <div className="project-description">
+            <FormattedText text={description} />
+          </div>
+        </section>
+      )}
+
       {hasHeroMedia && (
         <div className="project-hero">
+          {project.pdfUrl && <PdfViewer url={project.pdfUrl} />}
           {project.videoUrl && <VideoPlayer url={project.videoUrl} />}
           {project.audioUrl && <AudioPlayer url={project.audioUrl} />}
           {project.codeContent && <CodeViewer code={project.codeContent} />}
@@ -119,14 +133,16 @@ function ProjectPage() {
 
       <div className="project-layout">
         <section className="project-main">
-          <p className="project-category">{category}</p>
-          <h1>{project.title}</h1>
+          {!hasPdf && (
+            <>
+              <p className="project-category">{category}</p>
+              <h1>{project.title}</h1>
 
-          <div className="project-description">
-            <FormattedText text={description} />
-          </div>
-
-          {project.pdfUrl && <PdfViewer url={project.pdfUrl} />}
+              <div className="project-description">
+                <FormattedText text={description} />
+              </div>
+            </>
+          )}
 
           <div className="project-tags">
             <hr className="content-divider"></hr>
