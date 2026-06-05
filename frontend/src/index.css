@@ -4169,9 +4169,9 @@ main {
 }
 
 .admin-section-icon svg {
-  width: 1rem;
-  height: 1rem;
-  stroke-width: 2.1;
+  stroke-width: 1px;
+  width: 2rem;
+  height: 2rem;
 }
 
 .admin-section-toggle-copy {
