@@ -66,13 +66,15 @@ function ImageGallery({
     const zoom = Math.max(90, Math.min(220, image.zoom ?? 100));
     const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
     const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
+    const hasManualCrop =
+      zoom > 100 || offsetX !== 0 || offsetY !== 0 || image.mode === "header";
 
-    if (zoom <= 100) {
+    if (!hasManualCrop) {
       return {
         width: "100%",
         height: "100%",
-        objectFit: "contain",
-        objectPosition: `${50 + offsetX}% ${50 + offsetY}%`,
+        objectFit: "cover",
+        objectPosition: "50% 50%",
         left: "0",
         top: "0",
         transform: "none",
@@ -91,13 +93,10 @@ function ImageGallery({
     };
   };
 
-  const getThumbnailImageStyle = (image: GalleryImage) => {
-    const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
-    const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
-
+  const getThumbnailImageStyle = () => {
     return {
       objectFit: "cover",
-      objectPosition: `${50 + offsetX}% ${50 + offsetY}%`,
+      objectPosition: "50% 50%",
       width: "100%",
       height: "100%",
     } as const;
@@ -148,7 +147,7 @@ function ImageGallery({
               <img
                 src={image.url}
                 alt={`${title} ${index + 1}`}
-                style={getThumbnailImageStyle(image)}
+                style={getThumbnailImageStyle()}
               />
             </button>
           ))}
