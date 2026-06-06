@@ -1490,10 +1490,8 @@ main {
 
 .admin-gallery-settings {
   margin-top: 1rem;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.45rem;
   width: min(100%, 640px);
 }
@@ -1504,15 +1502,15 @@ main {
   justify-content: flex-start;
   gap: 0.6rem;
   color: #333;
-  width: auto;
+  width: 100%;
   min-height: 40px;
-  padding: 0.38rem 0.85rem 0.38rem 0;
+  padding: 0.38rem 0.25rem 0.38rem 0;
   border: none;
   border-radius: 0;
   background: transparent;
   cursor: pointer;
-  font-size: 0.82rem;
-  white-space: nowrap;
+  font-size: 0.8rem;
+  line-height: 1.25;
   transition:
     background 0.18s ease,
     color 0.18s ease;
@@ -1527,6 +1525,13 @@ main {
   width: 16px;
   height: 16px;
   margin: 0;
+}
+
+@media (max-width: 720px) {
+  .admin-gallery-settings {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
 }
 
 .admin-gallery-editor-list {
