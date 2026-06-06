@@ -58,10 +58,26 @@ function ImageGallery({
     return `16 / ${(baseHeight * frameScale) / 100}`;
   };
 
+  const getThumbnailFrameAspectRatio = (image: GalleryImage) => {
+    return image.mode === "header" ? "16 / 6" : "16 / 9";
+  };
+
   const getMainImageStyle = (image: GalleryImage) => {
-    const zoom = Math.max(100, Math.min(220, image.zoom ?? 100));
+    const zoom = Math.max(90, Math.min(220, image.zoom ?? 100));
     const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
     const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
+
+    if (zoom <= 100) {
+      return {
+        width: "100%",
+        height: "100%",
+        objectFit: "contain",
+        objectPosition: `${50 + offsetX}% ${50 + offsetY}%`,
+        left: "0",
+        top: "0",
+        transform: "none",
+      } as const;
+    }
 
     return {
       width: `${zoom}%`,
