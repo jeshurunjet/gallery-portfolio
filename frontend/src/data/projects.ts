@@ -7,7 +7,7 @@ export type GalleryImage = {
   publicId?: string;
   mode?: DisplayImageMode;
   frameHeight?: number;
-  imageHeight?: number;
+  zoom?: number;
   offsetX?: number;
   offsetY?: number;
 };

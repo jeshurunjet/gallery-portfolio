@@ -34,7 +34,7 @@ function normalizeProject(project: Project): Project {
       publicId: project.imagesPublicIds?.[index] ?? undefined,
       mode: "default",
       frameHeight: 100,
-      imageHeight: 100,
+      zoom: 100,
       offsetX: 0,
       offsetY: 0,
     }));
@@ -49,9 +49,12 @@ function normalizeProject(project: Project): Project {
         : image.mode === "header"
           ? 60
           : 100,
-    imageHeight:
-      typeof image.imageHeight === "number"
-        ? image.imageHeight
+    zoom:
+      typeof (image as GalleryImage & { zoom?: number }).zoom === "number"
+        ? (image as GalleryImage & { zoom?: number }).zoom
+        : typeof (image as GalleryImage & { imageHeight?: number }).imageHeight ===
+            "number"
+          ? (image as GalleryImage & { imageHeight?: number }).imageHeight
         : image.mode === "header"
           ? 130
           : 100,

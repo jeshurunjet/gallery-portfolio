@@ -204,12 +204,12 @@ function ProjectForm({
   };
 
   const getGalleryMaskPreviewStyle = (image: GalleryImage) => {
-    const imageHeight = Math.max(100, Math.min(220, image.imageHeight ?? 100));
+    const zoom = Math.max(100, Math.min(220, image.zoom ?? 100));
     const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
     const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
     return {
-      width: "100%",
-      height: `${imageHeight}%`,
+      width: `${zoom}%`,
+      height: `${zoom}%`,
       maxWidth: "none",
       left: `${50 + offsetX}%`,
       top: `${50 + offsetY}%`,
@@ -220,8 +220,21 @@ function ProjectForm({
   const getGalleryFrameAspectRatio = (image: GalleryImage) => {
     const mode = image.mode ?? "default";
     const baseHeight = mode === "header" ? 5 : 9;
-    const frameScale = Math.max(35, Math.min(100, image.frameHeight ?? 100));
+    const frameScale = Math.max(20, Math.min(100, image.frameHeight ?? 100));
     return `16 / ${(baseHeight * frameScale) / 100}`;
+  };
+
+  const getFrameHeightPixels = (image: GalleryImage) => {
+    const mode = image.mode ?? "default";
+    const baseHeight = mode === "header" ? 5 : 9;
+    const baseWidth = 640;
+    const frameScale = Math.max(20, Math.min(100, image.frameHeight ?? 100));
+    return Math.round((baseWidth * ((baseHeight * frameScale) / 100)) / 16);
+  };
+
+  const getZoomPixels = (image: GalleryImage) => {
+    const zoom = Math.max(100, Math.min(220, image.zoom ?? 100));
+    return Math.round((640 * zoom) / 100);
   };
 
   const runWithUploadLock = async <T,>(task: () => Promise<T>) => {
@@ -1073,7 +1086,7 @@ function ProjectForm({
                       url: trimmedUrl,
                       mode: "default",
                       frameHeight: 100,
-                      imageHeight: 100,
+                      zoom: 100,
                       offsetX: 0,
                       offsetY: 0,
                     },
@@ -1122,7 +1135,7 @@ function ProjectForm({
                         publicId: uploadedPublicIds[index],
                         mode: "default" as DisplayImageMode,
                         frameHeight: 100,
-                        imageHeight: 100,
+                        zoom: 100,
                         offsetX: 0,
                         offsetY: 0,
                       })),
@@ -1287,7 +1300,7 @@ function ProjectForm({
                                       mode,
                                       frameHeight:
                                         mode === "header" &&
-                                        (current.frameHeight ?? 100) > 75
+                                        (current.frameHeight ?? 100) > 60
                                           ? 60
                                           : current.frameHeight,
                                     }))
@@ -1301,10 +1314,16 @@ function ProjectForm({
                         </div>
 
                         <label>
-                          Frame height: {image.frameHeight ?? 100}%
+                          <span className="range-label-row">
+                            <span>Frame height</span>
+                            <small>
+                              {image.frameHeight ?? 100}% · {getFrameHeightPixels(image)}px
+                            </small>
+                          </span>
                           <input
+                            className="admin-range-slider"
                             type="range"
-                            min={image.mode === "header" ? "35" : "60"}
+                            min={image.mode === "header" ? "20" : "20"}
                             max="100"
                             value={image.frameHeight ?? 100}
                             onChange={(event) =>
@@ -1316,25 +1335,56 @@ function ProjectForm({
                           />
                         </label>
 
+                        <div className="image-display-mode">
+                          <span>Zoom presets</span>
+                          <div className="image-display-mode-buttons">
+                            {[100, 115, 130, 150].map((value) => (
+                              <button
+                                key={value}
+                                type="button"
+                                className={image.zoom === value ? "active" : ""}
+                                onClick={() =>
+                                  updateGalleryImage(index, (current) => ({
+                                    ...current,
+                                    zoom: value,
+                                  }))
+                                }
+                              >
+                                {value === 100 ? "Fit" : `${value}%`}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
                         <label>
-                          Image height inside frame: {image.imageHeight ?? 100}%
+                          <span className="range-label-row">
+                            <span>Zoom image</span>
+                            <small>
+                              {image.zoom ?? 100}% · {getZoomPixels(image)}px wide
+                            </small>
+                          </span>
                           <input
+                            className="admin-range-slider"
                             type="range"
                             min="100"
                             max="220"
-                            value={image.imageHeight ?? 100}
+                            value={image.zoom ?? 100}
                             onChange={(event) =>
                               updateGalleryImage(index, (current) => ({
                                 ...current,
-                                imageHeight: Number(event.target.value),
+                                zoom: Number(event.target.value),
                               }))
                             }
                           />
                         </label>
 
                         <label>
-                          Move image left / right: {image.offsetX ?? 0}
+                          <span className="range-label-row">
+                            <span>Move image left / right</span>
+                            <small>{image.offsetX ?? 0}</small>
+                          </span>
                           <input
+                            className="admin-range-slider"
                             type="range"
                             min="-50"
                             max="50"
@@ -1349,8 +1399,12 @@ function ProjectForm({
                         </label>
 
                         <label>
-                          Move image up / down: {image.offsetY ?? 0}
+                          <span className="range-label-row">
+                            <span>Move image up / down</span>
+                            <small>{image.offsetY ?? 0}</small>
+                          </span>
                           <input
+                            className="admin-range-slider"
                             type="range"
                             min="-50"
                             max="50"

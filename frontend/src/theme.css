@@ -572,11 +572,33 @@
   color: var(--text);
 }
 
+.theme-dark .range-label-row small {
+  color: var(--text-muted);
+}
+
 .theme-dark .admin-checkbox-row:hover,
 .theme-dark .admin-gallery-editor-card > button:hover,
 .theme-dark .admin-inline-input-row .admin-add-row-button:hover {
   background: var(--surface-muted);
   color: var(--text);
+}
+
+.theme-dark .admin-range-slider {
+  background: linear-gradient(90deg, var(--border) 0%, var(--pill-border) 100%);
+}
+
+.theme-dark .admin-range-slider::-webkit-slider-thumb {
+  border-color: var(--text);
+  background: var(--surface);
+}
+
+.theme-dark .admin-range-slider::-moz-range-thumb {
+  border-color: var(--text);
+  background: var(--surface);
+}
+
+.theme-dark .admin-range-slider::-moz-range-track {
+  background: linear-gradient(90deg, var(--border) 0%, var(--pill-border) 100%);
 }
 
 .theme-dark .gallery-sort-trigger,

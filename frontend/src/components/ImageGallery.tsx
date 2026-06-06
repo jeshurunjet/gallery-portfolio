@@ -59,12 +59,12 @@ function ImageGallery({
   };
 
   const getMaskedStyle = (image: GalleryImage) => {
-    const imageHeight = Math.max(100, Math.min(220, image.imageHeight ?? 100));
+    const zoom = Math.max(100, Math.min(220, image.zoom ?? 100));
     const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
     const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
     return {
-      width: "100%",
-      height: `${imageHeight}%`,
+      width: `${zoom}%`,
+      height: `${zoom}%`,
       maxWidth: "none",
       left: `${50 + offsetX}%`,
       top: `${50 + offsetY}%`,
