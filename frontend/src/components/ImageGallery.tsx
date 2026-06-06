@@ -51,14 +51,18 @@ function ImageGallery({
 
   const activeMode = activeImage.mode ?? "default";
 
-  const getFrameAspectRatio = (image: GalleryImage) => {
+  const getMainFrameAspectRatio = (image: GalleryImage) => {
     const mode = image.mode ?? "default";
     const baseHeight = mode === "header" ? 5 : 9;
     const frameScale = Math.max(35, Math.min(100, image.frameHeight ?? 100));
     return `16 / ${(baseHeight * frameScale) / 100}`;
   };
 
-  const getMaskedStyle = (image: GalleryImage) => {
+  const getThumbnailFrameAspectRatio = (image: GalleryImage) => {
+    return image.mode === "header" ? "16 / 6" : "16 / 9";
+  };
+
+  const getMainImageStyle = (image: GalleryImage) => {
     const zoom = Math.max(100, Math.min(220, image.zoom ?? 100));
     const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
     const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
@@ -71,16 +75,27 @@ function ImageGallery({
       maxWidth: "none",
       left: "50%",
       top: "50%",
-      transform: `translate(calc(-50% + ${offsetX}%),
-        calc(-50% + ${offsetY}%))`,
+      transform: `translate(calc(-50% + ${offsetX}%), calc(-50% + ${offsetY}%))`,
     };
+  };
+
+  const getThumbnailImageStyle = (image: GalleryImage) => {
+    const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
+    const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
+
+    return {
+      objectFit: "cover",
+      objectPosition: `${50 + offsetX}% ${50 + offsetY}%`,
+      width: "100%",
+      height: "100%",
+    } as const;
   };
 
   return (
     <div className="image-gallery">
       <div
         className={`image-gallery-main image-gallery-main--${activeMode}`}
-        style={{ aspectRatio: getFrameAspectRatio(activeImage) }}
+        style={{ aspectRatio: getMainFrameAspectRatio(activeImage) }}
         onTouchStart={(event) => {
           setTouchStartX(event.changedTouches[0]?.clientX ?? null);
         }}
@@ -102,7 +117,7 @@ function ImageGallery({
         <img
           src={activeImage.url}
           alt={title}
-          style={getMaskedStyle(activeImage)}
+          style={getMainImageStyle(activeImage)}
         />
       </div>
 
@@ -116,12 +131,12 @@ function ImageGallery({
               }`}
               onClick={() => setSelectedIndex(index)}
               type="button"
-              style={{ aspectRatio: getFrameAspectRatio(image) }}
+              style={{ aspectRatio: getThumbnailFrameAspectRatio(image) }}
             >
               <img
                 src={image.url}
                 alt={`${title} ${index + 1}`}
-                style={getMaskedStyle(image)}
+                style={getThumbnailImageStyle(image)}
               />
             </button>
           ))}
