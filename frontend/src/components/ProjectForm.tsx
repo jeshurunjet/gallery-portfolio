@@ -204,22 +204,9 @@ function ProjectForm({
   };
 
   const getGalleryMaskPreviewStyle = (image: GalleryImage) => {
-    const zoom = Math.max(90, Math.min(220, image.zoom ?? 100));
+    const zoom = Math.max(100, Math.min(220, image.zoom ?? 100));
     const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
     const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
-
-    if (zoom <= 100) {
-      return {
-        width: "100%",
-        height: "100%",
-        objectFit: "contain",
-        objectPosition: `${50 + offsetX}% ${50 + offsetY}%`,
-        left: "0",
-        top: "0",
-        transform: "none",
-      } as const;
-    }
-
     return {
       width: `${zoom}%`,
       height: "auto",
@@ -248,7 +235,7 @@ function ProjectForm({
   };
 
   const getZoomPixels = (image: GalleryImage) => {
-    const zoom = Math.max(90, Math.min(220, image.zoom ?? 100));
+    const zoom = Math.max(100, Math.min(220, image.zoom ?? 100));
     return Math.round((640 * zoom) / 100);
   };
 
@@ -1360,7 +1347,7 @@ function ProjectForm({
                         <div className="image-display-mode">
                           <span>Zoom presets</span>
                           <div className="image-display-mode-buttons">
-                            {[90, 100, 115, 130, 150].map((value) => (
+                            {[100, 115, 130, 150].map((value) => (
                               <button
                                 key={value}
                                 type="button"
@@ -1389,7 +1376,7 @@ function ProjectForm({
                           <input
                             className="admin-range-slider"
                             type="range"
-                            min="90"
+                            min="100"
                             max="220"
                             value={image.zoom ?? 100}
                             onChange={(event) =>
