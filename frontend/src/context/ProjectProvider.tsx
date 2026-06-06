@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import type { Project } from "../data/projects";
+import type { GalleryImage, Project } from "../data/projects";
 import { ProjectContext } from "./project-context";
 import { API_BASE_URL } from "../config";
 
 function normalizeProject(project: Project): Project {
   let parsedContent = [];
+  let parsedGalleryImages: GalleryImage[] = [];
 
   try {
     if (typeof project.content === "string") {
@@ -16,9 +17,36 @@ function normalizeProject(project: Project): Project {
     parsedContent = [];
   }
 
+  try {
+    const rawGalleryImages = (project as Project & { galleryImagesJson?: string })
+      .galleryImagesJson;
+
+    if (typeof rawGalleryImages === "string" && rawGalleryImages.trim()) {
+      parsedGalleryImages = JSON.parse(rawGalleryImages) as GalleryImage[];
+    }
+  } catch {
+    parsedGalleryImages = [];
+  }
+
+  if (parsedGalleryImages.length === 0 && Array.isArray(project.images)) {
+    parsedGalleryImages = project.images.map((url, index) => ({
+      url,
+      publicId: project.imagesPublicIds?.[index] ?? undefined,
+      mode: "default",
+      objectPositionX: 50,
+      objectPositionY: 50,
+    }));
+  }
+
   return {
     ...project,
     content: parsedContent,
+    galleryImages: parsedGalleryImages,
+    galleryShowThumbnails: project.galleryShowThumbnails ?? true,
+    galleryAutoScroll: project.galleryAutoScroll ?? true,
+    coverDisplayMode: project.coverDisplayMode ?? "default",
+    coverPositionX: project.coverPositionX ?? 50,
+    coverPositionY: project.coverPositionY ?? 50,
     pinned: project.pinned ?? false,
   };
 }
@@ -83,6 +111,8 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
 
   const addProject = async (project: Project) => {
     try {
+      const galleryImages = project.galleryImages ?? [];
+
       const response = await fetch(`${API_BASE_URL}/api/projects`, {
         method: "POST",
         headers: {
@@ -96,8 +126,14 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
           content: project.content ? JSON.stringify(project.content) : "",
           cover: project.cover,
           coverPublicId: (project as any).coverPublicId ?? null,
-          images: project.images ?? [],
-          imagesPublicIds: (project as any).imagesPublicIds ?? [],
+          coverDisplayMode: project.coverDisplayMode ?? "default",
+          coverPositionX: project.coverPositionX ?? 50,
+          coverPositionY: project.coverPositionY ?? 50,
+          images: galleryImages.map((image) => image.url),
+          imagesPublicIds: galleryImages.map((image) => image.publicId ?? ""),
+          galleryImagesJson: JSON.stringify(galleryImages),
+          galleryShowThumbnails: project.galleryShowThumbnails ?? true,
+          galleryAutoScroll: project.galleryAutoScroll ?? true,
           videoUrl: project.videoUrl ?? "",
           videoPublicId: (project as any).videoPublicId ?? null,
           audioUrl: project.audioUrl ?? "",
@@ -136,6 +172,8 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
 
   const updateProject = async (updatedProject: Project) => {
     try {
+      const galleryImages = updatedProject.galleryImages ?? [];
+
       const response = await fetch(
         `${API_BASE_URL}/api/projects/${updatedProject.id}`,
         {
@@ -153,8 +191,14 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
               : "",
             cover: updatedProject.cover,
             coverPublicId: (updatedProject as any).coverPublicId ?? null,
-            images: updatedProject.images ?? [],
-            imagesPublicIds: (updatedProject as any).imagesPublicIds ?? [],
+            coverDisplayMode: updatedProject.coverDisplayMode ?? "default",
+            coverPositionX: updatedProject.coverPositionX ?? 50,
+            coverPositionY: updatedProject.coverPositionY ?? 50,
+            images: galleryImages.map((image) => image.url),
+            imagesPublicIds: galleryImages.map((image) => image.publicId ?? ""),
+            galleryImagesJson: JSON.stringify(galleryImages),
+            galleryShowThumbnails: updatedProject.galleryShowThumbnails ?? true,
+            galleryAutoScroll: updatedProject.galleryAutoScroll ?? true,
             videoUrl: updatedProject.videoUrl ?? "",
             videoPublicId: (updatedProject as any).videoPublicId ?? null,
             audioUrl: updatedProject.audioUrl ?? "",

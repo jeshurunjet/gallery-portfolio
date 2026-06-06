@@ -29,11 +29,25 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     private String coverPublicId;
 
+    @Column(columnDefinition = "TEXT")
+    private String coverDisplayMode;
+
+    private Integer coverPositionX = 50;
+
+    private Integer coverPositionY = 50;
+
     @ElementCollection
     private List<String> images;
 
     @ElementCollection
     private List<String> imagesPublicIds;
+
+    @Column(columnDefinition = "TEXT")
+    private String galleryImagesJson;
+
+    private Boolean galleryShowThumbnails = true;
+
+    private Boolean galleryAutoScroll = true;
 
     @Column(columnDefinition = "TEXT")
     private String videoUrl;
@@ -142,6 +156,54 @@ public class Project {
 
     public void setImagesPublicIds(List<String> imagesPublicIds) {
         this.imagesPublicIds = imagesPublicIds;
+    }
+
+    public String getCoverDisplayMode() {
+        return coverDisplayMode;
+    }
+
+    public void setCoverDisplayMode(String coverDisplayMode) {
+        this.coverDisplayMode = coverDisplayMode;
+    }
+
+    public Integer getCoverPositionX() {
+        return coverPositionX;
+    }
+
+    public void setCoverPositionX(Integer coverPositionX) {
+        this.coverPositionX = coverPositionX;
+    }
+
+    public Integer getCoverPositionY() {
+        return coverPositionY;
+    }
+
+    public void setCoverPositionY(Integer coverPositionY) {
+        this.coverPositionY = coverPositionY;
+    }
+
+    public String getGalleryImagesJson() {
+        return galleryImagesJson;
+    }
+
+    public void setGalleryImagesJson(String galleryImagesJson) {
+        this.galleryImagesJson = galleryImagesJson;
+    }
+
+    public Boolean getGalleryShowThumbnails() {
+        return galleryShowThumbnails;
+    }
+
+    public void setGalleryShowThumbnails(Boolean galleryShowThumbnails) {
+        this.galleryShowThumbnails = galleryShowThumbnails;
+    }
+
+    public Boolean getGalleryAutoScroll() {
+        return galleryAutoScroll;
+    }
+
+    public void setGalleryAutoScroll(Boolean galleryAutoScroll) {
+        this.galleryAutoScroll = galleryAutoScroll;
     }
 
     public String getVideoUrl() {

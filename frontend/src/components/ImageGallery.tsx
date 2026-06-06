@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
+import type { GalleryImage } from "../data/projects";
 
 type ImageGalleryProps = {
-  images?: string[];
+  images?: GalleryImage[];
+  autoScroll?: boolean;
+  showThumbnails?: boolean;
   title: string;
 };
 
-function ImageGallery({ images, title }: ImageGalleryProps) {
+function ImageGallery({
+  images,
+  autoScroll = true,
+  showThumbnails = true,
+  title,
+}: ImageGalleryProps) {
   const safeImages = images ?? [];
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
@@ -23,28 +31,33 @@ function ImageGallery({ images, title }: ImageGalleryProps) {
   };
 
   useEffect(() => {
-    if (safeImages.length <= 1) return;
+    if (!autoScroll || safeImages.length <= 1) return;
 
     const interval = window.setInterval(() => {
       setSelectedIndex((current) => (current + 1) % safeImages.length);
     }, 5000);
 
     return () => window.clearInterval(interval);
-  }, [safeImages.length, selectedIndex]);
+  }, [autoScroll, safeImages.length]);
 
   useEffect(() => {
     if (selectedIndex <= safeImages.length - 1) return;
     setSelectedIndex(0);
   }, [safeImages.length, selectedIndex]);
 
-  if (safeImages.length === 0 || !activeImage) {
+  if (safeImages.length === 0 || !activeImage?.url) {
     return <div className="image-gallery">No images available.</div>;
   }
+
+  const activeMode = activeImage.mode ?? "default";
+  const activeObjectPosition = `${activeImage.objectPositionX ?? 50}% ${
+    activeImage.objectPositionY ?? 50
+  }%`;
 
   return (
     <div className="image-gallery">
       <div
-        className="image-gallery-main"
+        className={`image-gallery-main image-gallery-main--${activeMode}`}
         onTouchStart={(event) => {
           setTouchStartX(event.changedTouches[0]?.clientX ?? null);
         }}
@@ -63,10 +76,14 @@ function ImageGallery({ images, title }: ImageGalleryProps) {
           setTouchStartX(null);
         }}
       >
-        <img src={activeImage} alt={title} />
+        <img
+          src={activeImage.url}
+          alt={title}
+          style={{ objectPosition: activeObjectPosition }}
+        />
       </div>
 
-      {safeImages.length > 1 && (
+      {showThumbnails && safeImages.length > 1 && (
         <div className="image-gallery-thumbs">
           {safeImages.map((image, index) => (
             <button
@@ -77,7 +94,15 @@ function ImageGallery({ images, title }: ImageGalleryProps) {
               onClick={() => setSelectedIndex(index)}
               type="button"
             >
-              <img src={image} alt={`${title} ${index + 1}`} />
+              <img
+                src={image.url}
+                alt={`${title} ${index + 1}`}
+                style={{
+                  objectPosition: `${image.objectPositionX ?? 50}% ${
+                    image.objectPositionY ?? 50
+                  }%`,
+                }}
+              />
             </button>
           ))}
         </div>

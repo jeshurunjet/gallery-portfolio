@@ -26,7 +26,11 @@ import {
   Underline,
 } from "lucide-react";
 import { API_BASE_URL } from "../config";
-import type { ProjectContentBlock } from "../data/projects";
+import type {
+  DisplayImageMode,
+  GalleryImage,
+  ProjectContentBlock,
+} from "../data/projects";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 
 import {
@@ -49,8 +53,12 @@ type ProjectFormData = {
   tags: string;
   cover: string;
   coverPublicId?: string;
-  images: string;
-  imagesPublicIds?: string[];
+  coverDisplayMode: DisplayImageMode;
+  coverPositionX: number;
+  coverPositionY: number;
+  galleryImages: GalleryImage[];
+  galleryShowThumbnails: boolean;
+  galleryAutoScroll: boolean;
   videoUrl: string;
   videoPublicId?: string;
   audioUrl: string;
@@ -157,6 +165,7 @@ function ProjectForm({
     async () => {}
   );
   const [pendingUploads, setPendingUploads] = useState(0);
+  const [newGalleryUrl, setNewGalleryUrl] = useState("");
   const toggleBlockCollapse = (index: number) => {
     setCollapsedBlocks((prev) =>
       prev.includes(index)
@@ -179,6 +188,18 @@ function ProjectForm({
     );
   };
   const hasPendingUploads = pendingUploads > 0;
+
+  const updateGalleryImage = (
+    index: number,
+    updater: (image: GalleryImage) => GalleryImage
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      galleryImages: prev.galleryImages.map((image, itemIndex) =>
+        itemIndex === index ? updater(image) : image
+      ),
+    }));
+  };
 
   const runWithUploadLock = async <T,>(task: () => Promise<T>) => {
     setPendingUploads((prev) => prev + 1);
@@ -775,12 +796,7 @@ function ProjectForm({
   };
 
   const getGalleryCount = () =>
-    formData.images
-      ? formData.images
-          .split(",")
-          .map((image) => image.trim())
-          .filter(Boolean).length
-      : 0;
+    formData.galleryImages.filter((image) => image.url.trim()).length;
 
   const getMediaStatus = () => {
     const mediaIcons = [
@@ -976,7 +992,70 @@ function ProjectForm({
 
           {formData.cover && (
             <div className="upload-preview">
-              <img src={formData.cover} alt="Cover preview" />
+              <img
+                src={formData.cover}
+                alt="Cover preview"
+                style={{
+                  objectPosition: `${formData.coverPositionX}% ${formData.coverPositionY}%`,
+                }}
+              />
+
+              <div className="image-display-controls">
+                <div className="image-display-mode">
+                  <span>Display mode</span>
+                  <div className="image-display-mode-buttons">
+                    {(["default", "header"] as DisplayImageMode[]).map((mode) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        className={
+                          formData.coverDisplayMode === mode ? "active" : ""
+                        }
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            coverDisplayMode: mode,
+                          }))
+                        }
+                      >
+                        {mode === "header" ? "Header" : "Default"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <label>
+                  Horizontal crop focus: {formData.coverPositionX}%
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={formData.coverPositionX}
+                    onChange={(event) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        coverPositionX: Number(event.target.value),
+                      }))
+                    }
+                  />
+                </label>
+
+                <label>
+                  Vertical crop focus: {formData.coverPositionY}%
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={formData.coverPositionY}
+                    onChange={(event) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        coverPositionY: Number(event.target.value),
+                      }))
+                    }
+                  />
+                </label>
+              </div>
 
               <button
                 type="button"
@@ -985,6 +1064,9 @@ function ProjectForm({
                     ...prev,
                     cover: "",
                     coverPublicId: undefined,
+                    coverDisplayMode: "default",
+                    coverPositionX: 50,
+                    coverPositionY: 50,
                   }))
                 }
               >
@@ -1010,16 +1092,40 @@ function ProjectForm({
       )}
       {!collapsedSections.includes("gallery") && (
         <div className="admin-form-group">
-          <label htmlFor="images">Image Gallery URLs</label>
-          <textarea
-            id="images"
-            rows={3}
-            placeholder="Paste image URLs separated by commas"
-            value={formData.images}
-            onChange={handleChange}
-          />
+          <label htmlFor="newGalleryUrl">Add gallery image URL</label>
+          <div className="admin-inline-input-row">
+            <input
+              id="newGalleryUrl"
+              type="text"
+              placeholder="https://example.com/image.jpg"
+              value={newGalleryUrl}
+              onChange={(event) => setNewGalleryUrl(event.target.value)}
+            />
+            <button
+              type="button"
+              className="admin-add-row-button"
+              onClick={() => {
+                const trimmedUrl = newGalleryUrl.trim();
+                if (!trimmedUrl) return;
 
-          <small>Separate multiple image URLs with commas.</small>
+                setFormData((prev) => ({
+                  ...prev,
+                  galleryImages: [
+                    ...prev.galleryImages,
+                    {
+                      url: trimmedUrl,
+                      mode: "default",
+                      objectPositionX: 50,
+                      objectPositionY: 50,
+                    },
+                  ],
+                }));
+                setNewGalleryUrl("");
+              }}
+            >
+              Add URL
+            </button>
+          </div>
 
           <input
             type="file"
@@ -1048,22 +1154,18 @@ function ProjectForm({
                 ).length;
 
                 setFormData((prev) => {
-                  const existing = prev.images
-                    ? prev.images
-                        .split(",")
-                        .map((image) => image.trim())
-                        .filter(Boolean)
-                    : [];
-
-                  const existingIds = prev.imagesPublicIds ?? [];
-
-                  const combined = [...existing, ...uploadedUrls];
-                  const combinedIds = [...existingIds, ...uploadedPublicIds];
-
                   return {
                     ...prev,
-                    images: combined.join(", "),
-                    imagesPublicIds: combinedIds,
+                    galleryImages: [
+                      ...prev.galleryImages,
+                      ...uploadedUrls.map((url, index) => ({
+                        url,
+                        publicId: uploadedPublicIds[index],
+                        mode: "default" as DisplayImageMode,
+                        objectPositionX: 50,
+                        objectPositionY: 50,
+                      })),
+                    ],
                   };
                 });
 
@@ -1087,54 +1189,146 @@ function ProjectForm({
             }}
           />
 
-          {formData.images && (
-            <div className="upload-preview-grid">
-              {formData.images
-                .split(",")
-                .map((image) => image.trim())
-                .filter(Boolean)
-                .map((image, index) => (
-                  <div
-                    key={`${image}-${index}`}
-                    className="upload-preview-item"
-                  >
-                    <img src={image} alt={`Gallery preview ${index + 1}`} />
+          <div className="admin-gallery-settings">
+            <label className="admin-checkbox-row">
+              <input
+                type="checkbox"
+                checked={formData.galleryShowThumbnails}
+                onChange={(event) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    galleryShowThumbnails: event.target.checked,
+                  }))
+                }
+              />
+              Show thumbnail preview strip
+            </label>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const removed = formData.images
-                          .split(",")
-                          .map((item) => item.trim())
-                          .filter(Boolean)[index];
+            <label className="admin-checkbox-row">
+              <input
+                type="checkbox"
+                checked={formData.galleryAutoScroll}
+                onChange={(event) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    galleryAutoScroll: event.target.checked,
+                  }))
+                }
+              />
+              Auto-scroll gallery images
+            </label>
+          </div>
 
-                        setConfirmMessage("Delete this gallery image?");
-                        setConfirmAction(() => async () => {
-                          await deleteMedia({ url: removed, resourceType: "image" });
+          {formData.galleryImages.length > 0 && (
+            <div className="admin-gallery-editor-list">
+              {formData.galleryImages.map((image, index) => (
+                <div key={`${image.url}-${index}`} className="admin-gallery-editor-card">
+                  <img
+                    src={image.url}
+                    alt={`Gallery preview ${index + 1}`}
+                    style={{
+                      objectPosition: `${image.objectPositionX ?? 50}% ${
+                        image.objectPositionY ?? 50
+                      }%`,
+                    }}
+                  />
 
-                          const remainingImages = formData.images
-                            .split(",")
-                            .map((item) => item.trim())
-                            .filter(Boolean)
-                            .filter((_, itemIndex) => itemIndex !== index);
+                  <div className="image-display-controls">
+                    <label>
+                      Image URL
+                      <input
+                        type="text"
+                        value={image.url}
+                        onChange={(event) =>
+                          updateGalleryImage(index, (current) => ({
+                            ...current,
+                            url: event.target.value,
+                          }))
+                        }
+                      />
+                    </label>
 
-                          setFormData((prev) => ({
-                            ...prev,
-                            images: remainingImages.join(", "),
-                            imagesPublicIds: (prev.imagesPublicIds ?? []).filter(
-                              (_, itemIndex) => itemIndex !== index
-                            ),
-                          }));
-                          onNotify?.("Image deleted");
+                    <div className="image-display-mode">
+                      <span>Display mode</span>
+                      <div className="image-display-mode-buttons">
+                        {(["default", "header"] as DisplayImageMode[]).map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            className={image.mode === mode ? "active" : ""}
+                            onClick={() =>
+                              updateGalleryImage(index, (current) => ({
+                                ...current,
+                                mode,
+                              }))
+                            }
+                          >
+                            {mode === "header" ? "Header" : "Default"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <label>
+                      Horizontal crop focus: {image.objectPositionX ?? 50}%
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={image.objectPositionX ?? 50}
+                        onChange={(event) =>
+                          updateGalleryImage(index, (current) => ({
+                            ...current,
+                            objectPositionX: Number(event.target.value),
+                          }))
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      Vertical crop focus: {image.objectPositionY ?? 50}%
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={image.objectPositionY ?? 50}
+                        onChange={(event) =>
+                          updateGalleryImage(index, (current) => ({
+                            ...current,
+                            objectPositionY: Number(event.target.value),
+                          }))
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmMessage("Delete this gallery image?");
+                      setConfirmAction(() => async () => {
+                        await deleteMedia({
+                          url: image.url,
+                          publicId: image.publicId,
+                          resourceType: "image",
                         });
 
-                        setConfirmOpen(true);
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
+                        setFormData((prev) => ({
+                          ...prev,
+                          galleryImages: prev.galleryImages.filter(
+                            (_, itemIndex) => itemIndex !== index
+                          ),
+                        }));
+                        onNotify?.("Image deleted");
+                      });
+
+                      setConfirmOpen(true);
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
             </div>
           )}
         </div>

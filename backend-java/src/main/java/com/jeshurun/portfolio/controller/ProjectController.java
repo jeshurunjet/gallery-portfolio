@@ -66,8 +66,14 @@ public class ProjectController {
         existingProject.setContent(updatedProject.getContent());
         existingProject.setCover(updatedProject.getCover());
         existingProject.setCoverPublicId(updatedProject.getCoverPublicId());
+        existingProject.setCoverDisplayMode(updatedProject.getCoverDisplayMode());
+        existingProject.setCoverPositionX(updatedProject.getCoverPositionX());
+        existingProject.setCoverPositionY(updatedProject.getCoverPositionY());
         existingProject.setImages(updatedProject.getImages());
         existingProject.setImagesPublicIds(updatedProject.getImagesPublicIds());
+        existingProject.setGalleryImagesJson(updatedProject.getGalleryImagesJson());
+        existingProject.setGalleryShowThumbnails(updatedProject.getGalleryShowThumbnails());
+        existingProject.setGalleryAutoScroll(updatedProject.getGalleryAutoScroll());
         existingProject.setVideoUrl(updatedProject.getVideoUrl());
         existingProject.setVideoPublicId(updatedProject.getVideoPublicId());
         existingProject.setAudioUrl(updatedProject.getAudioUrl());

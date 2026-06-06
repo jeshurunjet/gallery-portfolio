@@ -37,8 +37,12 @@ function AdminEditProjectPage() {
     tags: (project.tags ?? []).join(", "),
     cover: project.cover ?? "",
     coverPublicId: project.coverPublicId ?? "",
-    images: (project.images ?? []).join(", "),
-    imagesPublicIds: project.imagesPublicIds ?? [],
+    coverDisplayMode: project.coverDisplayMode ?? "default",
+    coverPositionX: project.coverPositionX ?? 50,
+    coverPositionY: project.coverPositionY ?? 50,
+    galleryImages: project.galleryImages ?? [],
+    galleryShowThumbnails: project.galleryShowThumbnails ?? true,
+    galleryAutoScroll: project.galleryAutoScroll ?? true,
     videoUrl: project.videoUrl ?? "",
     videoPublicId: project.videoPublicId ?? "",
     audioUrl: project.audioUrl ?? "",
@@ -89,10 +93,6 @@ function AdminEditProjectPage() {
     });
 
     const types = Array.from(typesSet);
-    const images = data.images
-      .split(",")
-      .map((img) => img.trim())
-      .filter(Boolean);
     await updateProject({
       ...project,
       title: data.title,
@@ -105,8 +105,14 @@ function AdminEditProjectPage() {
         .filter(Boolean),
       cover: data.cover,
       coverPublicId: data.coverPublicId,
-      images,
-      imagesPublicIds: data.imagesPublicIds ?? [],
+      coverDisplayMode: data.coverDisplayMode,
+      coverPositionX: data.coverPositionX,
+      coverPositionY: data.coverPositionY,
+      galleryImages: data.galleryImages,
+      galleryShowThumbnails: data.galleryShowThumbnails,
+      galleryAutoScroll: data.galleryAutoScroll,
+      images: data.galleryImages.map((image) => image.url),
+      imagesPublicIds: data.galleryImages.map((image) => image.publicId ?? ""),
       videoUrl: data.videoUrl,
       videoPublicId: data.videoPublicId,
       audioUrl: data.audioUrl,

@@ -1,5 +1,15 @@
 export type TextAlignOption = "left" | "center" | "right" | "justify";
 
+export type DisplayImageMode = "default" | "header";
+
+export type GalleryImage = {
+  url: string;
+  publicId?: string;
+  mode?: DisplayImageMode;
+  objectPositionX?: number;
+  objectPositionY?: number;
+};
+
 export type ProjectContentBlock =
   | { type: "heading"; text: string }
   | { type: "subheading"; text: string }
@@ -43,6 +53,9 @@ export type Project = {
   id: number;
   title: string;
   cover: string;
+  coverDisplayMode?: DisplayImageMode;
+  coverPositionX?: number;
+  coverPositionY?: number;
   category: string;
   likes: number;
   views: number;
@@ -51,6 +64,9 @@ export type Project = {
   description: string;
   tags: string[];
   images: string[];
+  galleryImages?: GalleryImage[];
+  galleryShowThumbnails?: boolean;
+  galleryAutoScroll?: boolean;
   videoUrl?: string;
   audioUrl?: string;
   pdfUrl?: string;

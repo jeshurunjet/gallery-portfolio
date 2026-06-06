@@ -49,7 +49,7 @@ function ProjectPage() {
   const hasLiked = localStorage.getItem(likedKey) === "true";
 
   const tags = project.tags ?? [];
-  const images = project.images ?? [];
+  const galleryImages = project.galleryImages ?? [];
   const category = project.category ?? "Uncategorized";
   const description = project.description ?? "No description yet.";
   const likes = localLikesById[project.id] ?? project.likes ?? 0;
@@ -60,7 +60,7 @@ function ProjectPage() {
     Boolean(project.videoUrl) ||
     Boolean(project.audioUrl) ||
     Boolean(project.codeContent) ||
-    images.length > 0;
+    galleryImages.length > 0;
 
   const handleLike = async () => {
     if (hasLiked) return;
@@ -111,8 +111,13 @@ function ProjectPage() {
           {project.audioUrl && <AudioPlayer url={project.audioUrl} />}
           {project.codeContent && <CodeViewer code={project.codeContent} />}
 
-          {images.length > 0 && (
-            <ImageGallery images={images} title={project.title} />
+          {galleryImages.length > 0 && (
+            <ImageGallery
+              images={galleryImages}
+              title={project.title}
+              autoScroll={project.galleryAutoScroll ?? true}
+              showThumbnails={project.galleryShowThumbnails ?? true}
+            />
           )}
         </div>
       )}

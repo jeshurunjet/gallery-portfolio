@@ -22,8 +22,12 @@ function AdminNewProjectPage() {
     tags: "",
     cover: "",
     coverPublicId: "",
-    images: "",
-    imagesPublicIds: [],
+    coverDisplayMode: "default",
+    coverPositionX: 50,
+    coverPositionY: 50,
+    galleryImages: [],
+    galleryShowThumbnails: true,
+    galleryAutoScroll: true,
     videoUrl: "",
     videoPublicId: "",
     audioUrl: "",
@@ -64,11 +68,6 @@ function AdminNewProjectPage() {
 
     const types = Array.from(typesSet);
 
-    const images = data.images
-      .split(",")
-      .map((img) => img.trim())
-      .filter(Boolean);
-
     addProject({
       title: data.title,
       category: data.category,
@@ -80,8 +79,14 @@ function AdminNewProjectPage() {
         .filter(Boolean),
       cover: data.cover,
       coverPublicId: data.coverPublicId,
-      images,
-      imagesPublicIds: data.imagesPublicIds ?? [],
+      coverDisplayMode: data.coverDisplayMode,
+      coverPositionX: data.coverPositionX,
+      coverPositionY: data.coverPositionY,
+      galleryImages: data.galleryImages,
+      galleryShowThumbnails: data.galleryShowThumbnails,
+      galleryAutoScroll: data.galleryAutoScroll,
+      images: data.galleryImages.map((image) => image.url),
+      imagesPublicIds: data.galleryImages.map((image) => image.publicId ?? ""),
       videoUrl: data.videoUrl,
       videoPublicId: data.videoPublicId,
       audioUrl: data.audioUrl,

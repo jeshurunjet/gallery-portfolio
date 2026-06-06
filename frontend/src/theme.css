@@ -180,6 +180,8 @@
 .theme-dark .admin-form input,
 .theme-dark .admin-form textarea,
 .theme-dark .admin-form select,
+.theme-dark .image-display-mode-buttons button,
+.theme-dark .admin-gallery-editor-card,
 .theme-dark .admin-search-field,
 .theme-dark .admin-inline-form input,
 .theme-dark .admin-inline-form textarea,
@@ -428,7 +430,8 @@
 
 .theme-dark .gallery-search,
 .theme-dark .gallery-sort-trigger,
-.theme-dark .tag-button {
+.theme-dark .tag-button,
+.theme-dark .admin-gallery-editor-card img {
   border-color: transparent;
   box-shadow: none;
 }
@@ -552,8 +555,16 @@
 .theme-dark .content-editor-cancel-delete:hover,
 .theme-dark .gallery-sort-dropdown button.active,
 .theme-dark .content-editor-duplicate:hover,
-.theme-dark .content-editor-cancel-delete:hover {
+.theme-dark .content-editor-cancel-delete:hover,
+.theme-dark .image-display-mode-buttons button:hover,
+.theme-dark .image-display-mode-buttons button.active {
   background: var(--surface-muted);
+}
+
+.theme-dark .image-display-mode span,
+.theme-dark .image-display-controls label,
+.theme-dark .admin-checkbox-row {
+  color: var(--text);
 }
 
 .theme-dark .gallery-sort-trigger,
