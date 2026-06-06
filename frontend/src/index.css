@@ -1491,10 +1491,11 @@ main {
 .admin-gallery-settings {
   margin-top: 1rem;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 0.45rem;
-  width: min(100%, 320px);
+  width: min(100%, 640px);
 }
 
 .admin-checkbox-row {
@@ -1503,9 +1504,9 @@ main {
   justify-content: flex-start;
   gap: 0.6rem;
   color: #333;
-  width: 100%;
-  min-height: 42px;
-  padding: 0.38rem 0;
+  width: auto;
+  min-height: 40px;
+  padding: 0.38rem 0.85rem 0.38rem 0;
   border: none;
   border-radius: 0;
   background: transparent;
