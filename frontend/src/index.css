@@ -1491,22 +1491,27 @@ main {
 .admin-gallery-settings {
   margin-top: 1rem;
   display: flex;
-  gap: 0.65rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  width: min(100%, 320px);
 }
 
 .admin-checkbox-row {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.6rem;
   color: #333;
-  max-width: 100%;
-  padding: 0.38rem 0.58rem;
+  width: 100%;
+  min-height: 42px;
+  padding: 0.38rem 0;
   border: none;
   border-radius: 0;
   background: transparent;
   cursor: pointer;
   font-size: 0.82rem;
+  white-space: nowrap;
   transition:
     background 0.18s ease,
     color 0.18s ease;
@@ -1517,6 +1522,7 @@ main {
 }
 
 .admin-checkbox-row input {
+  flex: 0 0 auto;
   width: 16px;
   height: 16px;
   margin: 0;

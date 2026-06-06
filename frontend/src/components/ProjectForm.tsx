@@ -209,11 +209,14 @@ function ProjectForm({
     const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
     return {
       width: `${zoom}%`,
-      height: `${zoom}%`,
+      height: "auto",
+      minWidth: "100%",
+      minHeight: "100%",
       maxWidth: "none",
-      left: `${50 + offsetX}%`,
-      top: `${50 + offsetY}%`,
-      transform: "translate(-50%, -50%)",
+      left: "50%",
+      top: "50%",
+      transform: `translate(calc(-50% + ${offsetX}%),
+        calc(-50% + ${offsetY}%))`,
     };
   };
 

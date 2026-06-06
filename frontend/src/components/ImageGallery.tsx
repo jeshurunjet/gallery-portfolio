@@ -62,13 +62,17 @@ function ImageGallery({
     const zoom = Math.max(100, Math.min(220, image.zoom ?? 100));
     const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
     const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
+
     return {
       width: `${zoom}%`,
-      height: `${zoom}%`,
+      height: "auto",
+      minWidth: "100%",
+      minHeight: "100%",
       maxWidth: "none",
-      left: `${50 + offsetX}%`,
-      top: `${50 + offsetY}%`,
-      transform: "translate(-50%, -50%)",
+      left: "50%",
+      top: "50%",
+      transform: `translate(calc(-50% + ${offsetX}%),
+        calc(-50% + ${offsetY}%))`,
     };
   };
 
