@@ -33,6 +33,7 @@ function normalizeProject(project: Project): Project {
       url,
       publicId: project.imagesPublicIds?.[index] ?? undefined,
       mode: "default",
+      frameHeight: 100,
       imageHeight: 100,
       offsetX: 0,
       offsetY: 0,
@@ -42,6 +43,12 @@ function normalizeProject(project: Project): Project {
   parsedGalleryImages = parsedGalleryImages.map((image) => ({
     ...image,
     mode: image.mode ?? "default",
+    frameHeight:
+      typeof image.frameHeight === "number"
+        ? image.frameHeight
+        : image.mode === "header"
+          ? 60
+          : 100,
     imageHeight:
       typeof image.imageHeight === "number"
         ? image.imageHeight

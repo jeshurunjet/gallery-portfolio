@@ -9,6 +9,7 @@ import {
   Bold,
   Clapperboard,
   Code2,
+  Settings2,
   Images,
   Italic,
   FileText,
@@ -23,6 +24,7 @@ import {
   PanelsLeftRight,
   ChevronDown,
   ChevronRight,
+  Trash2,
   Underline,
 } from "lucide-react";
 import { API_BASE_URL } from "../config";
@@ -163,6 +165,9 @@ function ProjectForm({
   );
   const [pendingUploads, setPendingUploads] = useState(0);
   const [newGalleryUrl, setNewGalleryUrl] = useState("");
+  const [openGalleryEditorIndex, setOpenGalleryEditorIndex] = useState<
+    number | null
+  >(null);
   const toggleBlockCollapse = (index: number) => {
     setCollapsedBlocks((prev) =>
       prev.includes(index)
@@ -210,6 +215,13 @@ function ProjectForm({
       top: `${50 + offsetY}%`,
       transform: "translate(-50%, -50%)",
     };
+  };
+
+  const getGalleryFrameAspectRatio = (image: GalleryImage) => {
+    const mode = image.mode ?? "default";
+    const baseHeight = mode === "header" ? 5 : 9;
+    const frameScale = Math.max(35, Math.min(100, image.frameHeight ?? 100));
+    return `16 / ${(baseHeight * frameScale) / 100}`;
   };
 
   const runWithUploadLock = async <T,>(task: () => Promise<T>) => {
@@ -1060,6 +1072,7 @@ function ProjectForm({
                     {
                       url: trimmedUrl,
                       mode: "default",
+                      frameHeight: 100,
                       imageHeight: 100,
                       offsetX: 0,
                       offsetY: 0,
@@ -1108,6 +1121,7 @@ function ProjectForm({
                         url,
                         publicId: uploadedPublicIds[index],
                         mode: "default" as DisplayImageMode,
+                        frameHeight: 100,
                         imageHeight: 100,
                         offsetX: 0,
                         offsetY: 0,
@@ -1169,13 +1183,17 @@ function ProjectForm({
           {formData.galleryImages.length > 0 && (
             <div className="admin-gallery-editor-list">
               {formData.galleryImages.map((image, index) => (
-                <div key={`${image.url}-${index}`} className="admin-gallery-editor-card">
+                <div
+                  key={`${image.url}-${index}`}
+                  className="admin-gallery-editor-card"
+                >
                   <div
                     className={`admin-gallery-preview-frame ${
                       image.mode === "header"
                         ? "admin-gallery-preview-frame--header"
                         : ""
                     }`}
+                    style={{ aspectRatio: getGalleryFrameAspectRatio(image) }}
                   >
                     <img
                       src={image.url}
@@ -1184,137 +1202,170 @@ function ProjectForm({
                     />
                   </div>
 
-                  <div className="image-display-controls">
-                    <label>
-                      Image URL
-                      <input
-                        type="text"
-                        value={image.url}
-                        onChange={(event) =>
-                          updateGalleryImage(index, (current) => ({
-                            ...current,
-                            url: event.target.value,
-                          }))
-                        }
-                      />
-                    </label>
-
-                    <div className="image-display-mode">
-                      <span>Display mode</span>
-                      <div className="image-display-mode-buttons">
-                        {(["default", "header"] as DisplayImageMode[]).map((mode) => (
-                          <button
-                            key={mode}
-                            type="button"
-                            className={image.mode === mode ? "active" : ""}
-                            onClick={() =>
-                              updateGalleryImage(index, (current) => ({
-                                ...current,
-                                mode,
-                              }))
-                            }
-                          >
-                            {mode === "header" ? "Header" : "Default"}
-                          </button>
-                        ))}
-                      </div>
+                  <div className="admin-gallery-card-meta">
+                    <div className="admin-gallery-card-copy">
+                      <strong>Image {index + 1}</strong>
+                      <small>{image.mode === "header" ? "Header style" : "Default style"}</small>
                     </div>
 
-                    <div className="image-display-mode">
-                      <span>Image height inside frame</span>
-                      <div className="image-display-mode-buttons">
-                        {[100, 115, 130, 150].map((height) => (
-                          <button
-                            key={height}
-                            type="button"
-                            className={image.imageHeight === height ? "active" : ""}
-                            onClick={() =>
-                              updateGalleryImage(index, (current) => ({
-                                ...current,
-                                imageHeight: height,
-                              }))
-                            }
-                          >
-                            {height === 100 ? "Fit" : `${height}%`}
-                          </button>
-                        ))}
-                      </div>
+                    <div className="admin-gallery-card-actions">
+                      <button
+                        type="button"
+                        className="admin-gallery-action-button"
+                        onClick={() =>
+                          setOpenGalleryEditorIndex((current) =>
+                            current === index ? null : index
+                          )
+                        }
+                      >
+                        <Settings2 size={16} />
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        className="admin-gallery-action-button admin-gallery-action-button--danger"
+                        onClick={() => {
+                          setConfirmMessage("Delete this gallery image?");
+                          setConfirmAction(() => async () => {
+                            await deleteMedia({
+                              url: image.url,
+                              publicId: image.publicId,
+                              resourceType: "image",
+                            });
+
+                            setFormData((prev) => ({
+                              ...prev,
+                              galleryImages: prev.galleryImages.filter(
+                                (_, itemIndex) => itemIndex !== index
+                              ),
+                            }));
+                            setOpenGalleryEditorIndex((current) =>
+                              current === index ? null : current
+                            );
+                            onNotify?.("Image deleted");
+                          });
+
+                          setConfirmOpen(true);
+                        }}
+                      >
+                        <Trash2 size={16} />
+                        Remove
+                      </button>
                     </div>
-
-                    <label>
-                      Image height: {image.imageHeight ?? 100}%
-                      <input
-                        type="range"
-                        min="100"
-                        max="220"
-                        value={image.imageHeight ?? 100}
-                        onChange={(event) =>
-                          updateGalleryImage(index, (current) => ({
-                            ...current,
-                            imageHeight: Number(event.target.value),
-                          }))
-                        }
-                      />
-                    </label>
-
-                    <label>
-                      Move image left / right: {image.offsetX ?? 0}
-                      <input
-                        type="range"
-                        min="-50"
-                        max="50"
-                        value={image.offsetX ?? 0}
-                        onChange={(event) =>
-                          updateGalleryImage(index, (current) => ({
-                            ...current,
-                            offsetX: Number(event.target.value),
-                          }))
-                        }
-                      />
-                    </label>
-
-                    <label>
-                      Move image up / down: {image.offsetY ?? 0}
-                      <input
-                        type="range"
-                        min="-50"
-                        max="50"
-                        value={image.offsetY ?? 0}
-                        onChange={(event) =>
-                          updateGalleryImage(index, (current) => ({
-                            ...current,
-                            offsetY: Number(event.target.value),
-                          }))
-                        }
-                      />
-                    </label>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setConfirmMessage("Delete this gallery image?");
-                      setConfirmAction(() => async () => {
-                        await deleteMedia({
-                          url: image.url,
-                          publicId: image.publicId,
-                          resourceType: "image",
-                        });
+                  {openGalleryEditorIndex === index && (
+                    <div className="admin-gallery-floating-editor">
+                      <div className="image-display-controls">
+                        <label>
+                          Image URL
+                          <input
+                            type="text"
+                            value={image.url}
+                            onChange={(event) =>
+                              updateGalleryImage(index, (current) => ({
+                                ...current,
+                                url: event.target.value,
+                              }))
+                            }
+                          />
+                        </label>
 
-                        setFormData((prev) => ({
-                          ...prev,
-                          galleryImages: prev.galleryImages.filter(
-                            (_, itemIndex) => itemIndex !== index
-                          ),
-                        }));
-                        onNotify?.("Image deleted");
-                      });
+                        <div className="image-display-mode">
+                          <span>Display mode</span>
+                          <div className="image-display-mode-buttons">
+                            {(["default", "header"] as DisplayImageMode[]).map(
+                              (mode) => (
+                                <button
+                                  key={mode}
+                                  type="button"
+                                  className={image.mode === mode ? "active" : ""}
+                                  onClick={() =>
+                                    updateGalleryImage(index, (current) => ({
+                                      ...current,
+                                      mode,
+                                      frameHeight:
+                                        mode === "header" &&
+                                        (current.frameHeight ?? 100) > 75
+                                          ? 60
+                                          : current.frameHeight,
+                                    }))
+                                  }
+                                >
+                                  {mode === "header" ? "Header" : "Default"}
+                                </button>
+                              )
+                            )}
+                          </div>
+                        </div>
 
-                      setConfirmOpen(true);
-                    }}
-                  >
-                    Remove
-                  </button>
+                        <label>
+                          Frame height: {image.frameHeight ?? 100}%
+                          <input
+                            type="range"
+                            min={image.mode === "header" ? "35" : "60"}
+                            max="100"
+                            value={image.frameHeight ?? 100}
+                            onChange={(event) =>
+                              updateGalleryImage(index, (current) => ({
+                                ...current,
+                                frameHeight: Number(event.target.value),
+                              }))
+                            }
+                          />
+                        </label>
+
+                        <label>
+                          Image height inside frame: {image.imageHeight ?? 100}%
+                          <input
+                            type="range"
+                            min="100"
+                            max="220"
+                            value={image.imageHeight ?? 100}
+                            onChange={(event) =>
+                              updateGalleryImage(index, (current) => ({
+                                ...current,
+                                imageHeight: Number(event.target.value),
+                              }))
+                            }
+                          />
+                        </label>
+
+                        <label>
+                          Move image left / right: {image.offsetX ?? 0}
+                          <input
+                            type="range"
+                            min="-50"
+                            max="50"
+                            value={image.offsetX ?? 0}
+                            onChange={(event) =>
+                              updateGalleryImage(index, (current) => ({
+                                ...current,
+                                offsetX: Number(event.target.value),
+                              }))
+                            }
+                          />
+                        </label>
+
+                        <label>
+                          Move image up / down: {image.offsetY ?? 0}
+                          <input
+                            type="range"
+                            min="-50"
+                            max="50"
+                            value={image.offsetY ?? 0}
+                            onChange={(event) =>
+                              updateGalleryImage(index, (current) => ({
+                                ...current,
+                                offsetY: Number(event.target.value),
+                              }))
+                            }
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

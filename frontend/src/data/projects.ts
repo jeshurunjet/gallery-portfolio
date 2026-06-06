@@ -6,6 +6,7 @@ export type GalleryImage = {
   url: string;
   publicId?: string;
   mode?: DisplayImageMode;
+  frameHeight?: number;
   imageHeight?: number;
   offsetX?: number;
   offsetY?: number;

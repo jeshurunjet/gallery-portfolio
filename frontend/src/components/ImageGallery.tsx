@@ -51,6 +51,13 @@ function ImageGallery({
 
   const activeMode = activeImage.mode ?? "default";
 
+  const getFrameAspectRatio = (image: GalleryImage) => {
+    const mode = image.mode ?? "default";
+    const baseHeight = mode === "header" ? 5 : 9;
+    const frameScale = Math.max(35, Math.min(100, image.frameHeight ?? 100));
+    return `16 / ${(baseHeight * frameScale) / 100}`;
+  };
+
   const getMaskedStyle = (image: GalleryImage) => {
     const imageHeight = Math.max(100, Math.min(220, image.imageHeight ?? 100));
     const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
@@ -69,6 +76,7 @@ function ImageGallery({
     <div className="image-gallery">
       <div
         className={`image-gallery-main image-gallery-main--${activeMode}`}
+        style={{ aspectRatio: getFrameAspectRatio(activeImage) }}
         onTouchStart={(event) => {
           setTouchStartX(event.changedTouches[0]?.clientX ?? null);
         }}
@@ -104,6 +112,7 @@ function ImageGallery({
               }`}
               onClick={() => setSelectedIndex(index)}
               type="button"
+              style={{ aspectRatio: getFrameAspectRatio(image) }}
             >
               <img
                 src={image.url}
