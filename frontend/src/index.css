@@ -1497,12 +1497,13 @@ main {
 }
 
 .admin-checkbox-row {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.75rem;
   color: #333;
   width: 100%;
-  padding: 0.85rem 0.9rem;
+  min-height: 36px;
+  padding: 0.65rem 0.8rem;
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   background: var(--surface-soft);
@@ -1517,6 +1518,10 @@ main {
 
 .admin-checkbox-row span {
   margin: 0;
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .admin-checkbox-row:hover {
@@ -1525,8 +1530,8 @@ main {
 
 .admin-checkbox-row input {
   flex: 0 0 auto;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   margin: 0;
 }
 
