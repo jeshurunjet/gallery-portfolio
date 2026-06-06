@@ -27,18 +27,7 @@ function ProjectCard({ project }: { project: Project }) {
           )}
 
           {project.cover && project.cover.trim() !== "" ? (
-            <img
-              src={project.cover}
-              alt={project.title}
-              className={
-                project.coverDisplayMode === "header" ? "card-cover-header" : ""
-              }
-              style={{
-                objectPosition: `${project.coverPositionX ?? 50}% ${
-                  project.coverPositionY ?? 50
-                }%`,
-              }}
-            />
+            <img src={project.cover} alt={project.title} />
           ) : (
             <div className="card-image-fallback">
               <span>No cover image</span>

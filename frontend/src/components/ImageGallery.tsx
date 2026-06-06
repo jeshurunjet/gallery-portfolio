@@ -50,9 +50,31 @@ function ImageGallery({
   }
 
   const activeMode = activeImage.mode ?? "default";
-  const activeObjectPosition = `${activeImage.objectPositionX ?? 50}% ${
-    activeImage.objectPositionY ?? 50
-  }%`;
+
+  const getMaskedStyle = (image: GalleryImage) => {
+    const axis = image.cropAxis ?? "vertical";
+    const cropStart = Math.max(0, Math.min(35, image.cropStart ?? 0));
+    const cropEnd = Math.max(0, Math.min(35, image.cropEnd ?? 0));
+    const visibleFraction = Math.max(0.3, 1 - (cropStart + cropEnd) / 100);
+
+    if (axis === "horizontal") {
+      return {
+        width: `${100 / visibleFraction}%`,
+        height: "100%",
+        maxWidth: "none",
+        left: `-${(cropStart / visibleFraction).toFixed(4)}%`,
+        top: "0",
+      };
+    }
+
+    return {
+      width: "100%",
+      height: `${100 / visibleFraction}%`,
+      maxWidth: "none",
+      left: "0",
+      top: `-${(cropStart / visibleFraction).toFixed(4)}%`,
+    };
+  };
 
   return (
     <div className="image-gallery">
@@ -79,7 +101,7 @@ function ImageGallery({
         <img
           src={activeImage.url}
           alt={title}
-          style={{ objectPosition: activeObjectPosition }}
+          style={getMaskedStyle(activeImage)}
         />
       </div>
 
@@ -97,11 +119,7 @@ function ImageGallery({
               <img
                 src={image.url}
                 alt={`${title} ${index + 1}`}
-                style={{
-                  objectPosition: `${image.objectPositionX ?? 50}% ${
-                    image.objectPositionY ?? 50
-                  }%`,
-                }}
+                style={getMaskedStyle(image)}
               />
             </button>
           ))}

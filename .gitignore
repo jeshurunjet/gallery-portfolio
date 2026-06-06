@@ -1,5 +1,8 @@
 .env
+.env.local
 backend-java/src/main/resources/application-local.properties
+backend-java/src/main/resources/application-devlocal.properties
+backend-java/.mvn/
 backend-java/target/
 backend-java/data/
 backend-java/uploads/

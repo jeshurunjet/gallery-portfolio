@@ -29,6 +29,7 @@ import { API_BASE_URL } from "../config";
 import type {
   DisplayImageMode,
   GalleryImage,
+  GalleryCropAxis,
   ProjectContentBlock,
 } from "../data/projects";
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -53,9 +54,6 @@ type ProjectFormData = {
   tags: string;
   cover: string;
   coverPublicId?: string;
-  coverDisplayMode: DisplayImageMode;
-  coverPositionX: number;
-  coverPositionY: number;
   galleryImages: GalleryImage[];
   galleryShowThumbnails: boolean;
   galleryAutoScroll: boolean;
@@ -199,6 +197,31 @@ function ProjectForm({
         itemIndex === index ? updater(image) : image
       ),
     }));
+  };
+
+  const getGalleryMaskPreviewStyle = (image: GalleryImage) => {
+    const axis = image.cropAxis ?? "vertical";
+    const cropStart = Math.max(0, Math.min(35, image.cropStart ?? 0));
+    const cropEnd = Math.max(0, Math.min(35, image.cropEnd ?? 0));
+    const visibleFraction = Math.max(0.3, 1 - (cropStart + cropEnd) / 100);
+
+    if (axis === "horizontal") {
+      return {
+        width: `${100 / visibleFraction}%`,
+        height: "100%",
+        maxWidth: "none",
+        left: `-${(cropStart / visibleFraction).toFixed(4)}%`,
+        top: "0",
+      };
+    }
+
+    return {
+      width: "100%",
+      height: `${100 / visibleFraction}%`,
+      maxWidth: "none",
+      left: "0",
+      top: `-${(cropStart / visibleFraction).toFixed(4)}%`,
+    };
   };
 
   const runWithUploadLock = async <T,>(task: () => Promise<T>) => {
@@ -992,70 +1015,7 @@ function ProjectForm({
 
           {formData.cover && (
             <div className="upload-preview">
-              <img
-                src={formData.cover}
-                alt="Cover preview"
-                style={{
-                  objectPosition: `${formData.coverPositionX}% ${formData.coverPositionY}%`,
-                }}
-              />
-
-              <div className="image-display-controls">
-                <div className="image-display-mode">
-                  <span>Display mode</span>
-                  <div className="image-display-mode-buttons">
-                    {(["default", "header"] as DisplayImageMode[]).map((mode) => (
-                      <button
-                        key={mode}
-                        type="button"
-                        className={
-                          formData.coverDisplayMode === mode ? "active" : ""
-                        }
-                        onClick={() =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            coverDisplayMode: mode,
-                          }))
-                        }
-                      >
-                        {mode === "header" ? "Header" : "Default"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <label>
-                  Horizontal crop focus: {formData.coverPositionX}%
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={formData.coverPositionX}
-                    onChange={(event) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        coverPositionX: Number(event.target.value),
-                      }))
-                    }
-                  />
-                </label>
-
-                <label>
-                  Vertical crop focus: {formData.coverPositionY}%
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={formData.coverPositionY}
-                    onChange={(event) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        coverPositionY: Number(event.target.value),
-                      }))
-                    }
-                  />
-                </label>
-              </div>
+              <img src={formData.cover} alt="Cover preview" />
 
               <button
                 type="button"
@@ -1064,9 +1024,6 @@ function ProjectForm({
                     ...prev,
                     cover: "",
                     coverPublicId: undefined,
-                    coverDisplayMode: "default",
-                    coverPositionX: 50,
-                    coverPositionY: 50,
                   }))
                 }
               >
@@ -1115,8 +1072,9 @@ function ProjectForm({
                     {
                       url: trimmedUrl,
                       mode: "default",
-                      objectPositionX: 50,
-                      objectPositionY: 50,
+                      cropAxis: "vertical",
+                      cropStart: 0,
+                      cropEnd: 0,
                     },
                   ],
                 }));
@@ -1162,8 +1120,9 @@ function ProjectForm({
                         url,
                         publicId: uploadedPublicIds[index],
                         mode: "default" as DisplayImageMode,
-                        objectPositionX: 50,
-                        objectPositionY: 50,
+                        cropAxis: "vertical" as GalleryCropAxis,
+                        cropStart: 0,
+                        cropEnd: 0,
                       })),
                     ],
                   };
@@ -1223,15 +1182,19 @@ function ProjectForm({
             <div className="admin-gallery-editor-list">
               {formData.galleryImages.map((image, index) => (
                 <div key={`${image.url}-${index}`} className="admin-gallery-editor-card">
-                  <img
-                    src={image.url}
-                    alt={`Gallery preview ${index + 1}`}
-                    style={{
-                      objectPosition: `${image.objectPositionX ?? 50}% ${
-                        image.objectPositionY ?? 50
-                      }%`,
-                    }}
-                  />
+                  <div
+                    className={`admin-gallery-preview-frame ${
+                      image.mode === "header"
+                        ? "admin-gallery-preview-frame--header"
+                        : ""
+                    }`}
+                  >
+                    <img
+                      src={image.url}
+                      alt={`Gallery preview ${index + 1}`}
+                      style={getGalleryMaskPreviewStyle(image)}
+                    />
+                  </div>
 
                   <div className="image-display-controls">
                     <label>
@@ -1269,33 +1232,66 @@ function ProjectForm({
                       </div>
                     </div>
 
+                    <div className="image-display-mode">
+                      <span>Mask crop direction</span>
+                      <div className="image-display-mode-buttons">
+                        {(["vertical", "horizontal"] as GalleryCropAxis[]).map(
+                          (axis) => (
+                            <button
+                              key={axis}
+                              type="button"
+                              className={
+                                (image.cropAxis ?? "vertical") === axis
+                                  ? "active"
+                                  : ""
+                              }
+                              onClick={() =>
+                                updateGalleryImage(index, (current) => ({
+                                  ...current,
+                                  cropAxis: axis,
+                                }))
+                              }
+                            >
+                              {axis === "vertical"
+                                ? "Top / Bottom"
+                                : "Left / Right"}
+                            </button>
+                          )
+                        )}
+                      </div>
+                    </div>
+
                     <label>
-                      Horizontal crop focus: {image.objectPositionX ?? 50}%
+                      {image.cropAxis === "horizontal"
+                        ? `Mask left: ${image.cropStart ?? 0}%`
+                        : `Mask top: ${image.cropStart ?? 0}%`}
                       <input
                         type="range"
                         min="0"
-                        max="100"
-                        value={image.objectPositionX ?? 50}
+                        max="35"
+                        value={image.cropStart ?? 0}
                         onChange={(event) =>
                           updateGalleryImage(index, (current) => ({
                             ...current,
-                            objectPositionX: Number(event.target.value),
+                            cropStart: Number(event.target.value),
                           }))
                         }
                       />
                     </label>
 
                     <label>
-                      Vertical crop focus: {image.objectPositionY ?? 50}%
+                      {image.cropAxis === "horizontal"
+                        ? `Mask right: ${image.cropEnd ?? 0}%`
+                        : `Mask bottom: ${image.cropEnd ?? 0}%`}
                       <input
                         type="range"
                         min="0"
-                        max="100"
-                        value={image.objectPositionY ?? 50}
+                        max="35"
+                        value={image.cropEnd ?? 0}
                         onChange={(event) =>
                           updateGalleryImage(index, (current) => ({
                             ...current,
-                            objectPositionY: Number(event.target.value),
+                            cropEnd: Number(event.target.value),
                           }))
                         }
                       />

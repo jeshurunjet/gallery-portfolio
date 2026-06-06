@@ -1,13 +1,15 @@
 export type TextAlignOption = "left" | "center" | "right" | "justify";
 
 export type DisplayImageMode = "default" | "header";
+export type GalleryCropAxis = "vertical" | "horizontal";
 
 export type GalleryImage = {
   url: string;
   publicId?: string;
   mode?: DisplayImageMode;
-  objectPositionX?: number;
-  objectPositionY?: number;
+  cropAxis?: GalleryCropAxis;
+  cropStart?: number;
+  cropEnd?: number;
 };
 
 export type ProjectContentBlock =
@@ -54,8 +56,6 @@ export type Project = {
   title: string;
   cover: string;
   coverDisplayMode?: DisplayImageMode;
-  coverPositionX?: number;
-  coverPositionY?: number;
   category: string;
   likes: number;
   views: number;

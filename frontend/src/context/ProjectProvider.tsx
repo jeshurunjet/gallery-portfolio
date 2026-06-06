@@ -33,10 +33,48 @@ function normalizeProject(project: Project): Project {
       url,
       publicId: project.imagesPublicIds?.[index] ?? undefined,
       mode: "default",
-      objectPositionX: 50,
-      objectPositionY: 50,
+      cropAxis: "vertical",
+      cropStart: 0,
+      cropEnd: 0,
     }));
   }
+
+  parsedGalleryImages = parsedGalleryImages.map((image) => ({
+    ...image,
+    mode: image.mode ?? "default",
+    cropAxis: image.cropAxis ?? "vertical",
+    cropStart:
+      typeof image.cropStart === "number"
+        ? image.cropStart
+        : typeof (image as GalleryImage & { objectPositionY?: number })
+              .objectPositionY === "number"
+          ? Math.max(
+              0,
+              Math.min(
+                35,
+                50 -
+                  (image as GalleryImage & { objectPositionY?: number })
+                    .objectPositionY! / 2
+              )
+            )
+          : 0,
+    cropEnd:
+      typeof image.cropEnd === "number"
+        ? image.cropEnd
+        : typeof (image as GalleryImage & { objectPositionY?: number })
+              .objectPositionY === "number"
+          ? Math.max(
+              0,
+              Math.min(
+                35,
+                ((image as GalleryImage & { objectPositionY?: number })
+                  .objectPositionY! -
+                  50) /
+                  2
+              )
+            )
+          : 0,
+  }));
 
   return {
     ...project,
@@ -45,8 +83,6 @@ function normalizeProject(project: Project): Project {
     galleryShowThumbnails: project.galleryShowThumbnails ?? true,
     galleryAutoScroll: project.galleryAutoScroll ?? true,
     coverDisplayMode: project.coverDisplayMode ?? "default",
-    coverPositionX: project.coverPositionX ?? 50,
-    coverPositionY: project.coverPositionY ?? 50,
     pinned: project.pinned ?? false,
   };
 }
@@ -127,8 +163,6 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
           cover: project.cover,
           coverPublicId: (project as any).coverPublicId ?? null,
           coverDisplayMode: project.coverDisplayMode ?? "default",
-          coverPositionX: project.coverPositionX ?? 50,
-          coverPositionY: project.coverPositionY ?? 50,
           images: galleryImages.map((image) => image.url),
           imagesPublicIds: galleryImages.map((image) => image.publicId ?? ""),
           galleryImagesJson: JSON.stringify(galleryImages),
@@ -192,8 +226,6 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
             cover: updatedProject.cover,
             coverPublicId: (updatedProject as any).coverPublicId ?? null,
             coverDisplayMode: updatedProject.coverDisplayMode ?? "default",
-            coverPositionX: updatedProject.coverPositionX ?? 50,
-            coverPositionY: updatedProject.coverPositionY ?? 50,
             images: galleryImages.map((image) => image.url),
             imagesPublicIds: galleryImages.map((image) => image.publicId ?? ""),
             galleryImagesJson: JSON.stringify(galleryImages),
