@@ -1178,7 +1178,7 @@ function ProjectForm({
                   }))
                 }
               />
-              Show thumbnail preview strip
+              <p>Show thumbnail preview strip</p>
             </label>
 
             <label className="admin-checkbox-row">
@@ -1192,7 +1192,7 @@ function ProjectForm({
                   }))
                 }
               />
-              Auto-scroll gallery images
+              <p>Auto-scroll gallery images</p>
             </label>
           </div>
 
@@ -1221,7 +1221,11 @@ function ProjectForm({
                   <div className="admin-gallery-card-meta">
                     <div className="admin-gallery-card-copy">
                       <strong>Image {index + 1}</strong>
-                      <small>{image.mode === "header" ? "Header style" : "Default style"}</small>
+                      <small>
+                        {image.mode === "header"
+                          ? "Header style"
+                          : "Default style"}
+                      </small>
                     </div>
 
                     <div className="admin-gallery-card-actions">
@@ -1296,7 +1300,9 @@ function ProjectForm({
                                 <button
                                   key={mode}
                                   type="button"
-                                  className={image.mode === mode ? "active" : ""}
+                                  className={
+                                    image.mode === mode ? "active" : ""
+                                  }
                                   onClick={() =>
                                     updateGalleryImage(index, (current) => ({
                                       ...current,
@@ -1320,7 +1326,8 @@ function ProjectForm({
                           <span className="range-label-row">
                             <span>Frame height</span>
                             <small>
-                              {image.frameHeight ?? 100}% · {getFrameHeightPixels(image)}px
+                              {image.frameHeight ?? 100}% ·{" "}
+                              {getFrameHeightPixels(image)}px
                             </small>
                           </span>
                           <input
@@ -1363,7 +1370,8 @@ function ProjectForm({
                           <span className="range-label-row">
                             <span>Zoom image</span>
                             <small>
-                              {image.zoom ?? 100}% · {getZoomPixels(image)}px wide
+                              {image.zoom ?? 100}% · {getZoomPixels(image)}px
+                              wide
                             </small>
                           </span>
                           <input
@@ -1876,10 +1884,13 @@ function ProjectForm({
                                   const result = await uploadContentImage(
                                     file,
                                     (imageUrl) => {
-                                      patchContentBlock(index, (currentBlock) => ({
-                                        ...currentBlock,
-                                        url: imageUrl,
-                                      }));
+                                      patchContentBlock(
+                                        index,
+                                        (currentBlock) => ({
+                                          ...currentBlock,
+                                          url: imageUrl,
+                                        })
+                                      );
                                     },
                                     "Uploading content image...",
                                     "Content image uploaded!",
@@ -1887,10 +1898,13 @@ function ProjectForm({
                                   );
 
                                   if (result?.publicId) {
-                                    patchContentBlock(index, (currentBlock) => ({
-                                      ...currentBlock,
-                                      publicId: result.publicId,
-                                    }));
+                                    patchContentBlock(
+                                      index,
+                                      (currentBlock) => ({
+                                        ...currentBlock,
+                                        publicId: result.publicId,
+                                      })
+                                    );
                                   }
                                 }}
                               />
@@ -1954,18 +1968,24 @@ function ProjectForm({
                                     file,
                                     "video",
                                     (videoUrl) => {
-                                      patchContentBlock(index, (currentBlock) => ({
-                                        ...currentBlock,
-                                        url: videoUrl,
-                                      }));
+                                      patchContentBlock(
+                                        index,
+                                        (currentBlock) => ({
+                                          ...currentBlock,
+                                          url: videoUrl,
+                                        })
+                                      );
                                     }
                                   );
 
                                   if (result?.publicId) {
-                                    patchContentBlock(index, (currentBlock) => ({
-                                      ...currentBlock,
-                                      publicId: result.publicId,
-                                    }));
+                                    patchContentBlock(
+                                      index,
+                                      (currentBlock) => ({
+                                        ...currentBlock,
+                                        publicId: result.publicId,
+                                      })
+                                    );
                                   }
                                 }}
                               />
@@ -2108,18 +2128,24 @@ function ProjectForm({
                                     file,
                                     block.mediaType ?? "image",
                                     (imageUrl) => {
-                                      patchContentBlock(index, (currentBlock) => ({
-                                        ...currentBlock,
-                                        imageUrl,
-                                      }));
+                                      patchContentBlock(
+                                        index,
+                                        (currentBlock) => ({
+                                          ...currentBlock,
+                                          imageUrl,
+                                        })
+                                      );
                                     }
                                   );
 
                                   if (result?.publicId) {
-                                    patchContentBlock(index, (currentBlock) => ({
-                                      ...currentBlock,
-                                      publicId: result.publicId,
-                                    }));
+                                    patchContentBlock(
+                                      index,
+                                      (currentBlock) => ({
+                                        ...currentBlock,
+                                        publicId: result.publicId,
+                                      })
+                                    );
                                   }
                                 }}
                               />
@@ -2221,10 +2247,13 @@ function ProjectForm({
                                       const result = await uploadContentImage(
                                         file,
                                         (imageUrl) => {
-                                          patchContentBlock(index, (currentBlock) => ({
-                                            ...currentBlock,
-                                            imageUrlRight: imageUrl,
-                                          }));
+                                          patchContentBlock(
+                                            index,
+                                            (currentBlock) => ({
+                                              ...currentBlock,
+                                              imageUrlRight: imageUrl,
+                                            })
+                                          );
                                         },
                                         "Uploading right media image...",
                                         "Right media image uploaded!",
@@ -2232,10 +2261,13 @@ function ProjectForm({
                                       );
 
                                       if (result?.publicId) {
-                                        patchContentBlock(index, (currentBlock) => ({
-                                          ...currentBlock,
-                                          publicIdRight: result.publicId,
-                                        }));
+                                        patchContentBlock(
+                                          index,
+                                          (currentBlock) => ({
+                                            ...currentBlock,
+                                            publicIdRight: result.publicId,
+                                          })
+                                        );
                                       }
                                     }}
                                   />
