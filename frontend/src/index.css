@@ -1487,6 +1487,27 @@ main {
   align-items: center;
   gap: 0.6rem;
   color: #333;
+  width: fit-content;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.admin-checkbox-row:hover {
+  border-color: #111;
+  background: #fafafa;
+}
+
+.admin-checkbox-row input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
 }
 
 .admin-gallery-editor-list {
@@ -1504,6 +1525,30 @@ main {
   border: 1px solid #ececec;
   border-radius: 12px;
   background: #fafafa;
+}
+
+.admin-gallery-editor-card > button,
+.admin-inline-input-row .admin-add-row-button {
+  padding: 0.7rem 0.95rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+  color: #111;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.admin-gallery-editor-card > button:hover,
+.admin-inline-input-row .admin-add-row-button:hover {
+  border-color: #111;
+  background: #111;
+  color: #fff;
 }
 
 .admin-gallery-preview-frame {

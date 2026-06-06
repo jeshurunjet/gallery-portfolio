@@ -29,7 +29,6 @@ import { API_BASE_URL } from "../config";
 import type {
   DisplayImageMode,
   GalleryImage,
-  GalleryCropAxis,
   ProjectContentBlock,
 } from "../data/projects";
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -200,27 +199,16 @@ function ProjectForm({
   };
 
   const getGalleryMaskPreviewStyle = (image: GalleryImage) => {
-    const axis = image.cropAxis ?? "vertical";
-    const cropStart = Math.max(0, Math.min(35, image.cropStart ?? 0));
-    const cropEnd = Math.max(0, Math.min(35, image.cropEnd ?? 0));
-    const visibleFraction = Math.max(0.3, 1 - (cropStart + cropEnd) / 100);
-
-    if (axis === "horizontal") {
-      return {
-        width: `${100 / visibleFraction}%`,
-        height: "100%",
-        maxWidth: "none",
-        left: `-${(cropStart / visibleFraction).toFixed(4)}%`,
-        top: "0",
-      };
-    }
-
+    const imageHeight = Math.max(100, Math.min(220, image.imageHeight ?? 100));
+    const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
+    const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
     return {
       width: "100%",
-      height: `${100 / visibleFraction}%`,
+      height: `${imageHeight}%`,
       maxWidth: "none",
-      left: "0",
-      top: `-${(cropStart / visibleFraction).toFixed(4)}%`,
+      left: `${50 + offsetX}%`,
+      top: `${50 + offsetY}%`,
+      transform: "translate(-50%, -50%)",
     };
   };
 
@@ -1072,9 +1060,9 @@ function ProjectForm({
                     {
                       url: trimmedUrl,
                       mode: "default",
-                      cropAxis: "vertical",
-                      cropStart: 0,
-                      cropEnd: 0,
+                      imageHeight: 100,
+                      offsetX: 0,
+                      offsetY: 0,
                     },
                   ],
                 }));
@@ -1120,9 +1108,9 @@ function ProjectForm({
                         url,
                         publicId: uploadedPublicIds[index],
                         mode: "default" as DisplayImageMode,
-                        cropAxis: "vertical" as GalleryCropAxis,
-                        cropStart: 0,
-                        cropEnd: 0,
+                        imageHeight: 100,
+                        offsetX: 0,
+                        offsetY: 0,
                       })),
                     ],
                   };
@@ -1233,65 +1221,69 @@ function ProjectForm({
                     </div>
 
                     <div className="image-display-mode">
-                      <span>Mask crop direction</span>
+                      <span>Image height inside frame</span>
                       <div className="image-display-mode-buttons">
-                        {(["vertical", "horizontal"] as GalleryCropAxis[]).map(
-                          (axis) => (
-                            <button
-                              key={axis}
-                              type="button"
-                              className={
-                                (image.cropAxis ?? "vertical") === axis
-                                  ? "active"
-                                  : ""
-                              }
-                              onClick={() =>
-                                updateGalleryImage(index, (current) => ({
-                                  ...current,
-                                  cropAxis: axis,
-                                }))
-                              }
-                            >
-                              {axis === "vertical"
-                                ? "Top / Bottom"
-                                : "Left / Right"}
-                            </button>
-                          )
-                        )}
+                        {[100, 115, 130, 150].map((height) => (
+                          <button
+                            key={height}
+                            type="button"
+                            className={image.imageHeight === height ? "active" : ""}
+                            onClick={() =>
+                              updateGalleryImage(index, (current) => ({
+                                ...current,
+                                imageHeight: height,
+                              }))
+                            }
+                          >
+                            {height === 100 ? "Fit" : `${height}%`}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
                     <label>
-                      {image.cropAxis === "horizontal"
-                        ? `Mask left: ${image.cropStart ?? 0}%`
-                        : `Mask top: ${image.cropStart ?? 0}%`}
+                      Image height: {image.imageHeight ?? 100}%
                       <input
                         type="range"
-                        min="0"
-                        max="35"
-                        value={image.cropStart ?? 0}
+                        min="100"
+                        max="220"
+                        value={image.imageHeight ?? 100}
                         onChange={(event) =>
                           updateGalleryImage(index, (current) => ({
                             ...current,
-                            cropStart: Number(event.target.value),
+                            imageHeight: Number(event.target.value),
                           }))
                         }
                       />
                     </label>
 
                     <label>
-                      {image.cropAxis === "horizontal"
-                        ? `Mask right: ${image.cropEnd ?? 0}%`
-                        : `Mask bottom: ${image.cropEnd ?? 0}%`}
+                      Move image left / right: {image.offsetX ?? 0}
                       <input
                         type="range"
-                        min="0"
-                        max="35"
-                        value={image.cropEnd ?? 0}
+                        min="-50"
+                        max="50"
+                        value={image.offsetX ?? 0}
                         onChange={(event) =>
                           updateGalleryImage(index, (current) => ({
                             ...current,
-                            cropEnd: Number(event.target.value),
+                            offsetX: Number(event.target.value),
+                          }))
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      Move image up / down: {image.offsetY ?? 0}
+                      <input
+                        type="range"
+                        min="-50"
+                        max="50"
+                        value={image.offsetY ?? 0}
+                        onChange={(event) =>
+                          updateGalleryImage(index, (current) => ({
+                            ...current,
+                            offsetY: Number(event.target.value),
                           }))
                         }
                       />

@@ -1,15 +1,14 @@
 export type TextAlignOption = "left" | "center" | "right" | "justify";
 
 export type DisplayImageMode = "default" | "header";
-export type GalleryCropAxis = "vertical" | "horizontal";
 
 export type GalleryImage = {
   url: string;
   publicId?: string;
   mode?: DisplayImageMode;
-  cropAxis?: GalleryCropAxis;
-  cropStart?: number;
-  cropEnd?: number;
+  imageHeight?: number;
+  offsetX?: number;
+  offsetY?: number;
 };
 
 export type ProjectContentBlock =

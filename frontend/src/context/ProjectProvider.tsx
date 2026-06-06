@@ -33,46 +33,36 @@ function normalizeProject(project: Project): Project {
       url,
       publicId: project.imagesPublicIds?.[index] ?? undefined,
       mode: "default",
-      cropAxis: "vertical",
-      cropStart: 0,
-      cropEnd: 0,
+      imageHeight: 100,
+      offsetX: 0,
+      offsetY: 0,
     }));
   }
 
   parsedGalleryImages = parsedGalleryImages.map((image) => ({
     ...image,
     mode: image.mode ?? "default",
-    cropAxis: image.cropAxis ?? "vertical",
-    cropStart:
-      typeof image.cropStart === "number"
-        ? image.cropStart
-        : typeof (image as GalleryImage & { objectPositionY?: number })
-              .objectPositionY === "number"
-          ? Math.max(
-              0,
-              Math.min(
-                35,
-                50 -
-                  (image as GalleryImage & { objectPositionY?: number })
-                    .objectPositionY! / 2
-              )
-            )
+    imageHeight:
+      typeof image.imageHeight === "number"
+        ? image.imageHeight
+        : image.mode === "header"
+          ? 130
+          : 100,
+    offsetX:
+      typeof image.offsetX === "number"
+        ? image.offsetX
+        : typeof (image as GalleryImage & { objectPositionX?: number })
+              .objectPositionX === "number"
+          ? ((image as GalleryImage & { objectPositionX?: number })
+              .objectPositionX ?? 50) - 50
           : 0,
-    cropEnd:
-      typeof image.cropEnd === "number"
-        ? image.cropEnd
+    offsetY:
+      typeof image.offsetY === "number"
+        ? image.offsetY
         : typeof (image as GalleryImage & { objectPositionY?: number })
               .objectPositionY === "number"
-          ? Math.max(
-              0,
-              Math.min(
-                35,
-                ((image as GalleryImage & { objectPositionY?: number })
-                  .objectPositionY! -
-                  50) /
-                  2
-              )
-            )
+          ? ((image as GalleryImage & { objectPositionY?: number })
+              .objectPositionY ?? 50) - 50
           : 0,
   }));
 

@@ -52,27 +52,16 @@ function ImageGallery({
   const activeMode = activeImage.mode ?? "default";
 
   const getMaskedStyle = (image: GalleryImage) => {
-    const axis = image.cropAxis ?? "vertical";
-    const cropStart = Math.max(0, Math.min(35, image.cropStart ?? 0));
-    const cropEnd = Math.max(0, Math.min(35, image.cropEnd ?? 0));
-    const visibleFraction = Math.max(0.3, 1 - (cropStart + cropEnd) / 100);
-
-    if (axis === "horizontal") {
-      return {
-        width: `${100 / visibleFraction}%`,
-        height: "100%",
-        maxWidth: "none",
-        left: `-${(cropStart / visibleFraction).toFixed(4)}%`,
-        top: "0",
-      };
-    }
-
+    const imageHeight = Math.max(100, Math.min(220, image.imageHeight ?? 100));
+    const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
+    const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
     return {
       width: "100%",
-      height: `${100 / visibleFraction}%`,
+      height: `${imageHeight}%`,
       maxWidth: "none",
-      left: "0",
-      top: `-${(cropStart / visibleFraction).toFixed(4)}%`,
+      left: `${50 + offsetX}%`,
+      top: `${50 + offsetY}%`,
+      transform: "translate(-50%, -50%)",
     };
   };
 
