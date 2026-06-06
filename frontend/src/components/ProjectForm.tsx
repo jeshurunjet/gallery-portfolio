@@ -1178,7 +1178,7 @@ function ProjectForm({
                   }))
                 }
               />
-              <p>Show thumbnail preview strip</p>
+              <span>Show thumbnail preview strip</span>
             </label>
 
             <label className="admin-checkbox-row">
@@ -1192,7 +1192,7 @@ function ProjectForm({
                   }))
                 }
               />
-              <p>Auto-scroll gallery images</p>
+              <span>Auto-scroll gallery images</span>
             </label>
           </div>
 
