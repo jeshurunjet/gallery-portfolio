@@ -2798,7 +2798,7 @@ function ProjectForm({
 
           <button
             type="button"
-            className={`admin-secondary-button admin-pin-action admin-pin-action-icon ${
+            className={`admin-pin-button admin-pin-action admin-pin-action-icon ${
               pinnedValue ? "active" : ""
             }`}
             aria-label={pinnedValue ? "Unpin project" : "Pin project"}
