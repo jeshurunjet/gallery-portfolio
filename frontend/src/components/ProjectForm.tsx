@@ -978,6 +978,27 @@ function ProjectForm({
     );
   };
 
+  const getMediaPreviewMeta = (url: string) => {
+    try {
+      const parsed = new URL(url);
+      const segments = parsed.pathname.split("/").filter(Boolean);
+      const lastSegment = segments.at(-1);
+
+      return {
+        title: lastSegment || parsed.hostname,
+        subtitle: parsed.hostname.replace(/^www\./, ""),
+      };
+    } catch {
+      const cleaned = url.replace(/^https?:\/\//, "");
+      const [host, ...rest] = cleaned.split("/");
+
+      return {
+        title: rest.at(-1) || host || url,
+        subtitle: host || "Custom URL",
+      };
+    }
+  };
+
   const uploadMediaFiles = async (files: FileList | File[]) => {
     const pendingFiles = Array.from(files);
 
@@ -1786,10 +1807,17 @@ function ProjectForm({
                       className="media-dropzone-preview-card"
                       onClick={(event) => event.stopPropagation()}
                     >
-                      <div className="media-dropzone-preview-copy">
-                        <span className="media-dropzone-preview-label">
+                      <div className="media-dropzone-preview-visual">
+                        <span className="media-dropzone-preview-badge">
                           <Clapperboard size={14} /> Video
                         </span>
+                        <div className="media-dropzone-preview-center">
+                          <Clapperboard size={22} />
+                          <strong>{getMediaPreviewMeta(item.url).title}</strong>
+                          <small>{getMediaPreviewMeta(item.url).subtitle}</small>
+                        </div>
+                      </div>
+                      <div className="media-dropzone-preview-copy">
                         <small>{item.url}</small>
                       </div>
                       <button
@@ -1812,10 +1840,17 @@ function ProjectForm({
                       className="media-dropzone-preview-card"
                       onClick={(event) => event.stopPropagation()}
                     >
-                      <div className="media-dropzone-preview-copy">
-                        <span className="media-dropzone-preview-label">
+                      <div className="media-dropzone-preview-visual">
+                        <span className="media-dropzone-preview-badge">
                           <AudioLines size={14} /> Audio
                         </span>
+                        <div className="media-dropzone-preview-center">
+                          <AudioLines size={22} />
+                          <strong>{getMediaPreviewMeta(item.url).title}</strong>
+                          <small>{getMediaPreviewMeta(item.url).subtitle}</small>
+                        </div>
+                      </div>
+                      <div className="media-dropzone-preview-copy">
                         <small>{item.url}</small>
                       </div>
                       <button
@@ -1838,10 +1873,17 @@ function ProjectForm({
                       className="media-dropzone-preview-card"
                       onClick={(event) => event.stopPropagation()}
                     >
-                      <div className="media-dropzone-preview-copy">
-                        <span className="media-dropzone-preview-label">
+                      <div className="media-dropzone-preview-visual">
+                        <span className="media-dropzone-preview-badge">
                           <FileText size={14} /> PDF
                         </span>
+                        <div className="media-dropzone-preview-center">
+                          <FileText size={22} />
+                          <strong>{getMediaPreviewMeta(item.url).title}</strong>
+                          <small>{getMediaPreviewMeta(item.url).subtitle}</small>
+                        </div>
+                      </div>
+                      <div className="media-dropzone-preview-copy">
                         <small>{item.url}</small>
                       </div>
                       <button

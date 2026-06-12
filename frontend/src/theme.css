@@ -489,11 +489,17 @@
 }
 
 .theme-dark .media-dropzone-preview-copy small,
+.theme-dark .media-dropzone-preview-center small,
 .theme-dark .media-links-popover-header p,
 .theme-dark .media-dropzone-copy small,
 .theme-dark .media-dropzone-copy span,
 .theme-dark .media-dropzone-note {
   color: var(--muted);
+}
+
+.theme-dark .media-dropzone-preview-visual {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--border);
 }
 
 .theme-dark .project-pin-toggle.active {

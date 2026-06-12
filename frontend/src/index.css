@@ -1533,14 +1533,13 @@ main {
 }
 
 .media-dropzone-preview-card {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: space-between;
-  gap: 0.75rem;
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(112px, 1fr) auto;
+  gap: 0.7rem;
   width: 100%;
-  min-height: 132px;
-  padding: 0.95rem;
+  min-height: 186px;
+  padding: 0.8rem;
   border: 1px solid #e4e4e4;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.92);
@@ -1548,20 +1547,59 @@ main {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
 }
 
-.media-dropzone-preview-copy {
+.media-dropzone-preview-visual {
+  position: relative;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.8rem;
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  background: #f8f8f8;
 }
 
-.media-dropzone-preview-label {
+.media-dropzone-preview-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   color: currentColor;
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.media-dropzone-preview-center {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.35rem;
+  color: #111;
+}
+
+.media-dropzone-preview-center strong {
+  max-width: 100%;
+  font-size: 0.92rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.media-dropzone-preview-center small {
+  color: #666;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.media-dropzone-preview-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .media-dropzone-preview-copy small {
@@ -1570,12 +1608,15 @@ main {
   line-height: 1.45;
   overflow-wrap: anywhere;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .media-dropzone-remove {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
   width: 2rem;
   height: 2rem;
   display: inline-flex;
@@ -1592,7 +1633,6 @@ main {
     border-color 0.2s ease,
     background 0.2s ease,
     color 0.2s ease;
-  align-self: flex-end;
 }
 
 .media-dropzone-remove:hover {
@@ -1603,7 +1643,7 @@ main {
 
 .media-link-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 1rem;
 }
 
