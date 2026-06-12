@@ -1448,15 +1448,18 @@ main {
 .media-dropzone {
   width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.1rem;
+  justify-content: center;
+  gap: 0.9rem;
+  min-height: 220px;
+  padding: 1.75rem 1.4rem;
   border: 1px dashed #cfcfcf;
   border-radius: 12px;
   background: #fcfcfc;
   color: #111;
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
@@ -1471,13 +1474,13 @@ main {
 }
 
 .media-dropzone-icon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 4rem;
+  height: 4rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 1px solid #d8d8d8;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fff;
   color: #111;
   flex: 0 0 auto;
@@ -1486,19 +1489,27 @@ main {
 .media-dropzone-copy {
   display: flex;
   flex-direction: column;
-  gap: 0.18rem;
+  align-items: center;
+  gap: 0.3rem;
   min-width: 0;
+  max-width: 460px;
 }
 
 .media-dropzone-copy strong {
-  font-size: 0.96rem;
+  font-size: 1rem;
   color: currentColor;
 }
 
 .media-dropzone-copy span {
   color: #666;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   line-height: 1.5;
+}
+
+.media-dropzone-copy small {
+  color: #7a7a7a;
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .media-dropzone-input {
@@ -1516,6 +1527,74 @@ main {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
+}
+
+.media-link-grid-full {
+  grid-column: 1 / -1;
+}
+
+.media-links-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.media-links-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+  color: #111;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.media-links-toggle:hover {
+  border-color: #111;
+  background: #fafafa;
+}
+
+.media-links-toggle-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.media-links-toggle-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: currentColor;
+}
+
+.media-links-toggle-subtitle {
+  color: #666;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.media-links-toggle-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #666;
+  flex: 0 0 auto;
+}
+
+.media-links-toggle-icons .is-open {
+  transform: rotate(180deg);
+}
+
+.media-links-toggle-icons svg {
+  transition: transform 0.2s ease;
 }
 
 .admin-inline-input-row {
@@ -2137,7 +2216,8 @@ main {
 
 @media (max-width: 760px) {
   .media-dropzone {
-    align-items: flex-start;
+    min-height: 200px;
+    padding: 1.35rem 1rem;
   }
 
   .media-link-grid {

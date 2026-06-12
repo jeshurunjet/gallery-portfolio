@@ -460,6 +460,7 @@
 .theme-dark .content-editor-duplicate,
 .theme-dark .content-editor-cancel-delete,
 .theme-dark .project-pin-toggle,
+.theme-dark .media-links-toggle,
 .theme-dark .media-dropzone,
 .theme-dark .media-dropzone-icon,
 .theme-dark .media-url-preview,
@@ -473,6 +474,7 @@
 .theme-dark .upload-preview button:hover,
 .theme-dark .upload-preview-item button:hover,
 .theme-dark .project-pin-toggle:hover,
+.theme-dark .media-links-toggle:hover,
 .theme-dark .media-dropzone:hover,
 .theme-dark .media-dropzone[data-drag-active="true"] {
   background: var(--surface-tag);
@@ -480,6 +482,8 @@
   border-color: var(--border-strong);
 }
 
+.theme-dark .media-dropzone-copy small,
+.theme-dark .media-links-toggle-subtitle,
 .theme-dark .media-dropzone-copy span,
 .theme-dark .media-dropzone-note {
   color: var(--muted);
