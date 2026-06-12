@@ -1683,7 +1683,7 @@ function ProjectForm({
                         />
                         <button
                           type="button"
-                          className="admin-add-row-button"
+                          className="media-link-add-button"
                           onClick={() => addMediaLink("video")}
                         >
                           Add
@@ -1703,7 +1703,7 @@ function ProjectForm({
                         />
                         <button
                           type="button"
-                          className="admin-add-row-button"
+                          className="media-link-add-button"
                           onClick={() => addMediaLink("audio")}
                         >
                           Add
@@ -1723,7 +1723,7 @@ function ProjectForm({
                         />
                         <button
                           type="button"
-                          className="admin-add-row-button"
+                          className="media-link-add-button"
                           onClick={() => addMediaLink("pdf")}
                         >
                           Add

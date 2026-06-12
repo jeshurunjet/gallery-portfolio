@@ -1527,21 +1527,25 @@ main {
 .media-dropzone-preview-grid {
   width: 100%;
   display: grid;
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.85rem;
   margin-top: 0.6rem;
 }
 
 .media-dropzone-preview-card {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: space-between;
   gap: 0.75rem;
   width: 100%;
-  padding: 0.8rem 0.9rem;
+  min-height: 132px;
+  padding: 0.95rem;
   border: 1px solid #e4e4e4;
-  border-radius: 10px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.92);
   text-align: left;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
 }
 
 .media-dropzone-preview-copy {
@@ -1565,6 +1569,10 @@ main {
   font-size: 0.82rem;
   line-height: 1.45;
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .media-dropzone-remove {
@@ -1584,6 +1592,7 @@ main {
     border-color 0.2s ease,
     background 0.2s ease,
     color 0.2s ease;
+  align-self: flex-end;
 }
 
 .media-dropzone-remove:hover {
@@ -1610,6 +1619,29 @@ main {
 
 .media-link-input-row input {
   flex: 1 1 auto;
+}
+
+.media-link-add-button {
+  min-width: 78px;
+  height: 42px;
+  padding: 0 0.95rem;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  background: #f6f6f6;
+  color: #111;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.media-link-add-button:hover {
+  border-color: #111;
+  background: #ededed;
 }
 
 .media-links-launcher-wrap {

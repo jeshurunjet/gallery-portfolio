@@ -455,6 +455,7 @@
 }
 
 .theme-dark .admin-add-row-button,
+.theme-dark .media-link-add-button,
 .theme-dark .upload-preview button,
 .theme-dark .upload-preview-item button,
 .theme-dark .content-editor-duplicate,
@@ -474,6 +475,7 @@
 }
 
 .theme-dark .admin-add-row-button:hover,
+.theme-dark .media-link-add-button:hover,
 .theme-dark .upload-preview button:hover,
 .theme-dark .upload-preview-item button:hover,
 .theme-dark .project-pin-toggle:hover,
