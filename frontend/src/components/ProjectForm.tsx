@@ -1580,6 +1580,166 @@ function ProjectForm({
       {!collapsedSections.includes("media") && (
         <>
           <div className="media-dropzone-section">
+            <div className="media-links-launcher-wrap">
+              <button
+                type="button"
+                className="media-links-launcher"
+                aria-expanded={isMediaLinksOpen}
+                onClick={() => setIsMediaLinksOpen((prev) => !prev)}
+              >
+                <span className="media-links-launcher-label">Add URL</span>
+                <span className="media-links-launcher-icon" aria-hidden="true">
+                  <Plus
+                    size={16}
+                    className={isMediaLinksOpen ? "is-open" : ""}
+                  />
+                </span>
+              </button>
+
+              {isMediaLinksOpen && (
+                <div className="media-links-popover">
+                  <div className="media-links-popover-header">
+                    <div>
+                      <strong>Add hosted links</strong>
+                      <p>Use external video, audio, or PDF URLs instead.</p>
+                    </div>
+                  </div>
+
+                  <div className="media-link-grid">
+                    <div className="admin-form-group">
+                      <label htmlFor="videoUrl">Video Link</label>
+                      <input
+                        id="videoUrl"
+                        type="text"
+                        placeholder="YouTube, Vimeo, or hosted video URL"
+                        value={formData.videoUrl}
+                        onChange={handleChange}
+                      />
+                      {formData.videoUrl && (
+                        <div className="upload-preview">
+                          <div className="media-url-preview">
+                            {formData.videoUrl}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setConfirmMessage("Delete this video?");
+                              setConfirmAction(() => async () => {
+                                await deleteMedia({
+                                  url: formData.videoUrl,
+                                  publicId: formData.videoPublicId,
+                                  resourceType: "video",
+                                });
+
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  videoUrl: "",
+                                  videoPublicId: undefined,
+                                }));
+                                onNotify?.("Video deleted");
+                              });
+
+                              setConfirmOpen(true);
+                            }}
+                          >
+                            Remove video
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="admin-form-group">
+                      <label htmlFor="audioUrl">Audio Link</label>
+                      <input
+                        id="audioUrl"
+                        type="text"
+                        placeholder="SoundCloud or hosted audio URL"
+                        value={formData.audioUrl}
+                        onChange={handleChange}
+                      />
+                      {formData.audioUrl && (
+                        <div className="upload-preview">
+                          <div className="media-url-preview">
+                            {formData.audioUrl}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setConfirmMessage("Delete this audio?");
+                              setConfirmAction(() => async () => {
+                                await deleteMedia({
+                                  url: formData.audioUrl,
+                                  publicId: formData.audioPublicId,
+                                  resourceType: "video",
+                                });
+
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  audioUrl: "",
+                                  audioPublicId: undefined,
+                                }));
+                                onNotify?.("Audio deleted");
+                              });
+
+                              setConfirmOpen(true);
+                            }}
+                          >
+                            Remove audio
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="admin-form-group media-link-grid-full">
+                      <label htmlFor="pdfUrl">PDF Link</label>
+                      <input
+                        id="pdfUrl"
+                        type="text"
+                        placeholder="/pdfs/sample-report.pdf or https://example.com/file.pdf"
+                        value={formData.pdfUrl}
+                        onChange={handleChange}
+                      />
+
+                      {formData.pdfUrl && (
+                        <div className="upload-preview">
+                          <div className="media-url-preview">
+                            {formData.pdfUrl}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setConfirmMessage("Delete this PDF?");
+                              setConfirmAction(() => async () => {
+                                await deleteMedia({
+                                  url: formData.pdfUrl,
+                                  publicId: formData.pdfPublicId,
+                                  resourceType: "image",
+                                });
+
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  pdfUrl: "",
+                                  pdfPublicId: undefined,
+                                }));
+                                onNotify?.("PDF deleted");
+                              });
+
+                              setConfirmOpen(true);
+                            }}
+                          >
+                            Remove PDF
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button
               type="button"
               className="media-dropzone"
@@ -1637,157 +1797,6 @@ function ProjectForm({
               Files upload directly into the project. External links are still
               available if you need them.
             </p>
-          </div>
-
-          <div className="media-links-panel">
-            <button
-              type="button"
-              className="media-links-toggle"
-              aria-expanded={isMediaLinksOpen}
-              onClick={() => setIsMediaLinksOpen((prev) => !prev)}
-            >
-              <span className="media-links-toggle-copy">
-                <span className="media-links-toggle-title">Add URL</span>
-                <span className="media-links-toggle-subtitle">
-                  Use a hosted link instead of uploading a file.
-                </span>
-              </span>
-              <span className="media-links-toggle-icons" aria-hidden="true">
-                <Plus size={16} />
-                <ChevronDown
-                  size={16}
-                  className={isMediaLinksOpen ? "is-open" : ""}
-                />
-              </span>
-            </button>
-
-            {isMediaLinksOpen && (
-              <div className="media-link-grid">
-                <div className="admin-form-group">
-                  <label htmlFor="videoUrl">Video Link</label>
-                  <input
-                    id="videoUrl"
-                    type="text"
-                    placeholder="YouTube, Vimeo, or hosted video URL"
-                    value={formData.videoUrl}
-                    onChange={handleChange}
-                  />
-                  {formData.videoUrl && (
-                    <div className="upload-preview">
-                      <div className="media-url-preview">{formData.videoUrl}</div>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setConfirmMessage("Delete this video?");
-                          setConfirmAction(() => async () => {
-                            await deleteMedia({
-                              url: formData.videoUrl,
-                              publicId: formData.videoPublicId,
-                              resourceType: "video",
-                            });
-
-                            setFormData((prev) => ({
-                              ...prev,
-                              videoUrl: "",
-                              videoPublicId: undefined,
-                            }));
-                            onNotify?.("Video deleted");
-                          });
-
-                          setConfirmOpen(true);
-                        }}
-                      >
-                        Remove video
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="admin-form-group">
-                  <label htmlFor="audioUrl">Audio Link</label>
-                  <input
-                    id="audioUrl"
-                    type="text"
-                    placeholder="SoundCloud or hosted audio URL"
-                    value={formData.audioUrl}
-                    onChange={handleChange}
-                  />
-                  {formData.audioUrl && (
-                    <div className="upload-preview">
-                      <div className="media-url-preview">{formData.audioUrl}</div>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setConfirmMessage("Delete this audio?");
-                          setConfirmAction(() => async () => {
-                            await deleteMedia({
-                              url: formData.audioUrl,
-                              publicId: formData.audioPublicId,
-                              resourceType: "video",
-                            });
-
-                            setFormData((prev) => ({
-                              ...prev,
-                              audioUrl: "",
-                              audioPublicId: undefined,
-                            }));
-                            onNotify?.("Audio deleted");
-                          });
-
-                          setConfirmOpen(true);
-                        }}
-                      >
-                        Remove audio
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="admin-form-group media-link-grid-full">
-                  <label htmlFor="pdfUrl">PDF Link</label>
-                  <input
-                    id="pdfUrl"
-                    type="text"
-                    placeholder="/pdfs/sample-report.pdf or https://example.com/file.pdf"
-                    value={formData.pdfUrl}
-                    onChange={handleChange}
-                  />
-
-                  {formData.pdfUrl && (
-                    <div className="upload-preview">
-                      <div className="media-url-preview">{formData.pdfUrl}</div>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setConfirmMessage("Delete this PDF?");
-                          setConfirmAction(() => async () => {
-                            await deleteMedia({
-                              url: formData.pdfUrl,
-                              publicId: formData.pdfPublicId,
-                              resourceType: "image",
-                            });
-
-                            setFormData((prev) => ({
-                              ...prev,
-                              pdfUrl: "",
-                              pdfPublicId: undefined,
-                            }));
-                            onNotify?.("PDF deleted");
-                          });
-
-                          setConfirmOpen(true);
-                        }}
-                      >
-                        Remove PDF
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </>
       )}
