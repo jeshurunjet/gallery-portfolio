@@ -18,7 +18,6 @@ import {
   List,
   ListOrdered,
   Plus,
-  Pin,
   Minus,
   PanelLeft,
   PanelRight,
@@ -150,7 +149,6 @@ function ProjectForm({
   onSubmit,
   onNotify,
   pinnedOverride,
-  onPinnedChange,
 }: ProjectFormProps) {
   const [formData, setFormData] = useState<ProjectFormData>(initialData);
   const pinnedValue = pinnedOverride ?? formData.pinned;
@@ -999,6 +997,136 @@ function ProjectForm({
     }
   };
 
+  const getVideoEmbedUrl = (url: string) => {
+    try {
+      const parsedUrl = new URL(url);
+
+      if (parsedUrl.hostname.includes("youtube.com")) {
+        const videoId = parsedUrl.searchParams.get("v");
+
+        if (videoId) {
+          return `https://www.youtube.com/embed/${videoId}`;
+        }
+      }
+
+      if (parsedUrl.hostname.includes("youtu.be")) {
+        const videoId = parsedUrl.pathname.slice(1);
+
+        if (videoId) {
+          return `https://www.youtube.com/embed/${videoId}`;
+        }
+      }
+
+      if (parsedUrl.hostname.includes("vimeo.com")) {
+        const videoId = parsedUrl.pathname.split("/").filter(Boolean)[0];
+
+        if (videoId) {
+          return `https://player.vimeo.com/video/${videoId}`;
+        }
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  const isDirectMediaFile = (
+    url: string,
+    extensions: string[]
+  ) => {
+    const lower = url.toLowerCase();
+    return extensions.some((extension) => lower.includes(extension));
+  };
+
+  const getSoundCloudEmbedUrl = (url: string) =>
+    `https://w.soundcloud.com/player/?url=${encodeURIComponent(
+      url
+    )}&color=%23111111&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false`;
+
+  const renderMediaPreviewSurface = (
+    category: MediaCategory,
+    item: MediaAsset
+  ) => {
+    if (category === "video") {
+      const embedUrl = getVideoEmbedUrl(item.url);
+
+      if (embedUrl) {
+        return (
+          <iframe
+            src={embedUrl}
+            title="Video preview"
+            className="media-dropzone-preview-frame"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        );
+      }
+
+      if (
+        isDirectMediaFile(item.url, [".mp4", ".webm", ".ogg", ".mov"]) ||
+        item.url.includes("/video/upload/") ||
+        item.url.includes("/uploads/local_video_")
+      ) {
+        return (
+          <video
+            src={item.url}
+            className="media-dropzone-preview-video"
+            controls
+            muted
+            playsInline
+          />
+        );
+      }
+    }
+
+    if (category === "audio") {
+      if (item.url.includes("soundcloud")) {
+        return (
+          <iframe
+            src={getSoundCloudEmbedUrl(item.url)}
+            title="Audio preview"
+            className="media-dropzone-preview-audio-frame"
+            allow="autoplay"
+          />
+        );
+      }
+
+      if (
+        isDirectMediaFile(item.url, [".mp3", ".wav", ".m4a", ".ogg"]) ||
+        item.url.includes("/video/upload/") ||
+        item.url.includes("/uploads/local_video_")
+      ) {
+        return (
+          <div className="media-dropzone-preview-audio-shell">
+            <AudioLines size={22} />
+            <audio src={item.url} controls className="media-dropzone-preview-audio" />
+          </div>
+        );
+      }
+    }
+
+    if (category === "pdf") {
+      return (
+        <object
+          data={item.url}
+          type="application/pdf"
+          className="media-dropzone-preview-pdf"
+          aria-label="PDF preview"
+        />
+      );
+    }
+
+    const meta = getMediaPreviewMeta(item.url);
+
+    return (
+      <div className="media-dropzone-preview-fallback">
+        <strong>{meta.title}</strong>
+        <small>{meta.subtitle}</small>
+      </div>
+    );
+  };
+
   const uploadMediaFiles = async (files: FileList | File[]) => {
     const pendingFiles = Array.from(files);
 
@@ -1811,13 +1939,10 @@ function ProjectForm({
                         <span className="media-dropzone-preview-badge">
                           <Clapperboard size={14} /> Video
                         </span>
-                        <div className="media-dropzone-preview-center">
-                          <Clapperboard size={22} />
-                          <strong>{getMediaPreviewMeta(item.url).title}</strong>
-                          <small>{getMediaPreviewMeta(item.url).subtitle}</small>
-                        </div>
+                        {renderMediaPreviewSurface("video", item)}
                       </div>
                       <div className="media-dropzone-preview-copy">
+                        <strong>{getMediaPreviewMeta(item.url).title}</strong>
                         <small>{item.url}</small>
                       </div>
                       <button
@@ -1844,13 +1969,10 @@ function ProjectForm({
                         <span className="media-dropzone-preview-badge">
                           <AudioLines size={14} /> Audio
                         </span>
-                        <div className="media-dropzone-preview-center">
-                          <AudioLines size={22} />
-                          <strong>{getMediaPreviewMeta(item.url).title}</strong>
-                          <small>{getMediaPreviewMeta(item.url).subtitle}</small>
-                        </div>
+                        {renderMediaPreviewSurface("audio", item)}
                       </div>
                       <div className="media-dropzone-preview-copy">
+                        <strong>{getMediaPreviewMeta(item.url).title}</strong>
                         <small>{item.url}</small>
                       </div>
                       <button
@@ -1877,13 +1999,10 @@ function ProjectForm({
                         <span className="media-dropzone-preview-badge">
                           <FileText size={14} /> PDF
                         </span>
-                        <div className="media-dropzone-preview-center">
-                          <FileText size={22} />
-                          <strong>{getMediaPreviewMeta(item.url).title}</strong>
-                          <small>{getMediaPreviewMeta(item.url).subtitle}</small>
-                        </div>
+                        {renderMediaPreviewSurface("pdf", item)}
                       </div>
                       <div className="media-dropzone-preview-copy">
+                        <strong>{getMediaPreviewMeta(item.url).title}</strong>
                         <small>{item.url}</small>
                       </div>
                       <button
@@ -2690,38 +2809,6 @@ function ProjectForm({
           </select>
         </div>
 
-        <button
-          type="button"
-          className={`project-pin-toggle ${pinnedValue ? "active" : ""}`}
-          onClick={() => {
-            const nextPinned = !pinnedValue;
-
-            if (onPinnedChange) {
-              onPinnedChange(nextPinned);
-              return;
-            }
-
-            setFormData((prev) => ({
-              ...prev,
-              pinned: nextPinned,
-            }));
-          }}
-        >
-          <span className="project-pin-icon">
-            <Pin size={18} />
-          </span>
-          <span>
-            <strong>
-              {pinnedValue ? "Pinned to homepage" : "Pin project"}
-            </strong>
-            <small>
-              {pinnedValue
-                ? "This project stays above the regular sort order."
-                : "Keep this project at the top of the gallery."}
-            </small>
-          </span>
-        </button>
-
         {renderCoverSection()}
 
         <div className="admin-form-group">
@@ -2830,19 +2917,27 @@ function ProjectForm({
       {renderCodeSection()}
       {renderLinksSection()}
 
-      <div className="admin-form-group">
-        <label htmlFor="tags">Tags</label>
-        <input
-          id="tags"
-          type="text"
-          placeholder="e.g. react, ui, portfolio, machine-learning"
-          value={formData.tags}
-          onChange={handleChange}
-        />
-        <small>Separate tags with commas.</small>
-      </div>
-
       {renderContentBlocksSection()}
+
+      <section className="admin-form-panel">
+        <div className="admin-form-panel-header">
+          <h3>Tags</h3>
+          <p>Keep project tags aligned with the public project footer.</p>
+        </div>
+
+        <div className="admin-form-group">
+          <label htmlFor="tags">Tags</label>
+          <input
+            id="tags"
+            type="text"
+            placeholder="e.g. react, ui, portfolio, machine-learning"
+            value={formData.tags}
+            onChange={handleChange}
+          />
+          <small>Separate tags with commas.</small>
+        </div>
+      </section>
+
       <div className="admin-form-actions">
         <button
           type="submit"

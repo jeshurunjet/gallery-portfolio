@@ -460,15 +460,13 @@
 .theme-dark .upload-preview-item button,
 .theme-dark .content-editor-duplicate,
 .theme-dark .content-editor-cancel-delete,
-.theme-dark .project-pin-toggle,
 .theme-dark .media-links-launcher-icon,
 .theme-dark .media-links-popover,
 .theme-dark .media-dropzone,
 .theme-dark .media-dropzone-icon,
- .theme-dark .media-dropzone-preview-card,
- .theme-dark .media-dropzone-remove,
+.theme-dark .media-dropzone-preview-card,
 .theme-dark .media-url-preview,
-.theme-dark .project-pin-icon {
+.theme-dark .media-dropzone-preview-badge {
   background: var(--surface-muted);
   color: var(--text);
   border-color: var(--border);
@@ -478,9 +476,7 @@
 .theme-dark .media-link-add-button:hover,
 .theme-dark .upload-preview button:hover,
 .theme-dark .upload-preview-item button:hover,
-.theme-dark .project-pin-toggle:hover,
 .theme-dark .media-links-launcher:hover .media-links-launcher-icon,
-.theme-dark .media-dropzone-remove:hover,
 .theme-dark .media-dropzone:hover,
 .theme-dark .media-dropzone[data-drag-active="true"] {
   background: var(--surface-tag);
@@ -489,11 +485,11 @@
 }
 
 .theme-dark .media-dropzone-preview-copy small,
-.theme-dark .media-dropzone-preview-center small,
 .theme-dark .media-links-popover-header p,
 .theme-dark .media-dropzone-copy small,
 .theme-dark .media-dropzone-copy span,
-.theme-dark .media-dropzone-note {
+.theme-dark .media-dropzone-note,
+.theme-dark .media-dropzone-preview-fallback small {
   color: var(--muted);
 }
 
@@ -502,23 +498,28 @@
   border-color: var(--border);
 }
 
-.theme-dark .project-pin-toggle.active {
+.theme-dark .media-dropzone-preview-audio-shell {
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 58%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.06) 100%);
+}
+
+.theme-dark .media-dropzone-preview-audio-shell svg,
+.theme-dark .media-dropzone-preview-fallback strong,
+.theme-dark .media-dropzone-preview-copy strong {
+  color: var(--text);
+}
+
+.theme-dark .media-dropzone-preview-pdf {
   background: #ffffff;
-  color: #000000;
-  border-color: #ffffff;
 }
 
-.theme-dark .project-pin-toggle.active .project-pin-icon {
-  background: rgba(0, 0, 0, 0.08);
-  color: #000000;
-}
-
-.theme-dark .project-pin-toggle small {
+.theme-dark .media-dropzone-remove {
   color: var(--muted);
 }
 
-.theme-dark .project-pin-toggle.active small {
-  color: rgba(0, 0, 0, 0.62);
+.theme-dark .media-dropzone-remove:hover {
+  color: #ffffff;
 }
 
 .admin-attention-list span {

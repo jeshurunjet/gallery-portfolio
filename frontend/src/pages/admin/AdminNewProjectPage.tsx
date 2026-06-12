@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Toast from "../../components/Toast";
 import type { Project } from "../../data/projects";
+import { Pin } from "lucide-react";
 
 function AdminNewProjectPage() {
   const { addProject } = useProjects();
@@ -13,6 +14,7 @@ function AdminNewProjectPage() {
 
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [draftPinned, setDraftPinned] = useState(false);
 
   const initialData: ProjectFormData = {
     title: "",
@@ -29,7 +31,7 @@ function AdminNewProjectPage() {
     audios: [],
     pdfs: [],
     codeContent: "",
-    pinned: false,
+    pinned: draftPinned,
     liveUrl: "",
     githubUrl: "",
     externalUrl: "",
@@ -108,12 +110,24 @@ function AdminNewProjectPage() {
             <h1>New Project</h1>
             <p>Create a new portfolio project.</p>
           </div>
+
+          <button
+            type="button"
+            className={`admin-secondary-button admin-pin-action ${
+              draftPinned ? "active" : ""
+            }`}
+            onClick={() => setDraftPinned((prev) => !prev)}
+          >
+            <Pin size={17} />
+            {draftPinned ? "Pinned" : "Pin Project"}
+          </button>
         </div>
 
         <ProjectForm
           initialData={initialData}
           submitLabel="Save Project"
           onSubmit={handleSubmit}
+          pinnedOverride={draftPinned}
           onNotify={(message) => {
             setToastMessage(message);
             setShowToast(true);
