@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   AlignCenter,
   AlignJustify,
@@ -26,6 +26,7 @@ import {
   ChevronRight,
   Trash2,
   Underline,
+  Upload,
 } from "lucide-react";
 import { API_BASE_URL } from "../config";
 import type {
@@ -168,6 +169,8 @@ function ProjectForm({
   const [openGalleryEditorIndex, setOpenGalleryEditorIndex] = useState<
     number | null
   >(null);
+  const mediaFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isMediaDropActive, setIsMediaDropActive] = useState(false);
   const toggleBlockCollapse = (index: number) => {
     setCollapsedBlocks((prev) =>
       prev.includes(index)
@@ -550,7 +553,11 @@ function ProjectForm({
       }
 
       const data = await response.json();
-      return { url: data.url as string, publicId: data.public_id as string };
+      return {
+        url: data.url as string,
+        publicId: data.public_id as string,
+        storage: data.storage as "cloudinary" | "local" | undefined,
+      };
     });
   };
 
@@ -861,6 +868,106 @@ function ProjectForm({
     ) : (
       "Empty"
     );
+  };
+
+  const getFileCategory = (file: File): "video" | "audio" | "pdf" | null => {
+    const lowerName = file.name.toLowerCase();
+
+    if (file.type.startsWith("video/")) {
+      return "video";
+    }
+
+    if (file.type.startsWith("audio/")) {
+      return "audio";
+    }
+
+    if (file.type === "application/pdf" || lowerName.endsWith(".pdf")) {
+      return "pdf";
+    }
+
+    return null;
+  };
+
+  const applyUploadedMedia = (
+    category: "video" | "audio" | "pdf",
+    result: UploadResult
+  ) => {
+    setFormData((prev) => {
+      if (category === "video") {
+        return {
+          ...prev,
+          videoUrl: result.url,
+          videoPublicId: result.publicId,
+        };
+      }
+
+      if (category === "audio") {
+        return {
+          ...prev,
+          audioUrl: result.url,
+          audioPublicId: result.publicId,
+        };
+      }
+
+      return {
+        ...prev,
+        pdfUrl: result.url,
+        pdfPublicId: result.publicId,
+      };
+    });
+  };
+
+  const uploadMediaFiles = async (files: FileList | File[]) => {
+    const pendingFiles = Array.from(files);
+
+    if (pendingFiles.length === 0) {
+      return;
+    }
+
+    for (const file of pendingFiles) {
+      const category = getFileCategory(file);
+
+      if (!category) {
+        onNotify?.(
+          `${file.name} is not supported. Upload video, audio, or PDF files only.`
+        );
+        continue;
+      }
+
+      try {
+        if (category === "video") {
+          onNotify?.(`Uploading ${file.name}...`);
+          const result = await uploadVideo(file);
+          applyUploadedMedia("video", result);
+          onNotify?.("Video uploaded!");
+          continue;
+        }
+
+        if (category === "audio") {
+          onNotify?.(`Uploading ${file.name}...`);
+          const result = await uploadVideo(file);
+          applyUploadedMedia("audio", result);
+          onNotify?.("Audio uploaded!");
+          continue;
+        }
+
+        onNotify?.(`Uploading ${file.name}...`);
+        const result = await uploadPdf(file);
+        applyUploadedMedia("pdf", result);
+        onNotify?.(
+          result.storage === "local"
+            ? "PDF uploaded locally. Cloudinary is not configured in this environment."
+            : "PDF uploaded!"
+        );
+      } catch (error) {
+        console.error("Upload failed", error);
+        onNotify?.(
+          error instanceof Error
+            ? error.message
+            : `${file.name} upload failed. Please try again.`
+        );
+      }
+    }
   };
 
   const getLinksStatus = () => {
@@ -1458,131 +1565,164 @@ function ProjectForm({
         "media",
         <Clapperboard size={18} />,
         "Media Content",
-        "Video, audio and PDF resources.",
+        "Upload or link video, audio and PDF resources.",
         getMediaStatus()
       )}
 
       {!collapsedSections.includes("media") && (
         <>
-          <div className="admin-form-group">
-            <label htmlFor="videoUrl">Video URL</label>
-            <input
-              id="videoUrl"
-              type="text"
-              placeholder="YouTube, Vimeo, or video link"
-              value={formData.videoUrl}
-              onChange={handleChange}
-            />
-            {formData.videoUrl && (
-              <div className="upload-preview">
-                <div className="media-url-preview">{formData.videoUrl}</div>
+          <div className="media-dropzone-section">
+            <button
+              type="button"
+              className="media-dropzone"
+              data-drag-active={isMediaDropActive ? "true" : "false"}
+              onClick={() => mediaFileInputRef.current?.click()}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setIsMediaDropActive(true);
+              }}
+              onDragEnter={(event) => {
+                event.preventDefault();
+                setIsMediaDropActive(true);
+              }}
+              onDragLeave={(event) => {
+                if (event.currentTarget.contains(event.relatedTarget as Node)) {
+                  return;
+                }
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setConfirmMessage("Delete this video?");
-                    setConfirmAction(() => async () => {
-                      await deleteMedia({
-                        url: formData.videoUrl,
-                        publicId: formData.videoPublicId,
-                        resourceType: "video",
+                setIsMediaDropActive(false);
+              }}
+              onDrop={async (event) => {
+                event.preventDefault();
+                setIsMediaDropActive(false);
+                await uploadMediaFiles(event.dataTransfer.files);
+              }}
+            >
+              <span className="media-dropzone-icon" aria-hidden="true">
+                <Upload size={18} />
+              </span>
+              <span className="media-dropzone-copy">
+                <strong>Drop media files here</strong>
+                <span>
+                  Video, audio, and PDF files are supported. Tap to browse on
+                  mobile.
+                </span>
+              </span>
+            </button>
+
+            <input
+              ref={mediaFileInputRef}
+              className="media-dropzone-input"
+              type="file"
+              accept="video/*,audio/*,application/pdf,.pdf"
+              multiple
+              onChange={async (event) => {
+                const files = event.target.files;
+                if (!files?.length) return;
+
+                await uploadMediaFiles(files);
+                event.target.value = "";
+              }}
+            />
+
+            <p className="media-dropzone-note">
+              Files upload directly. You can also keep using external links
+              below for YouTube, Vimeo, SoundCloud, or hosted PDFs.
+            </p>
+          </div>
+
+          <div className="media-link-grid">
+            <div className="admin-form-group">
+              <label htmlFor="videoUrl">Video Link</label>
+              <input
+                id="videoUrl"
+                type="text"
+                placeholder="YouTube, Vimeo, or hosted video URL"
+                value={formData.videoUrl}
+                onChange={handleChange}
+              />
+              {formData.videoUrl && (
+                <div className="upload-preview">
+                  <div className="media-url-preview">{formData.videoUrl}</div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmMessage("Delete this video?");
+                      setConfirmAction(() => async () => {
+                        await deleteMedia({
+                          url: formData.videoUrl,
+                          publicId: formData.videoPublicId,
+                          resourceType: "video",
+                        });
+
+                        setFormData((prev) => ({
+                          ...prev,
+                          videoUrl: "",
+                          videoPublicId: undefined,
+                        }));
+                        onNotify?.("Video deleted");
                       });
 
-                      setFormData((prev) => ({
-                        ...prev,
-                        videoUrl: "",
-                        videoPublicId: undefined,
-                      }));
-                      onNotify?.("Video deleted");
-                    });
+                      setConfirmOpen(true);
+                    }}
+                  >
+                    Remove video
+                  </button>
+                </div>
+              )}
+            </div>
 
-                    setConfirmOpen(true);
-                  }}
-                >
-                  Remove video
-                </button>
-              </div>
-            )}
+            <div className="admin-form-group">
+              <label htmlFor="audioUrl">Audio Link</label>
+              <input
+                id="audioUrl"
+                type="text"
+                placeholder="SoundCloud or hosted audio URL"
+                value={formData.audioUrl}
+                onChange={handleChange}
+              />
+              {formData.audioUrl && (
+                <div className="upload-preview">
+                  <div className="media-url-preview">{formData.audioUrl}</div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmMessage("Delete this audio?");
+                      setConfirmAction(() => async () => {
+                        await deleteMedia({
+                          url: formData.audioUrl,
+                          publicId: formData.audioPublicId,
+                          resourceType: "video",
+                        });
+
+                        setFormData((prev) => ({
+                          ...prev,
+                          audioUrl: "",
+                          audioPublicId: undefined,
+                        }));
+                        onNotify?.("Audio deleted");
+                      });
+
+                      setConfirmOpen(true);
+                    }}
+                  >
+                    Remove audio
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="admin-form-group">
-            <label htmlFor="audioUrl">Audio URL</label>
-            <input
-              id="audioUrl"
-              type="text"
-              placeholder="SoundCloud or audio link"
-              value={formData.audioUrl}
-              onChange={handleChange}
-            />
-            {formData.audioUrl && (
-              <div className="upload-preview">
-                <div className="media-url-preview">{formData.audioUrl}</div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setConfirmMessage("Delete this audio?");
-                    setConfirmAction(() => async () => {
-                      await deleteMedia({ url: formData.audioUrl });
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        audioUrl: "",
-                        audioPublicId: undefined,
-                      }));
-                      onNotify?.("Audio deleted");
-                    });
-
-                    setConfirmOpen(true);
-                  }}
-                >
-                  Remove audio
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="admin-form-group">
-            <label htmlFor="pdfUrl">PDF URL</label>
+            <label htmlFor="pdfUrl">PDF Link</label>
             <input
               id="pdfUrl"
               type="text"
               placeholder="/pdfs/sample-report.pdf or https://example.com/file.pdf"
               value={formData.pdfUrl}
               onChange={handleChange}
-            />
-
-            <input
-              type="file"
-              accept="application/pdf,.pdf"
-              onChange={async (event) => {
-                const file = event.target.files?.[0];
-                if (!file) return;
-
-                try {
-                  onNotify?.("Uploading PDF...");
-                  const result = await uploadPdf(file);
-
-                  setFormData((prev) => ({
-                    ...prev,
-                    pdfUrl: result.url,
-                    pdfPublicId: result.publicId,
-                  }));
-
-                  onNotify?.(
-                    result.storage === "local"
-                      ? "PDF uploaded locally. Cloudinary is not configured in this environment."
-                      : "PDF uploaded!"
-                  );
-                } catch (error) {
-                  console.error("Upload failed", error);
-                  onNotify?.(
-                    error instanceof Error
-                      ? error.message
-                      : "PDF upload failed. Please try again."
-                  );
-                }
-              }}
             />
 
             {formData.pdfUrl && (

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { clearStoredSession } from "../utils/session";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -9,8 +10,7 @@ function Navbar() {
   const closeMenu = () => setIsMenuOpen(false);
 
   const handleLogout = () => {
-    localStorage.removeItem("isAuth");
-    localStorage.removeItem("token");
+    clearStoredSession();
 
     closeMenu();
     navigate("/");

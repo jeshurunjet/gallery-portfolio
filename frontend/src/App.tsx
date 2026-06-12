@@ -19,10 +19,12 @@ import ResetPasswordPage from "./pages/admin/ResetPasswordPage";
 import ForgotPasswordPage from "./pages/admin/ForgotPasswordPage";
 import Footer from "./components/Footer";
 import NotFoundPage from "./pages/NotFoundPage";
+import SessionManager from "./components/SessionManager";
 
 function App() {
   return (
     <BrowserRouter>
+      <SessionManager />
       <div className="app-layout">
         <Navbar />
         <main className="app-main">

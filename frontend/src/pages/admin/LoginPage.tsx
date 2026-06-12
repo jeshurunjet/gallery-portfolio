@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { API_BASE_URL } from "../../config";
 import Toast from "../../components/Toast";
 import { Eye, EyeOff } from "lucide-react";
+import { startStoredSession } from "../../utils/session";
 
 function LoginPage() {
   const initialAuthMessage = sessionStorage.getItem("authMessage");
@@ -35,8 +36,16 @@ function LoginPage() {
 
       const data = await response.json();
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("isAuth", "true");
+      startStoredSession(data.token);
+
+      if (
+        "Notification" in window &&
+        Notification.permission === "default"
+      ) {
+        Notification.requestPermission().catch((notificationError) => {
+          console.error("Notification permission request failed", notificationError);
+        });
+      }
 
       window.location.replace("/admin");
     } catch (err) {

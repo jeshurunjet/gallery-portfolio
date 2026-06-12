@@ -133,6 +133,14 @@ function ProjectPage() {
 
           {project.pdfUrl && <PdfViewer url={project.pdfUrl} />}
 
+          {content.length > 0 && <ProjectContentRenderer content={content} />}
+
+          {!hasHeroMedia && !project.pdfUrl && content.length === 0 && (
+            <div className="empty-media">
+              <p>No media available for this project.</p>
+            </div>
+          )}
+
           <div className="project-tags">
             <hr className="content-divider"></hr>
             {tags.map((tag, index) => (
@@ -141,14 +149,6 @@ function ProjectPage() {
               </span>
             ))}
           </div>
-
-          {content.length > 0 && <ProjectContentRenderer content={content} />}
-
-          {!hasHeroMedia && !project.pdfUrl && content.length === 0 && (
-            <div className="empty-media">
-              <p>No media available for this project.</p>
-            </div>
-          )}
         </section>
 
         <aside className="project-side">
