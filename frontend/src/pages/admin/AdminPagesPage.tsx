@@ -335,9 +335,9 @@ function AdminPagesPage() {
                 </button>
               ))}
             </div>
-
-            <span className="admin-page-summary">{activeSummary}</span>
           </div>
+
+          <span className="admin-page-summary">{activeSummary}</span>
 
           {activePage === "about" ? (
             <div className="admin-page-form">

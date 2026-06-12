@@ -403,6 +403,30 @@
   border-color: #e7edf3;
 }
 
+.theme-dark .admin-inline-form .admin-primary-button,
+.theme-dark .admin-tag-actions .admin-primary-button,
+.theme-dark .admin-pin-action {
+  background: var(--surface-muted);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.theme-dark .admin-inline-form .admin-primary-button:hover,
+.theme-dark .admin-tag-actions .admin-primary-button:hover,
+.theme-dark .admin-pin-action:hover,
+.theme-dark .admin-pin-action.active {
+  background: var(--surface-tag);
+  color: #ffffff;
+  border-color: var(--border-strong);
+}
+
+.theme-dark .admin-pin-action-icon::after {
+  background: var(--surface-tag);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
 .theme-dark .loading-progress {
   background: var(--surface-muted);
 }
