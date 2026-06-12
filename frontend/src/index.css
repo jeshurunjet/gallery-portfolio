@@ -1671,7 +1671,7 @@ main {
 
 .media-dropzone-remove {
   position: absolute;
-  top: 0.55rem;
+  bottom: 0.65rem;
   right: 0.55rem;
   display: inline-flex;
   align-items: center;
@@ -2214,6 +2214,41 @@ main {
   white-space: nowrap;
 }
 
+.admin-pin-action-icon {
+  position: relative;
+  width: 2.4rem;
+  height: 2.4rem;
+  min-width: 2.4rem;
+  padding: 0;
+  border-radius: 10px;
+}
+
+.admin-pin-action-icon::after {
+  content: attr(data-label);
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  background: #111;
+  color: #fff;
+  font-size: 0.74rem;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-2px);
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
+}
+
+.admin-pin-action-icon:hover::after,
+.admin-pin-action-icon:focus-visible::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .admin-pin-action:hover,
 .admin-pin-action.active {
   background: #111;
@@ -2327,8 +2362,16 @@ main {
 
 .admin-form-panel-header {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.admin-form-panel-header > div {
+  display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-width: 0;
 }
 
 .admin-form-panel-header h3 {
@@ -2378,8 +2421,12 @@ main {
     align-items: stretch;
   }
 
-  .admin-page-header .admin-pin-action {
-    width: 100%;
+  .admin-form-panel-header {
+    align-items: stretch;
+  }
+
+  .admin-form-panel-header .admin-pin-action-icon {
+    align-self: flex-end;
   }
 
   .media-links-launcher-wrap {

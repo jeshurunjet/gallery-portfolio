@@ -18,6 +18,7 @@ import {
   List,
   ListOrdered,
   Plus,
+  Pin,
   Minus,
   PanelLeft,
   PanelRight,
@@ -149,6 +150,7 @@ function ProjectForm({
   onSubmit,
   onNotify,
   pinnedOverride,
+  onPinnedChange,
 }: ProjectFormProps) {
   const [formData, setFormData] = useState<ProjectFormData>(initialData);
   const pinnedValue = pinnedOverride ?? formData.pinned;
@@ -1917,16 +1919,20 @@ function ProjectForm({
                 await uploadMediaFiles(event.dataTransfer.files);
               }}
             >
-              <span className="media-dropzone-icon" aria-hidden="true">
-                <Upload size={28} />
-              </span>
-              <span className="media-dropzone-copy">
-                <strong>Drop files anywhere in this box</strong>
-                <span>
-                  Upload video, audio, or PDF files.
-                </span>
-                <small>Drag and drop on desktop, or tap to browse on mobile.</small>
-              </span>
+              {formData.videos.length + formData.audios.length + formData.pdfs.length === 0 ? (
+                <>
+                  <span className="media-dropzone-icon" aria-hidden="true">
+                    <Upload size={28} />
+                  </span>
+                  <span className="media-dropzone-copy">
+                    <strong>Drop files anywhere in this box</strong>
+                    <span>
+                      Upload video, audio, or PDF files.
+                    </span>
+                    <small>Drag and drop on desktop, or tap to browse on mobile.</small>
+                  </span>
+                </>
+              ) : null}
               {formData.videos.length + formData.audios.length + formData.pdfs.length > 0 && (
                 <div className="media-dropzone-preview-grid">
                   {formData.videos.map((item, index) => (
@@ -2771,8 +2777,35 @@ function ProjectForm({
     <form className="admin-form" onSubmit={handleSubmit}>
       <section className="admin-form-panel">
         <div className="admin-form-panel-header">
-          <h3>Project Basics</h3>
-          <p>Core details shown across the portfolio.</p>
+          <div>
+            <h3>Project Basics</h3>
+            <p>Core details shown across the portfolio.</p>
+          </div>
+
+          <button
+            type="button"
+            className={`admin-secondary-button admin-pin-action admin-pin-action-icon ${
+              pinnedValue ? "active" : ""
+            }`}
+            aria-label={pinnedValue ? "Unpin project" : "Pin project"}
+            data-label={pinnedValue ? "Pinned" : "Pin project"}
+            title={pinnedValue ? "Pinned" : "Pin project"}
+            onClick={() => {
+              const nextPinned = !pinnedValue;
+
+              if (onPinnedChange) {
+                onPinnedChange(nextPinned);
+                return;
+              }
+
+              setFormData((prev) => ({
+                ...prev,
+                pinned: nextPinned,
+              }));
+            }}
+          >
+            <Pin size={16} />
+          </button>
         </div>
 
         <div className="admin-form-group">

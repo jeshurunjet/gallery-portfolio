@@ -5,7 +5,7 @@ import ProjectForm, {
 } from "../../components/ProjectForm";
 import useProjects from "../../hooks/useProjects";
 import Toast from "../../components/Toast";
-import { Eye, Pin, ThumbsUp } from "lucide-react";
+import { Eye, ThumbsUp } from "lucide-react";
 
 function AdminEditProjectPage() {
   const { id } = useParams();
@@ -131,32 +131,6 @@ function AdminEditProjectPage() {
             <h1>Edit Project</h1>
             <p>Update your project details.</p>
           </div>
-
-          <button
-            type="button"
-            className={`admin-secondary-button admin-pin-action ${
-              (draftPinned ?? project.pinned) ? "active" : ""
-            }`}
-            onClick={async () => {
-              const nextPinned = !(draftPinned ?? project.pinned ?? false);
-              setDraftPinned(nextPinned);
-
-              await updateProject({
-                ...project,
-                pinned: nextPinned,
-              });
-
-              setToastMessage(
-                nextPinned
-                  ? "Project pinned to homepage"
-                  : "Project unpinned from homepage"
-              );
-              setShowToast(true);
-            }}
-          >
-            <Pin size={17} />
-            {(draftPinned ?? project.pinned) ? "Pinned" : "Pin Project"}
-          </button>
         </div>
 
         <div className="admin-back-button-container">
