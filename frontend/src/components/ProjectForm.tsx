@@ -173,7 +173,9 @@ function ProjectForm({
   const mediaFileInputRef = useRef<HTMLInputElement | null>(null);
   const [isMediaDropActive, setIsMediaDropActive] = useState(false);
   const [isMediaLinksOpen, setIsMediaLinksOpen] = useState(false);
-  const [mediaLinkDrafts, setMediaLinkDrafts] = useState<Record<MediaCategory, string>>({
+  const [mediaLinkDrafts, setMediaLinkDrafts] = useState<
+    Record<MediaCategory, string>
+  >({
     video: "",
     audio: "",
     pdf: "",
@@ -871,7 +873,9 @@ function ProjectForm({
 
   const getMediaStatus = () => {
     const mediaIcons = [
-      formData.videos.length > 0 ? <Clapperboard key="video" size={15} /> : null,
+      formData.videos.length > 0 ? (
+        <Clapperboard key="video" size={15} />
+      ) : null,
       formData.audios.length > 0 ? <AudioLines key="audio" size={15} /> : null,
       formData.pdfs.length > 0 ? <FileText key="pdf" size={15} /> : null,
     ].filter(Boolean);
@@ -1033,10 +1037,7 @@ function ProjectForm({
     }
   };
 
-  const isDirectMediaFile = (
-    url: string,
-    extensions: string[]
-  ) => {
+  const isDirectMediaFile = (url: string, extensions: string[]) => {
     const lower = url.toLowerCase();
     return extensions.some((extension) => lower.includes(extension));
   };
@@ -1102,7 +1103,11 @@ function ProjectForm({
         return (
           <div className="media-dropzone-preview-audio-shell">
             <AudioLines size={22} />
-            <audio src={item.url} controls className="media-dropzone-preview-audio" />
+            <audio
+              src={item.url}
+              controls
+              className="media-dropzone-preview-audio"
+            />
           </div>
         );
       }
@@ -1813,7 +1818,10 @@ function ProjectForm({
               </button>
 
               {isMediaLinksOpen && (
-                <div className="media-links-popover" onClick={(event) => event.stopPropagation()}>
+                <div
+                  className="media-links-popover"
+                  onClick={(event) => event.stopPropagation()}
+                >
                   <div className="media-links-popover-header">
                     <div>
                       <strong>Add hosted links</strong>
@@ -1919,21 +1927,27 @@ function ProjectForm({
                 await uploadMediaFiles(event.dataTransfer.files);
               }}
             >
-              {formData.videos.length + formData.audios.length + formData.pdfs.length === 0 ? (
+              {formData.videos.length +
+                formData.audios.length +
+                formData.pdfs.length ===
+              0 ? (
                 <>
                   <span className="media-dropzone-icon" aria-hidden="true">
                     <Upload size={28} />
                   </span>
                   <span className="media-dropzone-copy">
                     <strong>Drop files anywhere in this box</strong>
-                    <span>
-                      Upload video, audio, or PDF files.
-                    </span>
-                    <small>Drag and drop on desktop, or tap to browse on mobile.</small>
+                    <span>Upload video, audio, or PDF files.</span>
+                    <small>
+                      Drag and drop on desktop, or tap to browse on mobile.
+                    </small>
                   </span>
                 </>
               ) : null}
-              {formData.videos.length + formData.audios.length + formData.pdfs.length > 0 && (
+              {formData.videos.length +
+                formData.audios.length +
+                formData.pdfs.length >
+                0 && (
                 <div className="media-dropzone-preview-grid">
                   {formData.videos.map((item, index) => (
                     <div
@@ -2804,7 +2818,7 @@ function ProjectForm({
               }));
             }}
           >
-            <Pin size={16} />
+            <Pin size={20} />
           </button>
         </div>
 
