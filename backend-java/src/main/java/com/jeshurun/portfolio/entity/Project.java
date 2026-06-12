@@ -50,22 +50,13 @@ public class Project {
     private Boolean galleryAutoScroll = true;
 
     @Column(columnDefinition = "TEXT")
-    private String videoUrl;
+    private String videosJson;
 
     @Column(columnDefinition = "TEXT")
-    private String videoPublicId;
+    private String audiosJson;
 
     @Column(columnDefinition = "TEXT")
-    private String audioUrl;
-
-    @Column(columnDefinition = "TEXT")
-    private String audioPublicId;
-
-    @Column(columnDefinition = "TEXT")
-    private String pdfUrl;
-
-    @Column(columnDefinition = "TEXT")
-    private String pdfPublicId;
+    private String pdfsJson;
 
     @Column(columnDefinition = "TEXT")
     private String codeContent;
@@ -206,52 +197,28 @@ public class Project {
         this.galleryAutoScroll = galleryAutoScroll;
     }
 
-    public String getVideoUrl() {
-        return videoUrl;
+    public String getVideosJson() {
+        return videosJson;
     }
 
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
+    public void setVideosJson(String videosJson) {
+        this.videosJson = videosJson;
     }
 
-    public String getVideoPublicId() {
-        return videoPublicId;
+    public String getAudiosJson() {
+        return audiosJson;
     }
 
-    public void setVideoPublicId(String videoPublicId) {
-        this.videoPublicId = videoPublicId;
+    public void setAudiosJson(String audiosJson) {
+        this.audiosJson = audiosJson;
     }
 
-    public String getAudioUrl() {
-        return audioUrl;
+    public String getPdfsJson() {
+        return pdfsJson;
     }
 
-    public void setAudioUrl(String audioUrl) {
-        this.audioUrl = audioUrl;
-    }
-
-    public String getAudioPublicId() {
-        return audioPublicId;
-    }
-
-    public void setAudioPublicId(String audioPublicId) {
-        this.audioPublicId = audioPublicId;
-    }
-
-    public String getPdfUrl() {
-        return pdfUrl;
-    }
-
-    public void setPdfUrl(String pdfUrl) {
-        this.pdfUrl = pdfUrl;
-    }
-
-    public String getPdfPublicId() {
-        return pdfPublicId;
-    }
-
-    public void setPdfPublicId(String pdfPublicId) {
-        this.pdfPublicId = pdfPublicId;
+    public void setPdfsJson(String pdfsJson) {
+        this.pdfsJson = pdfsJson;
     }
 
     public String getCodeContent() {

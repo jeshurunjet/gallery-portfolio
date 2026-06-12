@@ -33,6 +33,7 @@ import { API_BASE_URL } from "../config";
 import type {
   DisplayImageMode,
   GalleryImage,
+  MediaAsset,
   ProjectContentBlock,
 } from "../data/projects";
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -60,12 +61,9 @@ type ProjectFormData = {
   galleryImages: GalleryImage[];
   galleryShowThumbnails: boolean;
   galleryAutoScroll: boolean;
-  videoUrl: string;
-  videoPublicId?: string;
-  audioUrl: string;
-  audioPublicId?: string;
-  pdfUrl: string;
-  pdfPublicId?: string;
+  videos: MediaAsset[];
+  audios: MediaAsset[];
+  pdfs: MediaAsset[];
   codeContent: string;
   pinned: boolean;
   liveUrl: string;
@@ -104,6 +102,8 @@ type UploadResult = {
   publicId: string;
   storage?: "cloudinary" | "local";
 };
+
+type MediaCategory = "video" | "audio" | "pdf";
 
 type SortableItemProps = {
   id: string;
@@ -172,13 +172,12 @@ function ProjectForm({
   >(null);
   const mediaFileInputRef = useRef<HTMLInputElement | null>(null);
   const [isMediaDropActive, setIsMediaDropActive] = useState(false);
-  const [isMediaLinksOpen, setIsMediaLinksOpen] = useState(
-    Boolean(
-      initialData.videoUrl.trim() ||
-        initialData.audioUrl.trim() ||
-        initialData.pdfUrl.trim()
-    )
-  );
+  const [isMediaLinksOpen, setIsMediaLinksOpen] = useState(false);
+  const [mediaLinkDrafts, setMediaLinkDrafts] = useState<Record<MediaCategory, string>>({
+    video: "",
+    audio: "",
+    pdf: "",
+  });
   const toggleBlockCollapse = (index: number) => {
     setCollapsedBlocks((prev) =>
       prev.includes(index)
@@ -707,6 +706,12 @@ function ProjectForm({
   ) => {
     const { id, value } = event.target;
 
+    if (id === "videoUrl" || id === "audioUrl" || id === "pdfUrl") {
+      const category = id.replace("Url", "") as MediaCategory;
+      setMediaLinkDrafts((prev) => ({ ...prev, [category]: value }));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [id]: value,
@@ -866,9 +871,9 @@ function ProjectForm({
 
   const getMediaStatus = () => {
     const mediaIcons = [
-      formData.videoUrl ? <Clapperboard key="video" size={15} /> : null,
-      formData.audioUrl ? <AudioLines key="audio" size={15} /> : null,
-      formData.pdfUrl ? <FileText key="pdf" size={15} /> : null,
+      formData.videos.length > 0 ? <Clapperboard key="video" size={15} /> : null,
+      formData.audios.length > 0 ? <AudioLines key="audio" size={15} /> : null,
+      formData.pdfs.length > 0 ? <FileText key="pdf" size={15} /> : null,
     ].filter(Boolean);
 
     return mediaIcons.length > 0 ? (
@@ -896,33 +901,81 @@ function ProjectForm({
     return null;
   };
 
-  const applyUploadedMedia = (
-    category: "video" | "audio" | "pdf",
-    result: UploadResult
-  ) => {
+  const getMediaItems = (category: MediaCategory) => {
+    if (category === "video") return formData.videos;
+    if (category === "audio") return formData.audios;
+    return formData.pdfs;
+  };
+
+  const isManagedMediaItem = (item: MediaAsset) =>
+    Boolean(item.publicId) ||
+    item.url.includes("/uploads/") ||
+    item.url.includes("res.cloudinary.com");
+
+  const appendMediaItem = (category: MediaCategory, item: MediaAsset) => {
+    setFormData((prev) => {
+      if (category === "video") {
+        return { ...prev, videos: [...prev.videos, item] };
+      }
+
+      if (category === "audio") {
+        return { ...prev, audios: [...prev.audios, item] };
+      }
+
+      return { ...prev, pdfs: [...prev.pdfs, item] };
+    });
+  };
+
+  const removeMediaItem = async (category: MediaCategory, index: number) => {
+    const item = getMediaItems(category)[index];
+
+    if (!item) return;
+
+    const resourceType = category === "pdf" ? "image" : "video";
+
+    if (isManagedMediaItem(item)) {
+      await deleteMedia({
+        url: item.url,
+        publicId: item.publicId,
+        resourceType,
+      });
+    }
+
     setFormData((prev) => {
       if (category === "video") {
         return {
           ...prev,
-          videoUrl: result.url,
-          videoPublicId: result.publicId,
+          videos: prev.videos.filter((_, itemIndex) => itemIndex !== index),
         };
       }
 
       if (category === "audio") {
         return {
           ...prev,
-          audioUrl: result.url,
-          audioPublicId: result.publicId,
+          audios: prev.audios.filter((_, itemIndex) => itemIndex !== index),
         };
       }
 
       return {
         ...prev,
-        pdfUrl: result.url,
-        pdfPublicId: result.publicId,
+        pdfs: prev.pdfs.filter((_, itemIndex) => itemIndex !== index),
       };
     });
+  };
+
+  const addMediaLink = (category: MediaCategory) => {
+    const nextUrl = mediaLinkDrafts[category].trim();
+
+    if (!nextUrl) {
+      onNotify?.("Enter a URL first.");
+      return;
+    }
+
+    appendMediaItem(category, { url: nextUrl });
+    setMediaLinkDrafts((prev) => ({ ...prev, [category]: "" }));
+    onNotify?.(
+      `${category === "pdf" ? "PDF" : category === "audio" ? "Audio" : "Video"} link added.`
+    );
   };
 
   const uploadMediaFiles = async (files: FileList | File[]) => {
@@ -946,7 +999,10 @@ function ProjectForm({
         if (category === "video") {
           onNotify?.(`Uploading ${file.name}...`);
           const result = await uploadVideo(file);
-          applyUploadedMedia("video", result);
+          appendMediaItem("video", {
+            url: result.url,
+            publicId: result.publicId,
+          });
           onNotify?.("Video uploaded!");
           continue;
         }
@@ -954,14 +1010,20 @@ function ProjectForm({
         if (category === "audio") {
           onNotify?.(`Uploading ${file.name}...`);
           const result = await uploadVideo(file);
-          applyUploadedMedia("audio", result);
+          appendMediaItem("audio", {
+            url: result.url,
+            publicId: result.publicId,
+          });
           onNotify?.("Audio uploaded!");
           continue;
         }
 
         onNotify?.(`Uploading ${file.name}...`);
         const result = await uploadPdf(file);
-        applyUploadedMedia("pdf", result);
+        appendMediaItem("pdf", {
+          url: result.url,
+          publicId: result.publicId,
+        });
         onNotify?.(
           result.storage === "local"
             ? "PDF uploaded locally. Cloudinary is not configured in this environment."
@@ -1585,7 +1647,10 @@ function ProjectForm({
                 type="button"
                 className="media-links-launcher"
                 aria-expanded={isMediaLinksOpen}
-                onClick={() => setIsMediaLinksOpen((prev) => !prev)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setIsMediaLinksOpen((prev) => !prev);
+                }}
               >
                 <span className="media-links-launcher-label">Add URL</span>
                 <span className="media-links-launcher-icon" aria-hidden="true">
@@ -1597,7 +1662,7 @@ function ProjectForm({
               </button>
 
               {isMediaLinksOpen && (
-                <div className="media-links-popover">
+                <div className="media-links-popover" onClick={(event) => event.stopPropagation()}>
                   <div className="media-links-popover-header">
                     <div>
                       <strong>Add hosted links</strong>
@@ -1608,143 +1673,80 @@ function ProjectForm({
                   <div className="media-link-grid">
                     <div className="admin-form-group">
                       <label htmlFor="videoUrl">Video Link</label>
-                      <input
-                        id="videoUrl"
-                        type="text"
-                        placeholder="YouTube, Vimeo, or hosted video URL"
-                        value={formData.videoUrl}
-                        onChange={handleChange}
-                      />
-                      {formData.videoUrl && (
-                        <div className="upload-preview">
-                          <div className="media-url-preview">
-                            {formData.videoUrl}
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setConfirmMessage("Delete this video?");
-                              setConfirmAction(() => async () => {
-                                await deleteMedia({
-                                  url: formData.videoUrl,
-                                  publicId: formData.videoPublicId,
-                                  resourceType: "video",
-                                });
-
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  videoUrl: "",
-                                  videoPublicId: undefined,
-                                }));
-                                onNotify?.("Video deleted");
-                              });
-
-                              setConfirmOpen(true);
-                            }}
-                          >
-                            Remove video
-                          </button>
-                        </div>
-                      )}
+                      <div className="media-link-input-row">
+                        <input
+                          id="videoUrl"
+                          type="text"
+                          placeholder="YouTube, Vimeo, or hosted video URL"
+                          value={mediaLinkDrafts.video}
+                          onChange={handleChange}
+                        />
+                        <button
+                          type="button"
+                          className="admin-add-row-button"
+                          onClick={() => addMediaLink("video")}
+                        >
+                          Add
+                        </button>
+                      </div>
                     </div>
 
                     <div className="admin-form-group">
                       <label htmlFor="audioUrl">Audio Link</label>
-                      <input
-                        id="audioUrl"
-                        type="text"
-                        placeholder="SoundCloud or hosted audio URL"
-                        value={formData.audioUrl}
-                        onChange={handleChange}
-                      />
-                      {formData.audioUrl && (
-                        <div className="upload-preview">
-                          <div className="media-url-preview">
-                            {formData.audioUrl}
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setConfirmMessage("Delete this audio?");
-                              setConfirmAction(() => async () => {
-                                await deleteMedia({
-                                  url: formData.audioUrl,
-                                  publicId: formData.audioPublicId,
-                                  resourceType: "video",
-                                });
-
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  audioUrl: "",
-                                  audioPublicId: undefined,
-                                }));
-                                onNotify?.("Audio deleted");
-                              });
-
-                              setConfirmOpen(true);
-                            }}
-                          >
-                            Remove audio
-                          </button>
-                        </div>
-                      )}
+                      <div className="media-link-input-row">
+                        <input
+                          id="audioUrl"
+                          type="text"
+                          placeholder="SoundCloud or hosted audio URL"
+                          value={mediaLinkDrafts.audio}
+                          onChange={handleChange}
+                        />
+                        <button
+                          type="button"
+                          className="admin-add-row-button"
+                          onClick={() => addMediaLink("audio")}
+                        >
+                          Add
+                        </button>
+                      </div>
                     </div>
 
                     <div className="admin-form-group media-link-grid-full">
                       <label htmlFor="pdfUrl">PDF Link</label>
-                      <input
-                        id="pdfUrl"
-                        type="text"
-                        placeholder="/pdfs/sample-report.pdf or https://example.com/file.pdf"
-                        value={formData.pdfUrl}
-                        onChange={handleChange}
-                      />
-
-                      {formData.pdfUrl && (
-                        <div className="upload-preview">
-                          <div className="media-url-preview">
-                            {formData.pdfUrl}
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setConfirmMessage("Delete this PDF?");
-                              setConfirmAction(() => async () => {
-                                await deleteMedia({
-                                  url: formData.pdfUrl,
-                                  publicId: formData.pdfPublicId,
-                                  resourceType: "image",
-                                });
-
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  pdfUrl: "",
-                                  pdfPublicId: undefined,
-                                }));
-                                onNotify?.("PDF deleted");
-                              });
-
-                              setConfirmOpen(true);
-                            }}
-                          >
-                            Remove PDF
-                          </button>
-                        </div>
-                      )}
+                      <div className="media-link-input-row">
+                        <input
+                          id="pdfUrl"
+                          type="text"
+                          placeholder="/pdfs/sample-report.pdf or https://example.com/file.pdf"
+                          value={mediaLinkDrafts.pdf}
+                          onChange={handleChange}
+                        />
+                        <button
+                          type="button"
+                          className="admin-add-row-button"
+                          onClick={() => addMediaLink("pdf")}
+                        >
+                          Add
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
             </div>
 
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               className="media-dropzone"
               data-drag-active={isMediaDropActive ? "true" : "false"}
               onClick={() => mediaFileInputRef.current?.click()}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  mediaFileInputRef.current?.click();
+                }
+              }}
               onDragOver={(event) => {
                 event.preventDefault();
                 setIsMediaDropActive(true);
@@ -1776,7 +1778,88 @@ function ProjectForm({
                 </span>
                 <small>Drag and drop on desktop, or tap to browse on mobile.</small>
               </span>
-            </button>
+              {formData.videos.length + formData.audios.length + formData.pdfs.length > 0 && (
+                <div className="media-dropzone-preview-grid">
+                  {formData.videos.map((item, index) => (
+                    <div
+                      key={`video-${item.publicId ?? item.url}-${index}`}
+                      className="media-dropzone-preview-card"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <div className="media-dropzone-preview-copy">
+                        <span className="media-dropzone-preview-label">
+                          <Clapperboard size={14} /> Video
+                        </span>
+                        <small>{item.url}</small>
+                      </div>
+                      <button
+                        type="button"
+                        className="media-dropzone-remove"
+                        aria-label="Remove video"
+                        onClick={async () => {
+                          await removeMediaItem("video", index);
+                          onNotify?.("Video removed");
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+
+                  {formData.audios.map((item, index) => (
+                    <div
+                      key={`audio-${item.publicId ?? item.url}-${index}`}
+                      className="media-dropzone-preview-card"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <div className="media-dropzone-preview-copy">
+                        <span className="media-dropzone-preview-label">
+                          <AudioLines size={14} /> Audio
+                        </span>
+                        <small>{item.url}</small>
+                      </div>
+                      <button
+                        type="button"
+                        className="media-dropzone-remove"
+                        aria-label="Remove audio"
+                        onClick={async () => {
+                          await removeMediaItem("audio", index);
+                          onNotify?.("Audio removed");
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+
+                  {formData.pdfs.map((item, index) => (
+                    <div
+                      key={`pdf-${item.publicId ?? item.url}-${index}`}
+                      className="media-dropzone-preview-card"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <div className="media-dropzone-preview-copy">
+                        <span className="media-dropzone-preview-label">
+                          <FileText size={14} /> PDF
+                        </span>
+                        <small>{item.url}</small>
+                      </div>
+                      <button
+                        type="button"
+                        className="media-dropzone-remove"
+                        aria-label="Remove PDF"
+                        onClick={async () => {
+                          await removeMediaItem("pdf", index);
+                          onNotify?.("PDF removed");
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <input
               ref={mediaFileInputRef}

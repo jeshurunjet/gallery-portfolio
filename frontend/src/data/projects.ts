@@ -12,6 +12,11 @@ export type GalleryImage = {
   offsetY?: number;
 };
 
+export type MediaAsset = {
+  url: string;
+  publicId?: string;
+};
+
 export type ProjectContentBlock =
   | { type: "heading"; text: string }
   | { type: "subheading"; text: string }
@@ -67,6 +72,9 @@ export type Project = {
   galleryImages?: GalleryImage[];
   galleryShowThumbnails?: boolean;
   galleryAutoScroll?: boolean;
+  videos?: MediaAsset[];
+  audios?: MediaAsset[];
+  pdfs?: MediaAsset[];
   videoUrl?: string;
   audioUrl?: string;
   pdfUrl?: string;

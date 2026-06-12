@@ -74,12 +74,9 @@ public class ProjectController {
         existingProject.setGalleryImagesJson(updatedProject.getGalleryImagesJson());
         existingProject.setGalleryShowThumbnails(updatedProject.getGalleryShowThumbnails());
         existingProject.setGalleryAutoScroll(updatedProject.getGalleryAutoScroll());
-        existingProject.setVideoUrl(updatedProject.getVideoUrl());
-        existingProject.setVideoPublicId(updatedProject.getVideoPublicId());
-        existingProject.setAudioUrl(updatedProject.getAudioUrl());
-        existingProject.setAudioPublicId(updatedProject.getAudioPublicId());
-        existingProject.setPdfUrl(updatedProject.getPdfUrl());
-        existingProject.setPdfPublicId(updatedProject.getPdfPublicId());
+        existingProject.setVideosJson(updatedProject.getVideosJson());
+        existingProject.setAudiosJson(updatedProject.getAudiosJson());
+        existingProject.setPdfsJson(updatedProject.getPdfsJson());
         existingProject.setCodeContent(updatedProject.getCodeContent());
         existingProject.setLiveUrl(updatedProject.getLiveUrl());
         existingProject.setGithubUrl(updatedProject.getGithubUrl());
@@ -151,17 +148,9 @@ public class ProjectController {
                 }
             }
 
-            if (project.getVideoPublicId() != null && !project.getVideoPublicId().isBlank()) {
-                deleteCloudinaryAssetById(project.getVideoPublicId(), "video");
-            } else {
-                deleteCloudinaryAsset(project.getVideoUrl(), "video");
-            }
-
-            if (project.getPdfPublicId() != null && !project.getPdfPublicId().isBlank()) {
-                deleteCloudinaryAssetById(project.getPdfPublicId(), "image");
-            } else {
-                deleteCloudinaryAsset(project.getPdfUrl(), "image");
-            }
+            deleteMediaAssets(project.getVideosJson(), "video");
+            deleteMediaAssets(project.getAudiosJson(), "video");
+            deleteMediaAssets(project.getPdfsJson(), "image");
 
             deleteContentAssets(project.getContent());
         } catch (Exception error) {
@@ -252,10 +241,21 @@ public class ProjectController {
         }
     }
 
+    private void deleteMediaAssets(String mediaJson, String resourceType) {
+        for (CloudinaryAssetRef asset : extractMediaAssets(mediaJson, resourceType)) {
+            if (asset.publicId() != null && !asset.publicId().isBlank()) {
+                deleteCloudinaryAssetById(asset.publicId(), asset.resourceType());
+            } else {
+                deleteCloudinaryAsset(asset.url(), asset.resourceType());
+            }
+        }
+    }
+
     private void deleteRemovedAssets(Project existingProject, Project updatedProject) {
         deleteRemovedAsset(existingProject.getCover(), updatedProject.getCover(), "image");
-        deleteRemovedAsset(existingProject.getVideoUrl(), updatedProject.getVideoUrl(), "video");
-        deleteRemovedAsset(existingProject.getPdfUrl(), updatedProject.getPdfUrl(), "image");
+        deleteRemovedMediaAssets(existingProject.getVideosJson(), updatedProject.getVideosJson(), "video");
+        deleteRemovedMediaAssets(existingProject.getAudiosJson(), updatedProject.getAudiosJson(), "video");
+        deleteRemovedMediaAssets(existingProject.getPdfsJson(), updatedProject.getPdfsJson(), "image");
 
         deleteRemovedListAssets(existingProject.getImages(), updatedProject.getImages(), "image");
         deleteRemovedContentAssets(existingProject.getContent(), updatedProject.getContent());
@@ -308,6 +308,62 @@ public class ProjectController {
                 deleteCloudinaryAsset(asset.url(), asset.resourceType());
             }
         }
+    }
+
+    private void deleteRemovedMediaAssets(
+            String existingMediaJson,
+            String updatedMediaJson,
+            String resourceType
+    ) {
+        List<CloudinaryAssetRef> existingAssets = extractMediaAssets(existingMediaJson, resourceType);
+        List<CloudinaryAssetRef> updatedAssets = extractMediaAssets(updatedMediaJson, resourceType);
+
+        Set<String> updatedKeys = new HashSet<>();
+
+        for (CloudinaryAssetRef asset : updatedAssets) {
+            updatedKeys.add(asset.key());
+        }
+
+        for (CloudinaryAssetRef asset : existingAssets) {
+            if (updatedKeys.contains(asset.key())) continue;
+
+            if (asset.publicId() != null && !asset.publicId().isBlank()) {
+                deleteCloudinaryAssetById(asset.publicId(), asset.resourceType());
+            } else {
+                deleteCloudinaryAsset(asset.url(), asset.resourceType());
+            }
+        }
+    }
+
+    private List<CloudinaryAssetRef> extractMediaAssets(String mediaJson, String resourceType) {
+        List<CloudinaryAssetRef> assets = new ArrayList<>();
+
+        if (mediaJson == null || mediaJson.isBlank()) {
+            return assets;
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode items = mapper.readTree(mediaJson);
+
+            if (!items.isArray()) {
+                return assets;
+            }
+
+            for (JsonNode item : items) {
+                addAssetRef(
+                        assets,
+                        item.path("url").asText(),
+                        item.path("publicId").asText(null),
+                        resourceType
+                );
+            }
+        } catch (Exception error) {
+            System.out.println("Failed parsing media items");
+            error.printStackTrace();
+        }
+
+        return assets;
     }
 
     private List<CloudinaryAssetRef> extractContentAssets(String contentJson) {

@@ -50,6 +50,15 @@ function ProjectPage() {
 
   const tags = project.tags ?? [];
   const galleryImages = project.galleryImages ?? [];
+  const videos =
+    project.videos ??
+    (project.videoUrl ? [{ url: project.videoUrl, publicId: project.videoPublicId }] : []);
+  const audios =
+    project.audios ??
+    (project.audioUrl ? [{ url: project.audioUrl, publicId: project.audioPublicId }] : []);
+  const pdfs =
+    project.pdfs ??
+    (project.pdfUrl ? [{ url: project.pdfUrl, publicId: project.pdfPublicId }] : []);
   const category = project.category ?? "Uncategorized";
   const description = project.description ?? "No description yet.";
   const likes = localLikesById[project.id] ?? project.likes ?? 0;
@@ -57,8 +66,8 @@ function ProjectPage() {
   const content = project.content ?? [];
   const facts = project.facts;
   const hasHeroMedia =
-    Boolean(project.videoUrl) ||
-    Boolean(project.audioUrl) ||
+    videos.length > 0 ||
+    audios.length > 0 ||
     Boolean(project.codeContent) ||
     galleryImages.length > 0;
 
@@ -107,8 +116,18 @@ function ProjectPage() {
 
       {hasHeroMedia && (
         <div className="project-hero">
-          {project.videoUrl && <VideoPlayer url={project.videoUrl} />}
-          {project.audioUrl && <AudioPlayer url={project.audioUrl} />}
+          {videos.map((video, index) => (
+            <VideoPlayer
+              key={`video-${video.publicId ?? video.url ?? index}`}
+              url={video.url}
+            />
+          ))}
+          {audios.map((audio, index) => (
+            <AudioPlayer
+              key={`audio-${audio.publicId ?? audio.url ?? index}`}
+              url={audio.url}
+            />
+          ))}
           {project.codeContent && <CodeViewer code={project.codeContent} />}
 
           {galleryImages.length > 0 && (
@@ -131,11 +150,16 @@ function ProjectPage() {
             <FormattedText text={description} />
           </div>
 
-          {project.pdfUrl && <PdfViewer url={project.pdfUrl} />}
+          {pdfs.map((pdf, index) => (
+            <PdfViewer
+              key={`pdf-${pdf.publicId ?? pdf.url ?? index}`}
+              url={pdf.url}
+            />
+          ))}
 
           {content.length > 0 && <ProjectContentRenderer content={content} />}
 
-          {!hasHeroMedia && !project.pdfUrl && content.length === 0 && (
+          {!hasHeroMedia && pdfs.length === 0 && content.length === 0 && (
             <div className="empty-media">
               <p>No media available for this project.</p>
             </div>

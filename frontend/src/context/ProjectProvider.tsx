@@ -1,11 +1,33 @@
 import { useEffect, useState } from "react";
-import type { GalleryImage, Project } from "../data/projects";
+import type { GalleryImage, MediaAsset, Project } from "../data/projects";
 import { ProjectContext } from "./project-context";
 import { API_BASE_URL } from "../config";
 
 function normalizeProject(project: Project): Project {
   let parsedContent = [];
   let parsedGalleryImages: GalleryImage[] = [];
+  let parsedVideos: MediaAsset[] = [];
+  let parsedAudios: MediaAsset[] = [];
+  let parsedPdfs: MediaAsset[] = [];
+
+  const parseMediaJson = (
+    rawValue: unknown,
+    fallback?: MediaAsset
+  ): MediaAsset[] => {
+    try {
+      if (typeof rawValue === "string" && rawValue.trim()) {
+        const parsed = JSON.parse(rawValue) as MediaAsset[];
+
+        if (Array.isArray(parsed)) {
+          return parsed.filter((item) => item?.url?.trim());
+        }
+      }
+    } catch {
+      return fallback?.url ? [fallback] : [];
+    }
+
+    return fallback?.url ? [fallback] : [];
+  };
 
   try {
     if (typeof project.content === "string") {
@@ -27,6 +49,19 @@ function normalizeProject(project: Project): Project {
   } catch {
     parsedGalleryImages = [];
   }
+
+  parsedVideos = parseMediaJson(
+    (project as Project & { videosJson?: string }).videosJson,
+    project.videoUrl ? { url: project.videoUrl, publicId: project.videoPublicId } : undefined
+  );
+  parsedAudios = parseMediaJson(
+    (project as Project & { audiosJson?: string }).audiosJson,
+    project.audioUrl ? { url: project.audioUrl, publicId: project.audioPublicId } : undefined
+  );
+  parsedPdfs = parseMediaJson(
+    (project as Project & { pdfsJson?: string }).pdfsJson,
+    project.pdfUrl ? { url: project.pdfUrl, publicId: project.pdfPublicId } : undefined
+  );
 
   if (parsedGalleryImages.length === 0 && Array.isArray(project.images)) {
     parsedGalleryImages = project.images.map((url, index) => ({
@@ -82,6 +117,9 @@ function normalizeProject(project: Project): Project {
     galleryImages: parsedGalleryImages,
     galleryShowThumbnails: project.galleryShowThumbnails ?? true,
     galleryAutoScroll: project.galleryAutoScroll ?? true,
+    videos: parsedVideos,
+    audios: parsedAudios,
+    pdfs: parsedPdfs,
     coverDisplayMode: project.coverDisplayMode ?? "default",
     pinned: project.pinned ?? false,
   };
@@ -168,12 +206,9 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
           galleryImagesJson: JSON.stringify(galleryImages),
           galleryShowThumbnails: project.galleryShowThumbnails ?? true,
           galleryAutoScroll: project.galleryAutoScroll ?? true,
-          videoUrl: project.videoUrl ?? "",
-          videoPublicId: (project as any).videoPublicId ?? null,
-          audioUrl: project.audioUrl ?? "",
-          audioPublicId: (project as any).audioPublicId ?? null,
-          pdfUrl: project.pdfUrl ?? "",
-          pdfPublicId: (project as any).pdfPublicId ?? null,
+          videosJson: JSON.stringify(project.videos ?? []),
+          audiosJson: JSON.stringify(project.audios ?? []),
+          pdfsJson: JSON.stringify(project.pdfs ?? []),
           codeContent: project.codeContent ?? "",
           liveUrl: project.liveUrl,
           githubUrl: project.githubUrl,
@@ -231,12 +266,9 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
             galleryImagesJson: JSON.stringify(galleryImages),
             galleryShowThumbnails: updatedProject.galleryShowThumbnails ?? true,
             galleryAutoScroll: updatedProject.galleryAutoScroll ?? true,
-            videoUrl: updatedProject.videoUrl ?? "",
-            videoPublicId: (updatedProject as any).videoPublicId ?? null,
-            audioUrl: updatedProject.audioUrl ?? "",
-            audioPublicId: (updatedProject as any).audioPublicId ?? null,
-            pdfUrl: updatedProject.pdfUrl ?? "",
-            pdfPublicId: (updatedProject as any).pdfPublicId ?? null,
+            videosJson: JSON.stringify(updatedProject.videos ?? []),
+            audiosJson: JSON.stringify(updatedProject.audios ?? []),
+            pdfsJson: JSON.stringify(updatedProject.pdfs ?? []),
             codeContent: updatedProject.codeContent ?? "",
             liveUrl: updatedProject.liveUrl,
             githubUrl: updatedProject.githubUrl,

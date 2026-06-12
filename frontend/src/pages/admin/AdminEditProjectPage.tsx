@@ -40,12 +40,9 @@ function AdminEditProjectPage() {
     galleryImages: project.galleryImages ?? [],
     galleryShowThumbnails: project.galleryShowThumbnails ?? true,
     galleryAutoScroll: project.galleryAutoScroll ?? true,
-    videoUrl: project.videoUrl ?? "",
-    videoPublicId: project.videoPublicId ?? "",
-    audioUrl: project.audioUrl ?? "",
-    audioPublicId: project.audioPublicId ?? "",
-    pdfUrl: project.pdfUrl ?? "",
-    pdfPublicId: project.pdfPublicId ?? "",
+    videos: project.videos ?? [],
+    audios: project.audios ?? [],
+    pdfs: project.pdfs ?? [],
     codeContent: project.codeContent ?? "",
     pinned: draftPinned ?? project.pinned ?? false,
     liveUrl: project.liveUrl ?? "",
@@ -66,9 +63,9 @@ function AdminEditProjectPage() {
       typesSet.add("code");
     }
 
-    if (data.pdfUrl) {
-      typesSet.add("pdf");
-    }
+    if ((data.videos ?? []).length > 0) typesSet.add("video");
+    if ((data.audios ?? []).length > 0) typesSet.add("audio");
+    if ((data.pdfs ?? []).length > 0) typesSet.add("pdf");
 
     // WEB / VIDEO / AUDIO / PDF detection
     const urlFields = [data.liveUrl, data.externalUrl];
@@ -107,12 +104,9 @@ function AdminEditProjectPage() {
       galleryAutoScroll: data.galleryAutoScroll,
       images: data.galleryImages.map((image) => image.url),
       imagesPublicIds: data.galleryImages.map((image) => image.publicId ?? ""),
-      videoUrl: data.videoUrl,
-      videoPublicId: data.videoPublicId,
-      audioUrl: data.audioUrl,
-      audioPublicId: data.audioPublicId,
-      pdfUrl: data.pdfUrl,
-      pdfPublicId: data.pdfPublicId,
+      videos: data.videos,
+      audios: data.audios,
+      pdfs: data.pdfs,
       codeContent: data.codeContent,
       pinned: data.pinned,
       liveUrl: data.liveUrl,
