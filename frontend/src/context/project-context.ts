@@ -6,9 +6,9 @@ export type ProjectContextType = {
   loading: boolean;
   progress: number;
   refreshProjects: () => Promise<void>;
-  addProject: (project: Project) => void;
-  updateProject: (project: Project) => void;
-  deleteProject: (id: number) => void;
+  addProject: (project: Project) => Promise<Project>;
+  updateProject: (project: Project) => Promise<Project>;
+  deleteProject: (id: number) => Promise<void>;
 };
 
 export const ProjectContext = createContext<ProjectContextType | undefined>(

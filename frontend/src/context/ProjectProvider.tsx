@@ -184,148 +184,143 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addProject = async (project: Project) => {
-    try {
-      const galleryImages = project.galleryImages ?? [];
+    const galleryImages = project.galleryImages ?? [];
 
-      const response = await fetch(`${API_BASE_URL}/api/projects`, {
-        method: "POST",
+    const response = await fetch(`${API_BASE_URL}/api/projects`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        title: project.title,
+        category: project.category,
+        description: project.description,
+        content: project.content ? JSON.stringify(project.content) : "",
+        cover: project.cover,
+        coverPublicId: project.coverPublicId ?? null,
+        coverDisplayMode: project.coverDisplayMode ?? "default",
+        images: galleryImages.map((image) => image.url),
+        imagesPublicIds: galleryImages.map((image) => image.publicId ?? ""),
+        galleryImagesJson: JSON.stringify(galleryImages),
+        galleryShowThumbnails: project.galleryShowThumbnails ?? true,
+        galleryAutoScroll: project.galleryAutoScroll ?? true,
+        videosJson: JSON.stringify(project.videos ?? []),
+        audiosJson: JSON.stringify(project.audios ?? []),
+        pdfsJson: JSON.stringify(project.pdfs ?? []),
+        codeContent: project.codeContent ?? "",
+        liveUrl: project.liveUrl,
+        githubUrl: project.githubUrl,
+        externalUrl: project.externalUrl,
+        tags: project.tags ?? [],
+        likes: project.likes ?? 0,
+        views: project.views ?? 0,
+        pinned: project.pinned ?? false,
+        types: project.types ?? [],
+      }),
+    });
+
+    if (response.status === 401) {
+      handleAuthExpired();
+      throw new Error("Your session has expired. Please log in again.");
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Backend create project error:", errorText);
+      throw new Error(
+        errorText.trim() || `Failed to create project (${response.status})`
+      );
+    }
+
+    const createdProject = normalizeProject(await response.json());
+    setProjects((prev) => [...prev, createdProject]);
+    return createdProject;
+  };
+
+  const updateProject = async (updatedProject: Project) => {
+    const galleryImages = updatedProject.galleryImages ?? [];
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/projects/${updatedProject.id}`,
+      {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          title: project.title,
-          category: project.category,
-          description: project.description,
-          content: project.content ? JSON.stringify(project.content) : "",
-          cover: project.cover,
-          coverPublicId: (project as any).coverPublicId ?? null,
-          coverDisplayMode: project.coverDisplayMode ?? "default",
+          title: updatedProject.title,
+          category: updatedProject.category,
+          description: updatedProject.description,
+          content: updatedProject.content
+            ? JSON.stringify(updatedProject.content)
+            : "",
+          cover: updatedProject.cover,
+          coverPublicId: updatedProject.coverPublicId ?? null,
+          coverDisplayMode: updatedProject.coverDisplayMode ?? "default",
           images: galleryImages.map((image) => image.url),
           imagesPublicIds: galleryImages.map((image) => image.publicId ?? ""),
           galleryImagesJson: JSON.stringify(galleryImages),
-          galleryShowThumbnails: project.galleryShowThumbnails ?? true,
-          galleryAutoScroll: project.galleryAutoScroll ?? true,
-          videosJson: JSON.stringify(project.videos ?? []),
-          audiosJson: JSON.stringify(project.audios ?? []),
-          pdfsJson: JSON.stringify(project.pdfs ?? []),
-          codeContent: project.codeContent ?? "",
-          liveUrl: project.liveUrl,
-          githubUrl: project.githubUrl,
-          externalUrl: project.externalUrl,
-          tags: project.tags ?? [],
-          likes: project.likes ?? 0,
-          views: project.views ?? 0,
-          pinned: project.pinned ?? false,
-          types: project.types ?? [],
+          galleryShowThumbnails: updatedProject.galleryShowThumbnails ?? true,
+          galleryAutoScroll: updatedProject.galleryAutoScroll ?? true,
+          videosJson: JSON.stringify(updatedProject.videos ?? []),
+          audiosJson: JSON.stringify(updatedProject.audios ?? []),
+          pdfsJson: JSON.stringify(updatedProject.pdfs ?? []),
+          codeContent: updatedProject.codeContent ?? "",
+          liveUrl: updatedProject.liveUrl,
+          githubUrl: updatedProject.githubUrl,
+          externalUrl: updatedProject.externalUrl,
+          tags: updatedProject.tags ?? [],
+          likes: updatedProject.likes ?? 0,
+          views: updatedProject.views ?? 0,
+          pinned: updatedProject.pinned ?? false,
+          types: updatedProject.types ?? [],
         }),
-      });
-
-      if (response.status === 401) {
-        handleAuthExpired();
-        return;
       }
+    );
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Backend create project error:", errorText);
-        throw new Error(`Failed to create project: ${response.status}`);
-      }
-
-      const createdProject = await response.json();
-      setProjects((prev) => [...prev, normalizeProject(createdProject)]);
-    } catch (error) {
-      console.error("Failed to add project:", error);
+    if (response.status === 401) {
+      handleAuthExpired();
+      throw new Error("Your session has expired. Please log in again.");
     }
-  };
 
-  const updateProject = async (updatedProject: Project) => {
-    try {
-      const galleryImages = updatedProject.galleryImages ?? [];
-
-      const response = await fetch(
-        `${API_BASE_URL}/api/projects/${updatedProject.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            title: updatedProject.title,
-            category: updatedProject.category,
-            description: updatedProject.description,
-            content: updatedProject.content
-              ? JSON.stringify(updatedProject.content)
-              : "",
-            cover: updatedProject.cover,
-            coverPublicId: (updatedProject as any).coverPublicId ?? null,
-            coverDisplayMode: updatedProject.coverDisplayMode ?? "default",
-            images: galleryImages.map((image) => image.url),
-            imagesPublicIds: galleryImages.map((image) => image.publicId ?? ""),
-            galleryImagesJson: JSON.stringify(galleryImages),
-            galleryShowThumbnails: updatedProject.galleryShowThumbnails ?? true,
-            galleryAutoScroll: updatedProject.galleryAutoScroll ?? true,
-            videosJson: JSON.stringify(updatedProject.videos ?? []),
-            audiosJson: JSON.stringify(updatedProject.audios ?? []),
-            pdfsJson: JSON.stringify(updatedProject.pdfs ?? []),
-            codeContent: updatedProject.codeContent ?? "",
-            liveUrl: updatedProject.liveUrl,
-            githubUrl: updatedProject.githubUrl,
-            externalUrl: updatedProject.externalUrl,
-            tags: updatedProject.tags ?? [],
-            likes: updatedProject.likes ?? 0,
-            views: updatedProject.views ?? 0,
-            pinned: updatedProject.pinned ?? false,
-            types: updatedProject.types ?? [],
-          }),
-        }
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Backend update project error:", errorText);
+      throw new Error(
+        errorText.trim() || `Failed to update project (${response.status})`
       );
-
-      if (response.status === 401) {
-        handleAuthExpired();
-        return;
-      }
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Backend update project error:", errorText);
-        throw new Error(`Failed to update project: ${response.status}`);
-      }
-
-      const savedProject = await response.json();
-      const normalizedProject = normalizeProject(savedProject);
-
-      setProjects((prev) =>
-        prev.map((p) => (p.id === normalizedProject.id ? normalizedProject : p))
-      );
-    } catch (error) {
-      console.error("Failed to update project:", error);
     }
+
+    const normalizedProject = normalizeProject(await response.json());
+
+    setProjects((prev) =>
+      prev.map((p) => (p.id === normalizedProject.id ? normalizedProject : p))
+    );
+
+    return normalizedProject;
   };
 
   const deleteProject = async (id: number) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+    const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-      if (response.status === 401) {
-        handleAuthExpired();
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to delete project");
-      }
-
-      setProjects((prev) => prev.filter((p) => p.id !== id));
-    } catch (error) {
-      console.error("Failed to delete project:", error);
+    if (response.status === 401) {
+      handleAuthExpired();
+      throw new Error("Your session has expired. Please log in again.");
     }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText.trim() || "Failed to delete project");
+    }
+
+    setProjects((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (

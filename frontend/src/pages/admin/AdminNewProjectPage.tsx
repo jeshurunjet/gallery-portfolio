@@ -36,7 +36,7 @@ function AdminNewProjectPage() {
     externalUrl: "",
   };
 
-  const handleSubmit = (data: ProjectFormData) => {
+  const handleSubmit = async (data: ProjectFormData) => {
     const typesSet = new Set<string>();
 
     if (data.cover) typesSet.add("image");
@@ -65,40 +65,46 @@ function AdminNewProjectPage() {
 
     const types = Array.from(typesSet);
 
-    addProject({
-      title: data.title,
-      category: data.category,
-      description: data.description,
-      content: data.content,
-      tags: data.tags
-        .split(",")
-        .map((t) => t.trim().toLowerCase())
-        .filter(Boolean),
-      cover: data.cover,
-      coverPublicId: data.coverPublicId,
-      galleryImages: data.galleryImages,
-      galleryShowThumbnails: data.galleryShowThumbnails,
-      galleryAutoScroll: data.galleryAutoScroll,
-      images: data.galleryImages.map((image) => image.url),
-      imagesPublicIds: data.galleryImages.map((image) => image.publicId ?? ""),
-      videos: data.videos,
-      audios: data.audios,
-      pdfs: data.pdfs,
-      codeContent: data.codeContent,
-      pinned: data.pinned,
-      liveUrl: data.liveUrl,
-      githubUrl: data.githubUrl,
-      externalUrl: data.externalUrl,
-      types,
-    } as unknown as Project);
+    try {
+      await addProject({
+        title: data.title,
+        category: data.category,
+        description: data.description,
+        content: data.content,
+        tags: data.tags
+          .split(",")
+          .map((t) => t.trim().toLowerCase())
+          .filter(Boolean),
+        cover: data.cover,
+        coverPublicId: data.coverPublicId,
+        galleryImages: data.galleryImages,
+        galleryShowThumbnails: data.galleryShowThumbnails,
+        galleryAutoScroll: data.galleryAutoScroll,
+        images: data.galleryImages.map((image) => image.url),
+        imagesPublicIds: data.galleryImages.map((image) => image.publicId ?? ""),
+        videos: data.videos,
+        audios: data.audios,
+        pdfs: data.pdfs,
+        codeContent: data.codeContent,
+        pinned: data.pinned,
+        liveUrl: data.liveUrl,
+        githubUrl: data.githubUrl,
+        externalUrl: data.externalUrl,
+        types,
+      } as Project);
 
-    // ✅ Show success message
-    setToastMessage("Project created!");
-    setShowToast(true);
+      setToastMessage("Project created!");
+      setShowToast(true);
 
-    setTimeout(() => {
-      navigate("/admin/projects");
-    }, 1500);
+      setTimeout(() => {
+        navigate("/admin/projects");
+      }, 1500);
+    } catch (error) {
+      setToastMessage(
+        error instanceof Error ? error.message : "Failed to create project."
+      );
+      setShowToast(true);
+    }
   };
 
   return (

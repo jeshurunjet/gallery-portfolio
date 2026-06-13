@@ -87,40 +87,47 @@ function AdminEditProjectPage() {
     });
 
     const types = Array.from(typesSet);
-    await updateProject({
-      ...project,
-      title: data.title,
-      category: data.category,
-      description: data.description,
-      content: data.content,
-      tags: data.tags
-        .split(",")
-        .map((tag) => tag.trim().toLowerCase())
-        .filter(Boolean),
-      cover: data.cover,
-      coverPublicId: data.coverPublicId,
-      galleryImages: data.galleryImages,
-      galleryShowThumbnails: data.galleryShowThumbnails,
-      galleryAutoScroll: data.galleryAutoScroll,
-      images: data.galleryImages.map((image) => image.url),
-      imagesPublicIds: data.galleryImages.map((image) => image.publicId ?? ""),
-      videos: data.videos,
-      audios: data.audios,
-      pdfs: data.pdfs,
-      codeContent: data.codeContent,
-      pinned: data.pinned,
-      liveUrl: data.liveUrl,
-      githubUrl: data.githubUrl,
-      externalUrl: data.externalUrl,
-      types,
-    });
+    try {
+      await updateProject({
+        ...project,
+        title: data.title,
+        category: data.category,
+        description: data.description,
+        content: data.content,
+        tags: data.tags
+          .split(",")
+          .map((tag) => tag.trim().toLowerCase())
+          .filter(Boolean),
+        cover: data.cover,
+        coverPublicId: data.coverPublicId,
+        galleryImages: data.galleryImages,
+        galleryShowThumbnails: data.galleryShowThumbnails,
+        galleryAutoScroll: data.galleryAutoScroll,
+        images: data.galleryImages.map((image) => image.url),
+        imagesPublicIds: data.galleryImages.map((image) => image.publicId ?? ""),
+        videos: data.videos,
+        audios: data.audios,
+        pdfs: data.pdfs,
+        codeContent: data.codeContent,
+        pinned: data.pinned,
+        liveUrl: data.liveUrl,
+        githubUrl: data.githubUrl,
+        externalUrl: data.externalUrl,
+        types,
+      });
 
-    setToastMessage("Project updated!");
-    setShowToast(true);
+      setToastMessage("Project updated!");
+      setShowToast(true);
 
-    setTimeout(() => {
-      navigate("/admin/projects");
-    }, 1000);
+      setTimeout(() => {
+        navigate("/admin/projects");
+      }, 1000);
+    } catch (error) {
+      setToastMessage(
+        error instanceof Error ? error.message : "Failed to update project."
+      );
+      setShowToast(true);
+    }
   };
 
   return (
@@ -147,14 +154,21 @@ function AdminEditProjectPage() {
               type="button"
               className="admin-secondary-button admin-reset-button"
               onClick={async () => {
-                await updateProject({
-                  ...project,
-                  likes: 0,
-                  pinned: draftPinned ?? project.pinned ?? false,
-                });
+                try {
+                  await updateProject({
+                    ...project,
+                    likes: 0,
+                    pinned: draftPinned ?? project.pinned ?? false,
+                  });
 
-                setToastMessage("Likes reset");
-                setShowToast(true);
+                  setToastMessage("Likes reset");
+                  setShowToast(true);
+                } catch (error) {
+                  setToastMessage(
+                    error instanceof Error ? error.message : "Failed to reset likes."
+                  );
+                  setShowToast(true);
+                }
               }}
             >
               <ThumbsUp size={17} />
@@ -165,14 +179,21 @@ function AdminEditProjectPage() {
               type="button"
               className="admin-secondary-button admin-reset-button"
               onClick={async () => {
-                await updateProject({
-                  ...project,
-                  views: 0,
-                  pinned: draftPinned ?? project.pinned ?? false,
-                });
+                try {
+                  await updateProject({
+                    ...project,
+                    views: 0,
+                    pinned: draftPinned ?? project.pinned ?? false,
+                  });
 
-                setToastMessage("Views reset");
-                setShowToast(true);
+                  setToastMessage("Views reset");
+                  setShowToast(true);
+                } catch (error) {
+                  setToastMessage(
+                    error instanceof Error ? error.message : "Failed to reset views."
+                  );
+                  setShowToast(true);
+                }
               }}
             >
               <Eye size={17} />
