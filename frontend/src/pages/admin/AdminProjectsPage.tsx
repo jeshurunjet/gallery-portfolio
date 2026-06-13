@@ -123,6 +123,7 @@ function AdminProjectsPage() {
             {filteredProjects.map((project) => {
               const category = project.category ?? "Uncategorized";
               const tags = project.tags ?? [];
+              const visibleTags = tags.slice(0, 3);
               const warnings = getProjectWarnings(project);
               const engagement =
                 (project.views ?? 0) > 0
@@ -166,11 +167,14 @@ function AdminProjectsPage() {
                     </div>
 
                     <div className="admin-project-tags">
-                      {tags.map((tag, index) => (
+                      {visibleTags.map((tag, index) => (
                         <span key={`${tag}-${index}`} className="admin-tag">
                           #{tag}
                         </span>
                       ))}
+                      {tags.length > 3 && (
+                        <span className="admin-tag">+{tags.length - 3} more</span>
+                      )}
                     </div>
 
                     {warnings.length > 0 && (

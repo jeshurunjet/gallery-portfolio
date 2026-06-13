@@ -49,6 +49,7 @@ function ProjectPage() {
   const hasLiked = localStorage.getItem(likedKey) === "true";
 
   const tags = project.tags ?? [];
+  const visibleTags = tags.slice(0, 3);
   const galleryImages = project.galleryImages ?? [];
   const videos =
     project.videos ??
@@ -167,11 +168,12 @@ function ProjectPage() {
 
           <div className="project-tags">
             <hr className="content-divider"></hr>
-            {tags.map((tag, index) => (
+            {visibleTags.map((tag, index) => (
               <span key={`${tag}-${index}`} className="tag">
                 #{tag}
               </span>
             ))}
+            {tags.length > 3 && <span className="tag">+{tags.length - 3} more</span>}
           </div>
         </section>
 
