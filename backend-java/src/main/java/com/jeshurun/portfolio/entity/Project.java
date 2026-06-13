@@ -17,7 +17,7 @@ public class Project {
     private Integer views = 0;
     private Boolean pinned = false;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> types;
 
     @Column(columnDefinition = "TEXT")
@@ -36,10 +36,10 @@ public class Project {
 
     private Integer coverPositionY = 50;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> images;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> imagesPublicIds;
 
     @Column(columnDefinition = "TEXT")
@@ -73,7 +73,7 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> tags;
 
     public Project() {}
