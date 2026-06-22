@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import PortfolioLogo from "./PortfolioLogo";
 import { clearStoredSession } from "../utils/session";
 
 function Navbar() {
@@ -20,8 +21,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <Link className="logo" to="/" onClick={closeMenu}>
-        <span className="logo-full">JESH SANCHEZ</span>
-        <span className="logo-short">JS</span>
+        <PortfolioLogo size={34} showWordmark className="navbar-logo" />
       </Link>
 
       <button

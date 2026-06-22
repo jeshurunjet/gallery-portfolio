@@ -3835,6 +3835,8 @@ nav div {
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
   font-weight: 900;
 }
 
@@ -3842,6 +3844,31 @@ nav div {
 .navbar {
   position: relative;
   z-index: 100;
+}
+
+.navbar-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: currentColor;
+}
+
+.portfolio-logo-mark {
+  display: block;
+  flex-shrink: 0;
+}
+
+.portfolio-logo-wordmark {
+  display: inline-flex;
+  align-items: center;
+}
+
+.portfolio-logo-name {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0em;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .logo-full {
@@ -3877,7 +3904,8 @@ nav div {
     padding: 1rem;
   }
 
-  .logo-full {
+  .logo-full,
+  .portfolio-logo-wordmark {
     display: none;
   }
 
@@ -3917,6 +3945,10 @@ nav div {
   .nav-links a,
   .nav-link-text {
     font-size: 1rem;
+  }
+
+  .navbar-logo {
+    gap: 0;
   }
 
   .nav-overlay {
