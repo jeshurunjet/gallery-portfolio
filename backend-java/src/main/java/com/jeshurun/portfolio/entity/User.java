@@ -11,6 +11,15 @@ public class User {
 
     @Column(name = "reset_token_expiry")
     private Long resetTokenExpiry;
+
+    @Column(name = "two_factor_enabled", nullable = false)
+    private boolean twoFactorEnabled;
+
+    @Column(name = "two_factor_secret")
+    private String twoFactorSecret;
+
+    @Column(name = "two_factor_pending_secret")
+    private String twoFactorPendingSecret;
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,5 +65,29 @@ public class User {
 
     public void setResetTokenExpiry(Long resetTokenExpiry) {
         this.resetTokenExpiry = resetTokenExpiry;
+    }
+
+    public boolean isTwoFactorEnabled() {
+        return twoFactorEnabled;
+    }
+
+    public void setTwoFactorEnabled(boolean twoFactorEnabled) {
+        this.twoFactorEnabled = twoFactorEnabled;
+    }
+
+    public String getTwoFactorSecret() {
+        return twoFactorSecret;
+    }
+
+    public void setTwoFactorSecret(String twoFactorSecret) {
+        this.twoFactorSecret = twoFactorSecret;
+    }
+
+    public String getTwoFactorPendingSecret() {
+        return twoFactorPendingSecret;
+    }
+
+    public void setTwoFactorPendingSecret(String twoFactorPendingSecret) {
+        this.twoFactorPendingSecret = twoFactorPendingSecret;
     }
 }

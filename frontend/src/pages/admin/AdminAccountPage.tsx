@@ -15,6 +15,7 @@ import useTheme from "../../hooks/useTheme";
 type AccountSummary = {
   id: number;
   email: string;
+  twoFactorEnabled: boolean;
   registrationEnabled: boolean;
   userCount: number;
 };
@@ -22,6 +23,12 @@ type AccountSummary = {
 type CurrentUser = {
   id: number;
   email: string;
+  twoFactorEnabled: boolean;
+};
+
+type TwoFactorSetup = {
+  secret: string;
+  otpauthUrl: string;
 };
 
 function AdminAccountPage() {
@@ -31,6 +38,12 @@ function AdminAccountPage() {
   const [deleting, setDeleting] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [setupData, setSetupData] = useState<TwoFactorSetup | null>(null);
+  const [enableCode, setEnableCode] = useState("");
+  const [disablePassword, setDisablePassword] = useState("");
+  const [disableCode, setDisableCode] = useState("");
+  const [twoFactorError, setTwoFactorError] = useState("");
+  const [twoFactorLoading, setTwoFactorLoading] = useState(false);
 
   const themeOptions = [
     {
@@ -106,6 +119,7 @@ function AdminAccountPage() {
         setAccount({
           id: meData.id,
           email: meData.email,
+          twoFactorEnabled: meData.twoFactorEnabled,
           registrationEnabled: false,
           userCount: 0,
         });
@@ -164,6 +178,143 @@ function AdminAccountPage() {
     }
   };
 
+  const refreshAccount = async () => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_BASE_URL}/api/auth/account`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 401) {
+      handleAuthExpired();
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error("Failed to refresh account");
+    }
+
+    const data: AccountSummary = await response.json();
+    setAccount(data);
+  };
+
+  const handleStartTwoFactorSetup = async () => {
+    try {
+      setTwoFactorLoading(true);
+      setTwoFactorError("");
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/2fa/setup`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 401) {
+        handleAuthExpired();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to start 2FA setup");
+      }
+
+      const data: TwoFactorSetup = await response.json();
+      setSetupData(data);
+      setEnableCode("");
+    } catch (error) {
+      console.error("Failed to start 2FA setup:", error);
+      setTwoFactorError("Could not start Google Authenticator setup.");
+    } finally {
+      setTwoFactorLoading(false);
+    }
+  };
+
+  const handleEnableTwoFactor = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    try {
+      setTwoFactorLoading(true);
+      setTwoFactorError("");
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/2fa/enable`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ code: enableCode.trim() }),
+      });
+
+      if (response.status === 401) {
+        handleAuthExpired();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to enable 2FA");
+      }
+
+      await refreshAccount();
+      setSetupData(null);
+      setEnableCode("");
+      setToastMessage("Google Authenticator is now enabled.");
+      setShowToast(true);
+    } catch (error) {
+      console.error("Failed to enable 2FA:", error);
+      setTwoFactorError("That code was not accepted. Check Google Authenticator and try again.");
+    } finally {
+      setTwoFactorLoading(false);
+    }
+  };
+
+  const handleDisableTwoFactor = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    try {
+      setTwoFactorLoading(true);
+      setTwoFactorError("");
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/2fa/disable`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          password: disablePassword,
+          code: disableCode.trim(),
+        }),
+      });
+
+      if (response.status === 401) {
+        handleAuthExpired();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to disable 2FA");
+      }
+
+      await refreshAccount();
+      setDisablePassword("");
+      setDisableCode("");
+      setSetupData(null);
+      setToastMessage("Google Authenticator has been disabled.");
+      setShowToast(true);
+    } catch (error) {
+      console.error("Failed to disable 2FA:", error);
+      setTwoFactorError("We could not disable Google Authenticator with those details.");
+    } finally {
+      setTwoFactorLoading(false);
+    }
+  };
+
   return (
     <>
       <main>
@@ -204,6 +355,25 @@ function AdminAccountPage() {
                 : account?.registrationEnabled
                 ? "New admin accounts can currently be created."
                 : "New account creation is currently blocked by server config."}
+            </small>
+          </div>
+
+          <div className="admin-account-panel">
+            <div className="admin-account-icon">
+              <ShieldCheck size={22} />
+            </div>
+            <p className="admin-stat-label">Two-factor authentication</p>
+            <h2>
+              {loading
+                ? "Loading..."
+                : account?.twoFactorEnabled
+                  ? "Enabled"
+                  : "Disabled"}
+            </h2>
+            <small>
+              {account?.twoFactorEnabled
+                ? "Google Authenticator is required during admin login."
+                : "Add Google Authenticator for a second sign-in step."}
             </small>
           </div>
 
@@ -255,6 +425,99 @@ function AdminAccountPage() {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="admin-section admin-theme-panel">
+          <div className="admin-section-header">
+            <div>
+              <p className="admin-stat-label">Security</p>
+              <h2>Google Authenticator</h2>
+            </div>
+            <small>{account?.twoFactorEnabled ? "Protected" : "Not enabled"}</small>
+          </div>
+
+          <p>
+            Use Google Authenticator to generate 6-digit codes for admin sign-in.
+          </p>
+
+          {!account?.twoFactorEnabled ? (
+            <div className="admin-two-factor-panel">
+              <button
+                type="button"
+                className="admin-primary-button"
+                onClick={handleStartTwoFactorSetup}
+                disabled={twoFactorLoading}
+              >
+                {setupData ? "Generate a new setup key" : "Start setup"}
+              </button>
+
+              {setupData && (
+                <form className="admin-two-factor-form" onSubmit={handleEnableTwoFactor}>
+                  <div className="admin-two-factor-secret">
+                    <span>Manual setup key</span>
+                    <code>{setupData.secret}</code>
+                  </div>
+                  <p className="admin-two-factor-help">
+                    In Google Authenticator, add a new account and choose
+                    "Enter a setup key". Use your admin email and this secret.
+                  </p>
+                  <a className="admin-two-factor-link" href={setupData.otpauthUrl}>
+                    Open setup link
+                  </a>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d{6}"
+                    placeholder="Enter the 6-digit code"
+                    value={enableCode}
+                    onChange={(event) =>
+                      setEnableCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                    }
+                  />
+                  {twoFactorError && <p className="auth-error">{twoFactorError}</p>}
+                  <button
+                    type="submit"
+                    className="admin-primary-button"
+                    disabled={twoFactorLoading}
+                  >
+                    Confirm and enable
+                  </button>
+                </form>
+              )}
+            </div>
+          ) : (
+            <form className="admin-two-factor-form" onSubmit={handleDisableTwoFactor}>
+              <p className="admin-two-factor-help">
+                Disabling 2FA requires your password and a current code from
+                Google Authenticator.
+              </p>
+              <input
+                type="password"
+                placeholder="Current password"
+                autoComplete="current-password"
+                value={disablePassword}
+                onChange={(event) => setDisablePassword(event.target.value)}
+              />
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="\d{6}"
+                placeholder="6-digit authentication code"
+                value={disableCode}
+                onChange={(event) =>
+                  setDisableCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+              />
+              {twoFactorError && <p className="auth-error">{twoFactorError}</p>}
+              <button
+                type="submit"
+                className="auth-secondary-button"
+                disabled={twoFactorLoading}
+              >
+                Disable Google Authenticator
+              </button>
+            </form>
+          )}
         </section>
 
         <section className="admin-account-danger">

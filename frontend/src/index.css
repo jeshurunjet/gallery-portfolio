@@ -2736,7 +2736,7 @@ main {
 .admin-account-grid {
   margin-top: 1.5rem;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -2800,6 +2800,64 @@ main {
   margin-top: 0.25rem;
   color: #666;
   line-height: 1.55;
+}
+
+.admin-two-factor-panel,
+.admin-two-factor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: 560px;
+}
+
+.admin-two-factor-form input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #d9d9d9;
+  font: inherit;
+  background: #fff;
+}
+
+.admin-two-factor-form input:focus {
+  outline: none;
+  border-color: #111;
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+}
+
+.admin-two-factor-secret {
+  padding: 1rem;
+  border: 1px dashed #d4d4d4;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.admin-two-factor-secret span {
+  display: block;
+  color: #666;
+  font-size: 0.85rem;
+  margin-bottom: 0.45rem;
+}
+
+.admin-two-factor-secret code {
+  display: block;
+  color: #111;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+}
+
+.admin-two-factor-help {
+  color: #666;
+  line-height: 1.6;
+}
+
+.admin-two-factor-link {
+  color: #111;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
 }
 
 .admin-danger-icon {

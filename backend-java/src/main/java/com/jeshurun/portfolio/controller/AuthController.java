@@ -2,6 +2,7 @@ package com.jeshurun.portfolio.controller;
 
 import com.jeshurun.portfolio.entity.User;
 import com.jeshurun.portfolio.repository.UserRepository;
+import com.jeshurun.portfolio.security.TotpService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -39,17 +40,20 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TotpService totpService;
 
     public AuthController(
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
         JwtService jwtService,
-        JavaMailSender mailSender
+        JavaMailSender mailSender,
+        TotpService totpService
 ) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.jwtService = jwtService;
     this.mailSender = mailSender;
+    this.totpService = totpService;
 }
 
     @PostMapping("/register")
@@ -85,6 +89,10 @@ public class AuthController {
         String email = body.get("email");
         String password = body.get("password");
 
+        if (email == null || email.isBlank() || password == null || password.isBlank()) {
+            return ResponseEntity.badRequest().body("Email and password are required");
+        }
+
         User user = userRepository.findByEmail(email.trim().toLowerCase())
                 .orElse(null);
 
@@ -92,10 +100,55 @@ public class AuthController {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
 
+        if (user.isTwoFactorEnabled()) {
+            String challengeToken = jwtService.generateLoginChallengeToken(user.getEmail());
+
+            return ResponseEntity.ok(
+                    Map.of(
+                            "requiresTwoFactor", true,
+                            "challengeToken", challengeToken
+                    )
+            );
+        }
+
         String token = jwtService.generateToken(user.getEmail());
 
         return ResponseEntity.ok(
-                Map.of("token", token)
+                Map.of(
+                        "requiresTwoFactor", false,
+                        "token", token
+                )
+        );
+    }
+
+    @PostMapping("/login/verify")
+    public ResponseEntity<?> verifyLogin(@RequestBody Map<String, String> body) {
+        String challengeToken = body.get("challengeToken");
+        String code = body.get("code");
+
+        if (challengeToken == null || challengeToken.isBlank() || code == null || code.isBlank()) {
+            return ResponseEntity.badRequest().body("Challenge token and code are required");
+        }
+
+        if (!jwtService.isLoginChallengeTokenValid(challengeToken)) {
+            return ResponseEntity.status(401).body("Invalid or expired login challenge");
+        }
+
+        String email = jwtService.extractEmail(challengeToken);
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null || !user.isTwoFactorEnabled() || user.getTwoFactorSecret() == null) {
+            return ResponseEntity.status(401).body("Two-factor authentication is not available");
+        }
+
+        if (!totpService.isCodeValid(user.getTwoFactorSecret(), code.trim())) {
+            return ResponseEntity.status(401).body("Invalid authentication code");
+        }
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "token", jwtService.generateToken(user.getEmail())
+                )
         );
     }
 
@@ -124,7 +177,8 @@ public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
     return ResponseEntity.ok(
             Map.of(
                     "id", user.getId(),
-                    "email", user.getEmail()
+                    "email", user.getEmail(),
+                    "twoFactorEnabled", user.isTwoFactorEnabled()
             )
     );
 }
@@ -141,10 +195,93 @@ public ResponseEntity<?> getAccountSummary(HttpServletRequest request) {
             Map.of(
                     "id", user.getId(),
                     "email", user.getEmail(),
+                    "twoFactorEnabled", user.isTwoFactorEnabled(),
                     "registrationEnabled", registrationEnabled,
                     "userCount", userRepository.count()
             )
     );
+}
+
+@PostMapping("/2fa/setup")
+public ResponseEntity<?> setupTwoFactor(HttpServletRequest request) {
+    User user = (User) request.getAttribute("user");
+
+    if (user == null) {
+        return ResponseEntity.status(401).body("Unauthorized");
+    }
+
+    String secret = totpService.generateSecret();
+    user.setTwoFactorPendingSecret(secret);
+    userRepository.save(user);
+
+    return ResponseEntity.ok(
+            Map.of(
+                    "secret", secret,
+                    "otpauthUrl", totpService.buildOtpAuthUrl(user.getEmail(), secret)
+            )
+    );
+}
+
+@PostMapping("/2fa/enable")
+public ResponseEntity<?> enableTwoFactor(HttpServletRequest request, @RequestBody Map<String, String> body) {
+    User user = (User) request.getAttribute("user");
+
+    if (user == null) {
+        return ResponseEntity.status(401).body("Unauthorized");
+    }
+
+    String code = body.get("code");
+    String pendingSecret = user.getTwoFactorPendingSecret();
+
+    if (pendingSecret == null || pendingSecret.isBlank()) {
+        return ResponseEntity.badRequest().body("Start setup before enabling two-factor authentication");
+    }
+
+    if (code == null || code.isBlank() || !totpService.isCodeValid(pendingSecret, code.trim())) {
+        return ResponseEntity.status(400).body("Invalid authentication code");
+    }
+
+    user.setTwoFactorSecret(pendingSecret);
+    user.setTwoFactorPendingSecret(null);
+    user.setTwoFactorEnabled(true);
+    userRepository.save(user);
+
+    return ResponseEntity.ok("Two-factor authentication enabled");
+}
+
+@PostMapping("/2fa/disable")
+public ResponseEntity<?> disableTwoFactor(HttpServletRequest request, @RequestBody Map<String, String> body) {
+    User user = (User) request.getAttribute("user");
+
+    if (user == null) {
+        return ResponseEntity.status(401).body("Unauthorized");
+    }
+
+    String password = body.get("password");
+    String code = body.get("code");
+
+    if (password == null || password.isBlank() || code == null || code.isBlank()) {
+        return ResponseEntity.badRequest().body("Password and authentication code are required");
+    }
+
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+        return ResponseEntity.status(401).body("Incorrect password");
+    }
+
+    if (!user.isTwoFactorEnabled() || user.getTwoFactorSecret() == null) {
+        return ResponseEntity.badRequest().body("Two-factor authentication is already disabled");
+    }
+
+    if (!totpService.isCodeValid(user.getTwoFactorSecret(), code.trim())) {
+        return ResponseEntity.status(401).body("Invalid authentication code");
+    }
+
+    user.setTwoFactorEnabled(false);
+    user.setTwoFactorSecret(null);
+    user.setTwoFactorPendingSecret(null);
+    userRepository.save(user);
+
+    return ResponseEntity.ok("Two-factor authentication disabled");
 }
 
 @PostMapping("/forgot")

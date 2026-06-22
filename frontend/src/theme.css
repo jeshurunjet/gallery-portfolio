@@ -1006,6 +1006,27 @@
   font-size: 0.9rem;
 }
 
+.theme-dark .admin-two-factor-form input {
+  background: var(--admin-surface);
+  border-color: var(--admin-border);
+  color: var(--admin-text);
+}
+
+.theme-dark .admin-two-factor-secret {
+  background: var(--admin-surface-soft);
+  border-color: var(--admin-border);
+}
+
+.theme-dark .admin-two-factor-secret code,
+.theme-dark .admin-two-factor-link {
+  color: var(--admin-text);
+}
+
+.theme-dark .admin-two-factor-secret span,
+.theme-dark .admin-two-factor-help {
+  color: var(--muted);
+}
+
 /* ----- Admin Editorial Refresh ----- */
 
 .theme-dark {
