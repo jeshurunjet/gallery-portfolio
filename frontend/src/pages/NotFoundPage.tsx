@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Home, LayoutDashboard, SearchX } from "lucide-react";
+import PortfolioLogo from "../components/PortfolioLogo";
 
 function NotFoundPage() {
   const location = useLocation();
@@ -10,6 +11,8 @@ function NotFoundPage() {
       <section className="not-found-card">
         <div className="not-found-icon">
           <SearchX size={34} />
+          <PortfolioLogo size={40} />
+          <PortfolioLogo size={40} showWordmark />
         </div>
 
         <p className="eyebrow">404</p>
