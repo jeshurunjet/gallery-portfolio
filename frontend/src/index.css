@@ -2860,6 +2860,95 @@ main {
   text-underline-offset: 0.16em;
 }
 
+.admin-two-factor-setup-grid {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-two-factor-qr {
+  padding: 1rem;
+  border: 1px solid #ececec;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.admin-two-factor-qr img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.admin-two-factor-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-two-factor-actions .auth-secondary-button {
+  width: auto;
+}
+
+.admin-two-factor-status {
+  padding: 1rem;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-two-factor-status strong,
+.admin-two-factor-status span {
+  display: block;
+}
+
+.admin-two-factor-status span {
+  margin-top: 0.35rem;
+  color: #64748b;
+}
+
+.admin-recovery-codes-card {
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid #d6dae1;
+  background: #fbfcfe;
+}
+
+.admin-recovery-codes-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-recovery-codes-header strong,
+.admin-recovery-codes-header span {
+  display: block;
+}
+
+.admin-recovery-codes-header span {
+  margin-top: 0.35rem;
+  color: #666;
+}
+
+.admin-recovery-codes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-recovery-codes-grid code {
+  padding: 0.85rem 0.95rem;
+  border-radius: 12px;
+  background: #111;
+  color: #fff;
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
 .admin-danger-icon {
   width: 42px;
   height: 42px;
@@ -2920,6 +3009,11 @@ main {
   .admin-page-savebar .admin-form-actions,
   .admin-page-savebar .admin-form-actions button {
     width: 100%;
+  }
+
+  .admin-two-factor-setup-grid,
+  .admin-recovery-codes-grid {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -20,6 +20,9 @@ public class User {
 
     @Column(name = "two_factor_pending_secret")
     private String twoFactorPendingSecret;
+
+    @Column(name = "two_factor_recovery_codes", columnDefinition = "TEXT")
+    private String twoFactorRecoveryCodes;
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -89,5 +92,13 @@ public class User {
 
     public void setTwoFactorPendingSecret(String twoFactorPendingSecret) {
         this.twoFactorPendingSecret = twoFactorPendingSecret;
+    }
+
+    public String getTwoFactorRecoveryCodes() {
+        return twoFactorRecoveryCodes;
+    }
+
+    public void setTwoFactorRecoveryCodes(String twoFactorRecoveryCodes) {
+        this.twoFactorRecoveryCodes = twoFactorRecoveryCodes;
     }
 }

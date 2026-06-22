@@ -44,6 +44,17 @@ function LoginPage() {
         }
 
         const verifyData = await verifyResponse.json();
+
+        if (verifyData.usedRecoveryCode) {
+          const remainingCodes = Number(verifyData.remainingRecoveryCodes ?? 0);
+          sessionStorage.setItem(
+            "authMessage",
+            remainingCodes > 0
+              ? `Recovery code used. ${remainingCodes} backup code${remainingCodes === 1 ? "" : "s"} left.`
+              : "Recovery code used. You have no backup codes left, so regenerate them soon."
+          );
+        }
+
         startStoredSession(verifyData.token);
         window.location.replace("/admin");
         return;
@@ -107,21 +118,17 @@ function LoginPage() {
           <p className="auth-subtext">Manage your portfolio securely</p>
           <p>
             {challengeToken
-              ? "Enter the 6-digit code from Google Authenticator to finish signing in."
+              ? "Enter a 6-digit authenticator code or one of your backup recovery codes."
               : "Sign in to manage your portfolio projects and tags."}
           </p>
 
           {challengeToken ? (
             <input
               type="text"
-              inputMode="numeric"
-              pattern="\d{6}"
-              placeholder="6-digit authentication code"
+              placeholder="6-digit code or backup recovery code"
               autoComplete="one-time-code"
               value={verificationCode}
-              onChange={(e) =>
-                setVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))
-              }
+              onChange={(e) => setVerificationCode(e.target.value.toUpperCase().trim())}
             />
           ) : (
             <>

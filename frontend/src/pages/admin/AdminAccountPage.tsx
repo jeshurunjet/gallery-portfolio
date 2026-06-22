@@ -16,6 +16,7 @@ type AccountSummary = {
   id: number;
   email: string;
   twoFactorEnabled: boolean;
+  recoveryCodeCount: number;
   registrationEnabled: boolean;
   userCount: number;
 };
@@ -24,11 +25,24 @@ type CurrentUser = {
   id: number;
   email: string;
   twoFactorEnabled: boolean;
+  recoveryCodeCount: number;
 };
 
 type TwoFactorSetup = {
   secret: string;
   otpauthUrl: string;
+  qrCodeDataUrl: string;
+};
+
+type EnableTwoFactorResponse = {
+  message: string;
+  recoveryCodes: string[];
+  recoveryCodeCount: number;
+};
+
+type RecoveryCodesResponse = {
+  recoveryCodes: string[];
+  recoveryCodeCount: number;
 };
 
 function AdminAccountPage() {
@@ -44,6 +58,9 @@ function AdminAccountPage() {
   const [disableCode, setDisableCode] = useState("");
   const [twoFactorError, setTwoFactorError] = useState("");
   const [twoFactorLoading, setTwoFactorLoading] = useState(false);
+  const [visibleRecoveryCodes, setVisibleRecoveryCodes] = useState<string[]>([]);
+  const [regeneratePassword, setRegeneratePassword] = useState("");
+  const [regenerateCode, setRegenerateCode] = useState("");
 
   const themeOptions = [
     {
@@ -120,6 +137,7 @@ function AdminAccountPage() {
           id: meData.id,
           email: meData.email,
           twoFactorEnabled: meData.twoFactorEnabled,
+          recoveryCodeCount: meData.recoveryCodeCount,
           registrationEnabled: false,
           userCount: 0,
         });
@@ -225,6 +243,9 @@ function AdminAccountPage() {
       const data: TwoFactorSetup = await response.json();
       setSetupData(data);
       setEnableCode("");
+      setVisibleRecoveryCodes([]);
+      setToastMessage("Scan the QR code or copy the setup key into Google Authenticator.");
+      setShowToast(true);
     } catch (error) {
       console.error("Failed to start 2FA setup:", error);
       setTwoFactorError("Could not start Google Authenticator setup.");
@@ -259,10 +280,12 @@ function AdminAccountPage() {
         throw new Error("Failed to enable 2FA");
       }
 
+      const data: EnableTwoFactorResponse = await response.json();
       await refreshAccount();
       setSetupData(null);
       setEnableCode("");
-      setToastMessage("Google Authenticator is now enabled.");
+      setVisibleRecoveryCodes(data.recoveryCodes);
+      setToastMessage("Google Authenticator is now enabled. Save your backup codes before leaving this page.");
       setShowToast(true);
     } catch (error) {
       console.error("Failed to enable 2FA:", error);
@@ -305,6 +328,7 @@ function AdminAccountPage() {
       setDisablePassword("");
       setDisableCode("");
       setSetupData(null);
+      setVisibleRecoveryCodes([]);
       setToastMessage("Google Authenticator has been disabled.");
       setShowToast(true);
     } catch (error) {
@@ -313,6 +337,84 @@ function AdminAccountPage() {
     } finally {
       setTwoFactorLoading(false);
     }
+  };
+
+  const handleRegenerateRecoveryCodes = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    try {
+      setTwoFactorLoading(true);
+      setTwoFactorError("");
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/2fa/recovery/regenerate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          password: regeneratePassword,
+          code: regenerateCode.trim(),
+        }),
+      });
+
+      if (response.status === 401) {
+        handleAuthExpired();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to regenerate recovery codes");
+      }
+
+      const data: RecoveryCodesResponse = await response.json();
+      await refreshAccount();
+      setVisibleRecoveryCodes(data.recoveryCodes);
+      setRegeneratePassword("");
+      setRegenerateCode("");
+      setToastMessage("New recovery codes generated. Save them before leaving this page.");
+      setShowToast(true);
+    } catch (error) {
+      console.error("Failed to regenerate recovery codes:", error);
+      setTwoFactorError("We could not generate new recovery codes with those details.");
+    } finally {
+      setTwoFactorLoading(false);
+    }
+  };
+
+  const handleCopyText = async (value: string, message: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setToastMessage(message);
+      setShowToast(true);
+    } catch (error) {
+      console.error("Failed to copy text:", error);
+      setToastMessage("Copy failed on this device. You can still select and copy manually.");
+      setShowToast(true);
+    }
+  };
+
+  const handleDownloadRecoveryCodes = () => {
+    if (visibleRecoveryCodes.length === 0) {
+      return;
+    }
+
+    const fileContents = [
+      "Jesh Portfolio Admin recovery codes",
+      "",
+      ...visibleRecoveryCodes,
+      "",
+      "Each code works once. Keep them somewhere safe.",
+    ].join("\n");
+
+    const blob = new Blob([fileContents], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "recovery-codes.txt";
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -372,7 +474,7 @@ function AdminAccountPage() {
             </h2>
             <small>
               {account?.twoFactorEnabled
-                ? "Google Authenticator is required during admin login."
+                ? `Google Authenticator is required during admin login. ${account?.recoveryCodeCount ?? 0} backup codes ready.`
                 : "Add Google Authenticator for a second sign-in step."}
             </small>
           </div>
@@ -437,7 +539,8 @@ function AdminAccountPage() {
           </div>
 
           <p>
-            Use Google Authenticator to generate 6-digit codes for admin sign-in.
+            Use Google Authenticator to generate 6-digit codes for admin sign-in. Backup
+            recovery codes let you back in if you lose access to your authenticator.
           </p>
 
           {!account?.twoFactorEnabled ? (
@@ -453,13 +556,41 @@ function AdminAccountPage() {
 
               {setupData && (
                 <form className="admin-two-factor-form" onSubmit={handleEnableTwoFactor}>
-                  <div className="admin-two-factor-secret">
-                    <span>Manual setup key</span>
-                    <code>{setupData.secret}</code>
+                  <div className="admin-two-factor-setup-grid">
+                    <div className="admin-two-factor-qr">
+                      <img
+                        src={setupData.qrCodeDataUrl}
+                        alt="QR code for adding this account to Google Authenticator"
+                      />
+                    </div>
+                    <div className="admin-two-factor-secret">
+                      <span>Manual setup key</span>
+                      <code>{setupData.secret}</code>
+                      <div className="admin-two-factor-actions">
+                        <button
+                          type="button"
+                          className="auth-secondary-button"
+                          onClick={() =>
+                            handleCopyText(setupData.secret, "Setup key copied to clipboard.")
+                          }
+                        >
+                          Copy setup key
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-secondary-button"
+                          onClick={() =>
+                            handleCopyText(setupData.otpauthUrl, "Authenticator setup link copied.")
+                          }
+                        >
+                          Copy setup link
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <p className="admin-two-factor-help">
-                    In Google Authenticator, add a new account and choose
-                    "Enter a setup key". Use your admin email and this secret.
+                    Scan the QR code with Google Authenticator, or tap + and choose
+                    "Enter a setup key" if you prefer to paste the secret manually.
                   </p>
                   <a className="admin-two-factor-link" href={setupData.otpauthUrl}>
                     Open setup link
@@ -486,37 +617,111 @@ function AdminAccountPage() {
               )}
             </div>
           ) : (
-            <form className="admin-two-factor-form" onSubmit={handleDisableTwoFactor}>
-              <p className="admin-two-factor-help">
-                Disabling 2FA requires your password and a current code from
-                Google Authenticator.
-              </p>
-              <input
-                type="password"
-                placeholder="Current password"
-                autoComplete="current-password"
-                value={disablePassword}
-                onChange={(event) => setDisablePassword(event.target.value)}
-              />
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="\d{6}"
-                placeholder="6-digit authentication code"
-                value={disableCode}
-                onChange={(event) =>
-                  setDisableCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-                }
-              />
-              {twoFactorError && <p className="auth-error">{twoFactorError}</p>}
-              <button
-                type="submit"
-                className="auth-secondary-button"
-                disabled={twoFactorLoading}
-              >
-                Disable Google Authenticator
-              </button>
-            </form>
+            <div className="admin-two-factor-panel">
+              <div className="admin-two-factor-status">
+                <strong>{account?.recoveryCodeCount ?? 0} backup codes available</strong>
+                <span>Each recovery code works once during login if your authenticator is unavailable.</span>
+              </div>
+
+              {visibleRecoveryCodes.length > 0 && (
+                <div className="admin-recovery-codes-card">
+                  <div className="admin-recovery-codes-header">
+                    <div>
+                      <strong>Save these recovery codes now</strong>
+                      <span>You will not be able to view this same set again later.</span>
+                    </div>
+                    <div className="admin-two-factor-actions">
+                      <button
+                        type="button"
+                        className="auth-secondary-button"
+                        onClick={() =>
+                          handleCopyText(
+                            visibleRecoveryCodes.join("\n"),
+                            "Recovery codes copied to clipboard."
+                          )
+                        }
+                      >
+                        Copy codes
+                      </button>
+                      <button
+                        type="button"
+                        className="auth-secondary-button"
+                        onClick={handleDownloadRecoveryCodes}
+                      >
+                        Download TXT
+                      </button>
+                    </div>
+                  </div>
+                  <div className="admin-recovery-codes-grid">
+                    {visibleRecoveryCodes.map((code) => (
+                      <code key={code}>{code}</code>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <form className="admin-two-factor-form" onSubmit={handleRegenerateRecoveryCodes}>
+                <p className="admin-two-factor-help">
+                  Generate a fresh set of backup recovery codes. This replaces any older set.
+                </p>
+                <input
+                  type="password"
+                  placeholder="Current password"
+                  autoComplete="current-password"
+                  value={regeneratePassword}
+                  onChange={(event) => setRegeneratePassword(event.target.value)}
+                />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d{6}"
+                  placeholder="Current 6-digit authenticator code"
+                  value={regenerateCode}
+                  onChange={(event) =>
+                    setRegenerateCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                  }
+                />
+                <button
+                  type="submit"
+                  className="admin-primary-button"
+                  disabled={twoFactorLoading}
+                >
+                  Generate new recovery codes
+                </button>
+              </form>
+
+              <form className="admin-two-factor-form" onSubmit={handleDisableTwoFactor}>
+                <p className="admin-two-factor-help">
+                  Disabling 2FA requires your password and a current code from
+                  Google Authenticator.
+                </p>
+                <input
+                  type="password"
+                  placeholder="Current password"
+                  autoComplete="current-password"
+                  value={disablePassword}
+                  onChange={(event) => setDisablePassword(event.target.value)}
+                />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d{6}"
+                  placeholder="6-digit authentication code"
+                  value={disableCode}
+                  onChange={(event) =>
+                    setDisableCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                  }
+                />
+                {twoFactorError && <p className="auth-error">{twoFactorError}</p>}
+                <button
+                  type="submit"
+                  className="auth-secondary-button"
+                  disabled={twoFactorLoading}
+                >
+                  Disable Google Authenticator
+                </button>
+              </form>
+            </div>
           )}
         </section>
 

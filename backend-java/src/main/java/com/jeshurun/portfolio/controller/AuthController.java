@@ -2,6 +2,7 @@ package com.jeshurun.portfolio.controller;
 
 import com.jeshurun.portfolio.entity.User;
 import com.jeshurun.portfolio.repository.UserRepository;
+import com.jeshurun.portfolio.security.RecoveryCodeService;
 import com.jeshurun.portfolio.security.TotpService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import com.jeshurun.portfolio.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -41,19 +44,22 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final TotpService totpService;
+    private final RecoveryCodeService recoveryCodeService;
 
     public AuthController(
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
         JwtService jwtService,
         JavaMailSender mailSender,
-        TotpService totpService
+        TotpService totpService,
+        RecoveryCodeService recoveryCodeService
 ) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.jwtService = jwtService;
     this.mailSender = mailSender;
     this.totpService = totpService;
+    this.recoveryCodeService = recoveryCodeService;
 }
 
     @PostMapping("/register")
@@ -141,15 +147,27 @@ public class AuthController {
             return ResponseEntity.status(401).body("Two-factor authentication is not available");
         }
 
-        if (!totpService.isCodeValid(user.getTwoFactorSecret(), code.trim())) {
+        String sanitizedCode = code.trim().toUpperCase();
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", jwtService.generateToken(user.getEmail()));
+
+        if (totpService.isCodeValid(user.getTwoFactorSecret(), sanitizedCode)) {
+            return ResponseEntity.ok(response);
+        }
+
+        RecoveryCodeService.RecoveryCodeMatchResult recoveryCodeResult =
+                recoveryCodeService.consumeCode(user.getTwoFactorRecoveryCodes(), sanitizedCode);
+
+        if (!recoveryCodeResult.matched()) {
             return ResponseEntity.status(401).body("Invalid authentication code");
         }
 
-        return ResponseEntity.ok(
-                Map.of(
-                        "token", jwtService.generateToken(user.getEmail())
-                )
-        );
+        user.setTwoFactorRecoveryCodes(recoveryCodeResult.updatedStoredCodes());
+        userRepository.save(user);
+        response.put("usedRecoveryCode", true);
+        response.put("remainingRecoveryCodes", recoveryCodeResult.remainingCodes());
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/delete")
@@ -178,7 +196,8 @@ public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
             Map.of(
                     "id", user.getId(),
                     "email", user.getEmail(),
-                    "twoFactorEnabled", user.isTwoFactorEnabled()
+                    "twoFactorEnabled", user.isTwoFactorEnabled(),
+                    "recoveryCodeCount", recoveryCodeService.countStoredCodes(user.getTwoFactorRecoveryCodes())
             )
     );
 }
@@ -196,6 +215,7 @@ public ResponseEntity<?> getAccountSummary(HttpServletRequest request) {
                     "id", user.getId(),
                     "email", user.getEmail(),
                     "twoFactorEnabled", user.isTwoFactorEnabled(),
+                    "recoveryCodeCount", recoveryCodeService.countStoredCodes(user.getTwoFactorRecoveryCodes()),
                     "registrationEnabled", registrationEnabled,
                     "userCount", userRepository.count()
             )
@@ -214,10 +234,13 @@ public ResponseEntity<?> setupTwoFactor(HttpServletRequest request) {
     user.setTwoFactorPendingSecret(secret);
     userRepository.save(user);
 
+    String otpAuthUrl = totpService.buildOtpAuthUrl(user.getEmail(), secret);
+
     return ResponseEntity.ok(
             Map.of(
                     "secret", secret,
-                    "otpauthUrl", totpService.buildOtpAuthUrl(user.getEmail(), secret)
+                    "otpauthUrl", otpAuthUrl,
+                    "qrCodeDataUrl", totpService.buildQrCodeDataUrl(otpAuthUrl)
             )
     );
 }
@@ -244,9 +267,17 @@ public ResponseEntity<?> enableTwoFactor(HttpServletRequest request, @RequestBod
     user.setTwoFactorSecret(pendingSecret);
     user.setTwoFactorPendingSecret(null);
     user.setTwoFactorEnabled(true);
+    List<String> recoveryCodes = recoveryCodeService.generatePlainCodes();
+    user.setTwoFactorRecoveryCodes(recoveryCodeService.hashCodes(recoveryCodes));
     userRepository.save(user);
 
-    return ResponseEntity.ok("Two-factor authentication enabled");
+    return ResponseEntity.ok(
+            Map.of(
+                    "message", "Two-factor authentication enabled",
+                    "recoveryCodes", recoveryCodes,
+                    "recoveryCodeCount", recoveryCodes.size()
+            )
+    );
 }
 
 @PostMapping("/2fa/disable")
@@ -279,9 +310,52 @@ public ResponseEntity<?> disableTwoFactor(HttpServletRequest request, @RequestBo
     user.setTwoFactorEnabled(false);
     user.setTwoFactorSecret(null);
     user.setTwoFactorPendingSecret(null);
+    user.setTwoFactorRecoveryCodes(null);
     userRepository.save(user);
 
     return ResponseEntity.ok("Two-factor authentication disabled");
+}
+
+@PostMapping("/2fa/recovery/regenerate")
+public ResponseEntity<?> regenerateRecoveryCodes(
+        HttpServletRequest request,
+        @RequestBody Map<String, String> body
+) {
+    User user = (User) request.getAttribute("user");
+
+    if (user == null) {
+        return ResponseEntity.status(401).body("Unauthorized");
+    }
+
+    String password = body.get("password");
+    String code = body.get("code");
+
+    if (password == null || password.isBlank() || code == null || code.isBlank()) {
+        return ResponseEntity.badRequest().body("Password and authentication code are required");
+    }
+
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+        return ResponseEntity.status(401).body("Incorrect password");
+    }
+
+    if (!user.isTwoFactorEnabled() || user.getTwoFactorSecret() == null) {
+        return ResponseEntity.badRequest().body("Enable two-factor authentication first");
+    }
+
+    if (!totpService.isCodeValid(user.getTwoFactorSecret(), code.trim().toUpperCase())) {
+        return ResponseEntity.status(401).body("Invalid authentication code");
+    }
+
+    List<String> recoveryCodes = recoveryCodeService.generatePlainCodes();
+    user.setTwoFactorRecoveryCodes(recoveryCodeService.hashCodes(recoveryCodes));
+    userRepository.save(user);
+
+    return ResponseEntity.ok(
+            Map.of(
+                    "recoveryCodes", recoveryCodes,
+                    "recoveryCodeCount", recoveryCodes.size()
+            )
+    );
 }
 
 @PostMapping("/forgot")

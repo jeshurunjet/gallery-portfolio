@@ -1027,6 +1027,27 @@
   color: var(--muted);
 }
 
+.theme-dark .admin-two-factor-qr,
+.theme-dark .admin-recovery-codes-card {
+  background: var(--admin-surface);
+  border-color: var(--admin-border);
+}
+
+.theme-dark .admin-two-factor-status {
+  background: var(--admin-surface-soft);
+  border-color: var(--admin-border);
+}
+
+.theme-dark .admin-two-factor-status span,
+.theme-dark .admin-recovery-codes-header span {
+  color: var(--muted);
+}
+
+.theme-dark .admin-recovery-codes-grid code {
+  background: #0f141a;
+  color: var(--admin-text);
+}
+
 /* ----- Admin Editorial Refresh ----- */
 
 .theme-dark {

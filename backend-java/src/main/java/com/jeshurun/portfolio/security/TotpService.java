@@ -1,5 +1,9 @@
 package com.jeshurun.portfolio.security;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +13,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 @Service
 public class TotpService {
@@ -39,6 +44,17 @@ public class TotpService {
                 + "&issuer=" + encodedIssuer
                 + "&algorithm=SHA1&digits=" + CODE_DIGITS
                 + "&period=" + TIME_STEP_SECONDS;
+    }
+
+    public String buildQrCodeDataUrl(String otpAuthUrl) {
+        try {
+            BitMatrix matrix = new QRCodeWriter().encode(otpAuthUrl, BarcodeFormat.QR_CODE, 220, 220);
+            String svg = toSvg(matrix);
+            String encoded = Base64.getEncoder().encodeToString(svg.getBytes(StandardCharsets.UTF_8));
+            return "data:image/svg+xml;base64," + encoded;
+        } catch (WriterException exception) {
+            throw new IllegalStateException("Failed to generate QR code", exception);
+        }
     }
 
     public boolean isCodeValid(String secret, String code) {
@@ -150,5 +166,33 @@ public class TotpService {
 
     private String urlEncode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    private String toSvg(BitMatrix matrix) {
+        StringBuilder svg = new StringBuilder();
+        int size = matrix.getWidth();
+
+        svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ")
+                .append(size)
+                .append(' ')
+                .append(size)
+                .append("\" shape-rendering=\"crispEdges\">")
+                .append("<rect width=\"100%\" height=\"100%\" fill=\"#ffffff\"/>")
+                .append("<path d=\"");
+
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                if (matrix.get(x, y)) {
+                    svg.append('M')
+                            .append(x)
+                            .append(' ')
+                            .append(y)
+                            .append("h1v1h-1z");
+                }
+            }
+        }
+
+        svg.append("\" fill=\"#111111\"/></svg>");
+        return svg.toString();
     }
 }
