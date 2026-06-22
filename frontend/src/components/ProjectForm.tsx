@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { JSONContent } from "@tiptap/react";
 import {
   AlignCenter,
   AlignJustify,
@@ -6,35 +7,29 @@ import {
   AlignRight,
   AudioLines,
   Blocks,
-  Bold,
   Clapperboard,
   Code2,
   Settings2,
   Images,
-  Italic,
   FileText,
   Image as ImageIcon,
   Link2,
-  List,
-  ListOrdered,
   Plus,
   Pin,
-  Minus,
+  Save,
   PanelLeft,
   PanelRight,
   PanelsLeftRight,
   ChevronDown,
   ChevronRight,
   Trash2,
-  Underline,
   Upload,
 } from "lucide-react";
 import { API_BASE_URL } from "../config";
 import type {
-  DisplayImageMode,
   GalleryImage,
+  GalleryImagePreset,
   MediaAsset,
-  ProjectContentBlock,
 } from "../data/projects";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 
@@ -49,12 +44,24 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import ConfirmModal from "./ConfirmModal";
+import ProjectTiptapEditor from "./ProjectTiptapEditor";
+import {
+  ensureProjectContentJson,
+  type LegacyProjectContentBlock,
+  type TextAlignOption,
+} from "../utils/projectContentMigration";
+import {
+  collectDraftMediaIds,
+  resolveDraftMediaInContent,
+  type DraftMediaMap,
+  type DraftMediaType,
+} from "../utils/projectTiptapDraftMedia";
 
 type ProjectFormData = {
   title: string;
   category: string;
-  description: string;
-  content: ProjectContentBlock[];
+  content: LegacyProjectContentBlock[];
+  contentJson?: JSONContent | null;
   tags: string;
   cover: string;
   coverPublicId?: string;
@@ -78,6 +85,7 @@ type ProjectFormProps = {
   onNotify?: (message: string) => void;
   pinnedOverride?: boolean;
   onPinnedChange?: (pinned: boolean) => void;
+  headerActions?: React.ReactNode;
 };
 
 type BlockType =
@@ -88,8 +96,6 @@ type BlockType =
   | "divider"
   | "twoColumn"
   | "mediaText";
-
-type TextAlignOption = "left" | "center" | "right" | "justify";
 
 type MediaTextLayout =
   | "image-left"
@@ -151,8 +157,12 @@ function ProjectForm({
   onNotify,
   pinnedOverride,
   onPinnedChange,
+  headerActions,
 }: ProjectFormProps) {
-  const [formData, setFormData] = useState<ProjectFormData>(initialData);
+  const [formData, setFormData] = useState<ProjectFormData>(() => ({
+    ...initialData,
+    contentJson: ensureProjectContentJson(initialData.contentJson),
+  }));
   const pinnedValue = pinnedOverride ?? formData.pinned;
   const [collapsedBlocks, setCollapsedBlocks] = useState<number[]>(
     initialData.content?.map((_, index) => index) ?? []
@@ -171,6 +181,7 @@ function ProjectForm({
     number | null
   >(null);
   const mediaFileInputRef = useRef<HTMLInputElement | null>(null);
+  const pendingRichTextMediaRef = useRef<DraftMediaMap>(new Map());
   const [isMediaDropActive, setIsMediaDropActive] = useState(false);
   const [isMediaLinksOpen, setIsMediaLinksOpen] = useState(false);
   const [mediaLinkDrafts, setMediaLinkDrafts] = useState<
@@ -203,6 +214,26 @@ function ProjectForm({
   };
   const hasPendingUploads = pendingUploads > 0;
 
+  useEffect(() => {
+    const activeDraftIds = collectDraftMediaIds(formData.contentJson);
+
+    pendingRichTextMediaRef.current.forEach((item, tempId) => {
+      if (activeDraftIds.has(tempId)) return;
+
+      URL.revokeObjectURL(item.previewUrl);
+      pendingRichTextMediaRef.current.delete(tempId);
+    });
+  }, [formData.contentJson]);
+
+  useEffect(() => {
+    return () => {
+      pendingRichTextMediaRef.current.forEach((item) => {
+        URL.revokeObjectURL(item.previewUrl);
+      });
+      pendingRichTextMediaRef.current.clear();
+    };
+  }, []);
+
   const updateGalleryImage = (
     index: number,
     updater: (image: GalleryImage) => GalleryImage
@@ -216,16 +247,11 @@ function ProjectForm({
   };
 
   const getGalleryMaskPreviewStyle = (image: GalleryImage) => {
-    const zoom = Math.max(90, Math.min(220, image.zoom ?? 100));
-    const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
-    const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
-
-    if (zoom <= 100) {
+    if ((image.mode ?? "landscape") === "original") {
       return {
         width: "100%",
         height: "100%",
         objectFit: "contain",
-        objectPosition: `${50 + offsetX}% ${50 + offsetY}%`,
         left: "0",
         top: "0",
         transform: "none",
@@ -233,35 +259,29 @@ function ProjectForm({
     }
 
     return {
-      width: `${zoom}%`,
-      height: "auto",
-      minWidth: "100%",
-      minHeight: "100%",
-      maxWidth: "none",
-      left: "50%",
-      top: "50%",
-      transform: `translate(calc(-50% + ${offsetX}%), calc(-50% + ${offsetY}%))`,
-    };
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      objectPosition: "50% 50%",
+      left: "0",
+      top: "0",
+      transform: "none",
+    } as const;
   };
 
   const getGalleryFrameAspectRatio = (image: GalleryImage) => {
-    const mode = image.mode ?? "default";
-    const baseHeight = mode === "header" ? 5 : 9;
-    const frameScale = Math.max(20, Math.min(100, image.frameHeight ?? 100));
-    return `16 / ${(baseHeight * frameScale) / 100}`;
-  };
-
-  const getFrameHeightPixels = (image: GalleryImage) => {
-    const mode = image.mode ?? "default";
-    const baseHeight = mode === "header" ? 5 : 9;
-    const baseWidth = 640;
-    const frameScale = Math.max(20, Math.min(100, image.frameHeight ?? 100));
-    return Math.round((baseWidth * ((baseHeight * frameScale) / 100)) / 16);
-  };
-
-  const getZoomPixels = (image: GalleryImage) => {
-    const zoom = Math.max(90, Math.min(220, image.zoom ?? 100));
-    return Math.round((640 * zoom) / 100);
+    switch (image.mode ?? "landscape") {
+      case "header":
+        return "16 / 5";
+      case "portrait":
+        return "4 / 5";
+      case "square":
+        return "1 / 1";
+      case "original":
+        return "4 / 3";
+      default:
+        return "16 / 9";
+    }
   };
 
   const runWithUploadLock = async <T,>(task: () => Promise<T>) => {
@@ -296,7 +316,7 @@ function ProjectForm({
   };
 
   const addContentBlock = (type: BlockType) => {
-    let block: ProjectContentBlock;
+    let block: LegacyProjectContentBlock;
 
     switch (type) {
       case "paragraph":
@@ -367,7 +387,7 @@ function ProjectForm({
 
   const updateContentBlock = (
     index: number,
-    updatedBlock: ProjectContentBlock
+    updatedBlock: LegacyProjectContentBlock
   ) => {
     setFormData((prev) => {
       const updated = [...prev.content];
@@ -382,7 +402,7 @@ function ProjectForm({
 
   const patchContentBlock = (
     index: number,
-    updater: (block: ProjectContentBlock) => ProjectContentBlock
+    updater: (block: LegacyProjectContentBlock) => LegacyProjectContentBlock
   ) => {
     setFormData((prev) => {
       const existingBlock = prev.content[index];
@@ -426,7 +446,7 @@ function ProjectForm({
     onNotify?.("Content block duplicated.");
   };
 
-  const deleteBlockAssets = async (block: ProjectContentBlock) => {
+  const deleteBlockAssets = async (block: LegacyProjectContentBlock) => {
     if (block.type === "image" && (block.url || block.publicId)) {
       await deleteMedia({
         url: block.url,
@@ -720,47 +740,27 @@ function ProjectForm({
     }));
   };
 
-  const formatSelectedText = (
-    field: keyof ProjectFormData,
-    before: string,
-    after: string = before
-  ) => {
-    const textarea = document.getElementById(
-      field
-    ) as HTMLTextAreaElement | null;
-
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const currentValue = formData[field];
-
-    if (typeof currentValue !== "string") return;
-
-    const selectedText = currentValue.slice(start, end);
-
-    const replacement = selectedText
-      ? `${before}${selectedText}${after}`
-      : `${before}Text${after}`;
-
-    const updatedValue =
-      currentValue.slice(0, start) + replacement + currentValue.slice(end);
-
+  const handleRichTextContentChange = (contentJson: JSONContent) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: updatedValue,
+      contentJson,
     }));
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(
-        start + before.length,
-        start + before.length + (selectedText || "Text").length
-      );
-    }, 0);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const stageRichTextMedia = (file: File, type: DraftMediaType) => {
+    const tempId = `${type}-${crypto.randomUUID()}`;
+    const previewUrl = URL.createObjectURL(file);
+
+    pendingRichTextMediaRef.current.set(tempId, {
+      file,
+      previewUrl,
+      type,
+    });
+
+    return { tempId, previewUrl };
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (hasPendingUploads) {
@@ -768,10 +768,41 @@ function ProjectForm({
       return;
     }
 
+    const nextContentJson = ensureProjectContentJson(formData.contentJson);
+    let nextContentJsonResolved = nextContentJson;
+
+    try {
+      if (pendingRichTextMediaRef.current.size > 0) {
+        onNotify?.("Uploading editor media before saving...");
+        nextContentJsonResolved = await resolveDraftMediaInContent(
+          nextContentJson,
+          pendingRichTextMediaRef.current,
+          {
+            uploadImage,
+            uploadVideo,
+          }
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      onNotify?.(
+        error instanceof Error
+          ? error.message
+          : "Editor media upload failed. Please try again."
+      );
+      return;
+    }
+
     onSubmit({
       ...formData,
       pinned: pinnedValue,
+      contentJson: nextContentJsonResolved,
     });
+
+    pendingRichTextMediaRef.current.forEach((item) => {
+      URL.revokeObjectURL(item.previewUrl);
+    });
+    pendingRichTextMediaRef.current.clear();
   };
 
   // Render confirm modal
@@ -795,7 +826,7 @@ function ProjectForm({
     );
   };
 
-  const getBlockPreview = (block: ProjectContentBlock, index: number) => {
+  const getBlockPreview = (block: LegacyProjectContentBlock, index: number) => {
     switch (block.type) {
       case "paragraph":
         return {
@@ -1432,11 +1463,7 @@ function ProjectForm({
                     ...prev.galleryImages,
                     {
                       url: trimmedUrl,
-                      mode: "default",
-                      frameHeight: 100,
-                      zoom: 100,
-                      offsetX: 0,
-                      offsetY: 0,
+                      mode: "landscape",
                     },
                   ],
                 }));
@@ -1481,11 +1508,7 @@ function ProjectForm({
                       ...uploadedUrls.map((url, index) => ({
                         url,
                         publicId: uploadedPublicIds[index],
-                        mode: "default" as DisplayImageMode,
-                        frameHeight: 100,
-                        zoom: 100,
-                        offsetX: 0,
-                        offsetY: 0,
+                        mode: "landscape" as GalleryImagePreset,
                       })),
                     ],
                   };
@@ -1567,9 +1590,7 @@ function ProjectForm({
                     <div className="admin-gallery-card-copy">
                       <strong>Image {index + 1}</strong>
                       <small>
-                        {image.mode === "header"
-                          ? "Header style"
-                          : "Default style"}
+                        {(image.mode ?? "landscape").replace("-", " ")}
                       </small>
                     </div>
 
@@ -1638,9 +1659,17 @@ function ProjectForm({
                         </label>
 
                         <div className="image-display-mode">
-                          <span>Display mode</span>
+                          <span>Display preset</span>
                           <div className="image-display-mode-buttons">
-                            {(["default", "header"] as DisplayImageMode[]).map(
+                            {(
+                              [
+                                "original",
+                                "landscape",
+                                "portrait",
+                                "square",
+                                "header",
+                              ] as GalleryImagePreset[]
+                            ).map(
                               (mode) => (
                                 <button
                                   key={mode}
@@ -1652,127 +1681,15 @@ function ProjectForm({
                                     updateGalleryImage(index, (current) => ({
                                       ...current,
                                       mode,
-                                      frameHeight:
-                                        mode === "header" &&
-                                        (current.frameHeight ?? 100) > 60
-                                          ? 60
-                                          : current.frameHeight,
                                     }))
                                   }
                                 >
-                                  {mode === "header" ? "Header" : "Default"}
+                                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
                                 </button>
                               )
                             )}
                           </div>
                         </div>
-
-                        <label>
-                          <span className="range-label-row">
-                            <span>Frame height</span>
-                            <small>
-                              {image.frameHeight ?? 100}% ·{" "}
-                              {getFrameHeightPixels(image)}px
-                            </small>
-                          </span>
-                          <input
-                            className="admin-range-slider"
-                            type="range"
-                            min={image.mode === "header" ? "20" : "20"}
-                            max="100"
-                            value={image.frameHeight ?? 100}
-                            onChange={(event) =>
-                              updateGalleryImage(index, (current) => ({
-                                ...current,
-                                frameHeight: Number(event.target.value),
-                              }))
-                            }
-                          />
-                        </label>
-
-                        <div className="image-display-mode">
-                          <span>Zoom presets</span>
-                          <div className="image-display-mode-buttons">
-                            {[90, 100, 115, 130, 150].map((value) => (
-                              <button
-                                key={value}
-                                type="button"
-                                className={image.zoom === value ? "active" : ""}
-                                onClick={() =>
-                                  updateGalleryImage(index, (current) => ({
-                                    ...current,
-                                    zoom: value,
-                                  }))
-                                }
-                              >
-                                {value === 100 ? "Fit" : `${value}%`}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <label>
-                          <span className="range-label-row">
-                            <span>Zoom image</span>
-                            <small>
-                              {image.zoom ?? 100}% · {getZoomPixels(image)}px
-                              wide
-                            </small>
-                          </span>
-                          <input
-                            className="admin-range-slider"
-                            type="range"
-                            min="90"
-                            max="220"
-                            value={image.zoom ?? 100}
-                            onChange={(event) =>
-                              updateGalleryImage(index, (current) => ({
-                                ...current,
-                                zoom: Number(event.target.value),
-                              }))
-                            }
-                          />
-                        </label>
-
-                        <label>
-                          <span className="range-label-row">
-                            <span>Move image left / right</span>
-                            <small>{image.offsetX ?? 0}</small>
-                          </span>
-                          <input
-                            className="admin-range-slider"
-                            type="range"
-                            min="-50"
-                            max="50"
-                            value={image.offsetX ?? 0}
-                            onChange={(event) =>
-                              updateGalleryImage(index, (current) => ({
-                                ...current,
-                                offsetX: Number(event.target.value),
-                              }))
-                            }
-                          />
-                        </label>
-
-                        <label>
-                          <span className="range-label-row">
-                            <span>Move image up / down</span>
-                            <small>{image.offsetY ?? 0}</small>
-                          </span>
-                          <input
-                            className="admin-range-slider"
-                            type="range"
-                            min="-50"
-                            max="50"
-                            value={image.offsetY ?? 0}
-                            onChange={(event) =>
-                              updateGalleryImage(index, (current) => ({
-                                ...current,
-                                offsetY: Number(event.target.value),
-                              }))
-                            }
-                          />
-                        </label>
                       </div>
                     </div>
                   )}
@@ -2786,6 +2703,7 @@ function ProjectForm({
       )}
     </>
   );
+  void renderContentBlocksSection;
 
   return (
     <form className="admin-form" onSubmit={handleSubmit}>
@@ -2796,30 +2714,34 @@ function ProjectForm({
             <p>Core details shown across the portfolio.</p>
           </div>
 
-          <button
-            type="button"
-            className={`admin-pin-button admin-pin-action admin-pin-action-icon ${
-              pinnedValue ? "active" : ""
-            }`}
-            aria-label={pinnedValue ? "Unpin project" : "Pin project"}
-            data-label={pinnedValue ? "Pinned" : "Pin project"}
-            title={pinnedValue ? "Pinned" : "Pin project"}
-            onClick={() => {
-              const nextPinned = !pinnedValue;
+          <div className="admin-panel-actions">
+            {headerActions}
 
-              if (onPinnedChange) {
-                onPinnedChange(nextPinned);
-                return;
-              }
+            <button
+              type="button"
+              className={`admin-pin-button admin-pin-action admin-pin-action-icon ${
+                pinnedValue ? "active" : ""
+              }`}
+              aria-label={pinnedValue ? "Unpin project" : "Pin project"}
+              data-label={pinnedValue ? "Pinned" : "Pin project"}
+              title={pinnedValue ? "Pinned" : "Pin project"}
+              onClick={() => {
+                const nextPinned = !pinnedValue;
 
-              setFormData((prev) => ({
-                ...prev,
-                pinned: nextPinned,
-              }));
-            }}
-          >
-            <Pin size={20} />
-          </button>
+                if (onPinnedChange) {
+                  onPinnedChange(nextPinned);
+                  return;
+                }
+
+                setFormData((prev) => ({
+                  ...prev,
+                  pinned: nextPinned,
+                }));
+              }}
+            >
+              <Pin size={20} />
+            </button>
+          </div>
         </div>
 
         <div className="admin-form-group">
@@ -2857,147 +2779,94 @@ function ProjectForm({
         </div>
 
         {renderCoverSection()}
+      </section>
 
-        <div className="admin-form-group">
-          <label htmlFor="description">Description</label>
+      <section className="admin-form-panel admin-form-panel-group">
+        <div className="admin-form-panel-header">
+          <div>
+            <h3>Assets</h3>
+            <p>Manage cover, gallery, uploaded media, and linked resources.</p>
+          </div>
+        </div>
 
-          <div className="format-toolbar">
-            <button
-              type="button"
-              title="Bold"
-              aria-label="Bold"
-              onClick={() => formatSelectedText("description", "**")}
-            >
-              <Bold size={17} />
-            </button>
+        {renderGallerySection()}
+        {renderMediaSection()}
+      </section>
 
-            <button
-              type="button"
-              title="Italic"
-              aria-label="Italic"
-              onClick={() => formatSelectedText("description", "*")}
-            >
-              <Italic size={17} />
-            </button>
+      <section className="admin-form-panel admin-form-panel-group admin-form-panel-editor">
+        <div className="admin-form-panel-header">
+          <div>
+            <h3>Project Body</h3>
+            <p>Tiptap is the single editor for rich project content.</p>
+          </div>
+        </div>
 
-            <button
-              type="button"
-              title="Underline"
-              aria-label="Underline"
-              onClick={() => formatSelectedText("description", "__")}
-            >
-              <Underline size={17} />
-            </button>
+        <ProjectTiptapEditor
+          value={ensureProjectContentJson(formData.contentJson, formData.content)}
+          onChange={handleRichTextContentChange}
+          onNotify={onNotify}
+          disabled={false}
+          hasPendingUploads={hasPendingUploads}
+          stageImage={(file) => stageRichTextMedia(file, "image")}
+          stageVideo={(file) => stageRichTextMedia(file, "video")}
+        />
 
-            <button
-              type="button"
-              title="Bullet list"
-              aria-label="Bullet list"
-              onClick={() => formatSelectedText("description", "- ", "")}
-            >
-              <List size={17} />
-            </button>
+        {renderContentBlocksSection()}
+      </section>
 
-            <button
-              type="button"
-              title="Numbered list"
-              aria-label="Numbered list"
-              onClick={() => {
-                const lines = formData.description.split("\n");
-                let lastNumber = 0;
+      <section className="admin-form-panel admin-form-panel-group">
+        <div className="admin-form-panel-header">
+          <div>
+            <h3>Advanced</h3>
+            <p>Code previews, links, and metadata that support the project.</p>
+          </div>
+        </div>
 
-                for (let i = lines.length - 1; i >= 0; i--) {
-                  const match = lines[i].trim().match(/^(\d+)\.\s/);
+        {renderCodeSection()}
+        {renderLinksSection()}
 
-                  if (match) {
-                    lastNumber = parseInt(match[1], 10);
-                    break;
-                  }
-                }
-
-                const nextNumber = lastNumber + 1;
-
-                setFormData((prev) => ({
-                  ...prev,
-                  description:
-                    prev.description +
-                    (prev.description ? "\n" : "") +
-                    `${nextNumber}. `,
-                }));
-              }}
-            >
-              <ListOrdered size={17} />
-            </button>
-
-            <button
-              type="button"
-              title="Separator"
-              aria-label="Separator"
-              onClick={() =>
-                setFormData((prev) => ({
-                  ...prev,
-                  description: `${prev.description}${prev.description ? "\n" : ""}---`,
-                }))
-              }
-            >
-              <Minus size={17} />
-            </button>
+        <div className="admin-form-subsection">
+          <div className="admin-form-panel-header">
+            <div>
+              <h3>Tags</h3>
+              <p>Keep project tags aligned with the public project footer.</p>
+            </div>
           </div>
 
-          <textarea
-            id="description"
-            rows={7}
-            placeholder="Write a short project description"
-            value={formData.description}
-            onChange={handleChange}
-          />
-
-          <small>
-            Supports **bold**, *italic*, __underline__, bullet lists, numbered
-            lists, and --- separators.
-          </small>
+          <div className="admin-form-group">
+            <label htmlFor="tags">Tags</label>
+            <input
+              id="tags"
+              type="text"
+              placeholder="e.g. react, ui, portfolio, machine-learning"
+              value={formData.tags}
+              onChange={handleChange}
+            />
+            <small>Separate tags with commas.</small>
+          </div>
         </div>
       </section>
 
-      {renderGallerySection()}
-      {renderMediaSection()}
-      {renderCodeSection()}
-      {renderLinksSection()}
-
-      {renderContentBlocksSection()}
-
-      <section className="admin-form-panel">
-        <div className="admin-form-panel-header">
-          <h3>Tags</h3>
-          <p>Keep project tags aligned with the public project footer.</p>
+      <div className="admin-page-savebar">
+        <div>
+          <strong>Ready to publish changes</strong>
+          <span>
+            {hasPendingUploads
+              ? "Uploads are still processing. Save will unlock when they finish."
+              : "Save your project once the content and assets look right."}
+          </span>
         </div>
 
-        <div className="admin-form-group">
-          <label htmlFor="tags">Tags</label>
-          <input
-            id="tags"
-            type="text"
-            placeholder="e.g. react, ui, portfolio, machine-learning"
-            value={formData.tags}
-            onChange={handleChange}
-          />
-          <small>Separate tags with commas.</small>
+        <div className="admin-form-actions">
+          <button
+            type="submit"
+            className="admin-primary-button"
+            disabled={hasPendingUploads}
+          >
+            <Save size={16} />
+            {submitLabel}
+          </button>
         </div>
-      </section>
-
-      <div className="admin-form-actions">
-        <button
-          type="submit"
-          className="admin-primary-button"
-          disabled={hasPendingUploads}
-        >
-          {submitLabel}
-        </button>
-        {hasPendingUploads ? (
-          <p className="admin-form-status">
-            Upload in progress. Please wait before saving.
-          </p>
-        ) : null}
       </div>
       {renderConfirmModal()}
     </form>

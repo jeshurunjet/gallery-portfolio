@@ -2,9 +2,28 @@ import { useEffect, useState } from "react";
 import type { GalleryImage, MediaAsset, Project } from "../data/projects";
 import { ProjectContext } from "./project-context";
 import { API_BASE_URL } from "../config";
+import type { JSONContent } from "@tiptap/react";
+import {
+  ensureProjectContentJson,
+  type LegacyProjectContentBlock,
+} from "../utils/projectContentMigration";
+
+function normalizeGalleryMode(value: unknown): GalleryImage["mode"] {
+  if (
+    value === "original" ||
+    value === "landscape" ||
+    value === "portrait" ||
+    value === "square" ||
+    value === "header"
+  ) {
+    return value;
+  }
+
+  return value === "header" ? "header" : "landscape";
+}
 
 function normalizeProject(project: Project): Project {
-  let parsedContent = [];
+  let parsedContentJson: JSONContent | null = null;
   let parsedGalleryImages: GalleryImage[] = [];
   let parsedVideos: MediaAsset[] = [];
   let parsedAudios: MediaAsset[] = [];
@@ -30,13 +49,19 @@ function normalizeProject(project: Project): Project {
   };
 
   try {
-    if (typeof project.content === "string") {
-      parsedContent = JSON.parse(project.content);
-    } else if (Array.isArray(project.content)) {
-      parsedContent = project.content;
+    const rawContentJson: unknown = (project as { contentJson?: unknown }).contentJson;
+
+    if (typeof rawContentJson === "string" && rawContentJson.trim()) {
+      parsedContentJson = JSON.parse(rawContentJson) as JSONContent;
+    } else if (
+      rawContentJson &&
+      typeof rawContentJson === "object" &&
+      "type" in rawContentJson
+    ) {
+      parsedContentJson = rawContentJson as JSONContent;
     }
   } catch {
-    parsedContent = [];
+    parsedContentJson = null;
   }
 
   try {
@@ -67,54 +92,23 @@ function normalizeProject(project: Project): Project {
     parsedGalleryImages = project.images.map((url, index) => ({
       url,
       publicId: project.imagesPublicIds?.[index] ?? undefined,
-      mode: "default",
-      frameHeight: 100,
-      zoom: 100,
-      offsetX: 0,
-      offsetY: 0,
+      mode: "landscape",
     }));
   }
 
-  parsedGalleryImages = parsedGalleryImages.map((image) => ({
-    ...image,
-    mode: image.mode ?? "default",
-    frameHeight:
-      typeof image.frameHeight === "number"
-        ? image.frameHeight
-        : image.mode === "header"
-          ? 60
-          : 100,
-    zoom:
-      typeof (image as GalleryImage & { zoom?: number }).zoom === "number"
-        ? (image as GalleryImage & { zoom?: number }).zoom
-        : typeof (image as GalleryImage & { imageHeight?: number }).imageHeight ===
-            "number"
-          ? (image as GalleryImage & { imageHeight?: number }).imageHeight
-        : image.mode === "header"
-          ? 130
-          : 100,
-    offsetX:
-      typeof image.offsetX === "number"
-        ? image.offsetX
-        : typeof (image as GalleryImage & { objectPositionX?: number })
-              .objectPositionX === "number"
-          ? ((image as GalleryImage & { objectPositionX?: number })
-              .objectPositionX ?? 50) - 50
-          : 0,
-    offsetY:
-      typeof image.offsetY === "number"
-        ? image.offsetY
-        : typeof (image as GalleryImage & { objectPositionY?: number })
-              .objectPositionY === "number"
-          ? ((image as GalleryImage & { objectPositionY?: number })
-              .objectPositionY ?? 50) - 50
-          : 0,
-  }));
-
   return {
     ...project,
-    content: parsedContent,
-    galleryImages: parsedGalleryImages,
+    contentJson: ensureProjectContentJson(
+      parsedContentJson,
+      (project as Project & { content?: LegacyProjectContentBlock[] | null }).content ?? null,
+      (project as Project & { description?: string | null }).description ?? null,
+      (project as Project & { descriptionJson?: JSONContent | null }).descriptionJson ?? null
+    ),
+    galleryImages: parsedGalleryImages.map((image) => ({
+      url: image.url,
+      publicId: image.publicId,
+      mode: normalizeGalleryMode(image.mode),
+    })),
     galleryShowThumbnails: project.galleryShowThumbnails ?? true,
     galleryAutoScroll: project.galleryAutoScroll ?? true,
     videos: parsedVideos,
@@ -195,8 +189,9 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
       body: JSON.stringify({
         title: project.title,
         category: project.category,
-        description: project.description,
-        content: project.content ? JSON.stringify(project.content) : "",
+        contentJson: project.contentJson
+          ? JSON.stringify(project.contentJson)
+          : "",
         cover: project.cover,
         coverPublicId: project.coverPublicId ?? null,
         coverDisplayMode: project.coverDisplayMode ?? "default",
@@ -252,9 +247,8 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({
           title: updatedProject.title,
           category: updatedProject.category,
-          description: updatedProject.description,
-          content: updatedProject.content
-            ? JSON.stringify(updatedProject.content)
+          contentJson: updatedProject.contentJson
+            ? JSON.stringify(updatedProject.contentJson)
             : "",
           cover: updatedProject.cover,
           coverPublicId: updatedProject.coverPublicId ?? null,
@@ -317,10 +311,13 @@ function ProjectProvider({ children }: { children: React.ReactNode }) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText.trim() || "Failed to delete project");
+      console.error("Backend delete project error:", errorText);
+      throw new Error(
+        errorText.trim() || `Failed to delete project (${response.status})`
+      );
     }
 
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+    setProjects((prev) => prev.filter((project) => project.id !== id));
   };
 
   return (

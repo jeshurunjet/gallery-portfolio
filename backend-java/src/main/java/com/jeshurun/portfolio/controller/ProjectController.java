@@ -46,6 +46,9 @@ public class ProjectController {
 
     @PostMapping("/api/projects")
     public Project createProject(@RequestBody Project project) {
+        if (project.getContentJson() == null || project.getContentJson().isBlank()) {
+            project.setContentJson("{\"type\":\"doc\",\"content\":[]}");
+        }
         syncTags(project.getTags());
         return projectRepository.save(project);
     }
@@ -62,8 +65,6 @@ public class ProjectController {
 
         existingProject.setTitle(updatedProject.getTitle());
         existingProject.setCategory(updatedProject.getCategory());
-        existingProject.setDescription(updatedProject.getDescription());
-        existingProject.setContent(updatedProject.getContent());
         existingProject.setCover(updatedProject.getCover());
         existingProject.setCoverPublicId(updatedProject.getCoverPublicId());
         existingProject.setCoverDisplayMode(updatedProject.getCoverDisplayMode());
@@ -86,6 +87,7 @@ public class ProjectController {
         existingProject.setViews(updatedProject.getViews());
         existingProject.setPinned(updatedProject.getPinned());
         existingProject.setTypes(updatedProject.getTypes());
+        existingProject.setContentJson(updatedProject.getContentJson());
 
         syncTags(updatedProject.getTags());
 
@@ -152,7 +154,7 @@ public class ProjectController {
             deleteMediaAssets(project.getAudiosJson(), "video");
             deleteMediaAssets(project.getPdfsJson(), "image");
 
-            deleteContentAssets(project.getContent());
+            deleteContentAssets(project.getContentJson());
         } catch (Exception error) {
             System.out.println("Project asset cleanup failed for id: " + id);
             error.printStackTrace();
@@ -197,42 +199,13 @@ public class ProjectController {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode blocks = mapper.readTree(contentJson);
+            JsonNode root = mapper.readTree(contentJson);
 
-            for (JsonNode block : blocks) {
-                String type = block.path("type").asText();
-
-                if ("image".equals(type)) {
-                    // prefer block publicId when present
-                    if (block.has("publicId") && !block.path("publicId").asText().isBlank()) {
-                        deleteCloudinaryAssetById(block.path("publicId").asText(), "image");
-                    } else {
-                        deleteCloudinaryAsset(block.path("url").asText(), "image");
-                    }
-                }
-
-                if ("video".equals(type)) {
-                    if (block.has("publicId") && !block.path("publicId").asText().isBlank()) {
-                        deleteCloudinaryAssetById(block.path("publicId").asText(), "video");
-                    } else {
-                        deleteCloudinaryAsset(block.path("url").asText(), "video");
-                    }
-                }
-
-                if ("mediaText".equals(type)) {
-                    String mediaType = block.path("mediaType").asText("image");
-
-                    if (block.has("publicId") && !block.path("publicId").asText().isBlank()) {
-                        deleteCloudinaryAssetById(block.path("publicId").asText(), mediaType);
-                    } else {
-                        deleteCloudinaryAsset(block.path("imageUrl").asText(), mediaType);
-                    }
-
-                    if (block.has("publicIdRight") && !block.path("publicIdRight").asText().isBlank()) {
-                        deleteCloudinaryAssetById(block.path("publicIdRight").asText(), "image");
-                    } else {
-                        deleteCloudinaryAsset(block.path("imageUrlRight").asText(), "image");
-                    }
+            for (CloudinaryAssetRef asset : extractContentAssets(root)) {
+                if (asset.publicId() != null && !asset.publicId().isBlank()) {
+                    deleteCloudinaryAssetById(asset.publicId(), asset.resourceType());
+                } else {
+                    deleteCloudinaryAsset(asset.url(), asset.resourceType());
                 }
             }
         } catch (Exception error) {
@@ -258,7 +231,7 @@ public class ProjectController {
         deleteRemovedMediaAssets(existingProject.getPdfsJson(), updatedProject.getPdfsJson(), "image");
 
         deleteRemovedListAssets(existingProject.getImages(), updatedProject.getImages(), "image");
-        deleteRemovedContentAssets(existingProject.getContent(), updatedProject.getContent());
+        deleteRemovedContentAssets(existingProject.getContentJson(), updatedProject.getContentJson());
     }
 
     private void deleteRemovedAsset(String existingUrl, String updatedUrl, String resourceType) {
@@ -375,49 +348,65 @@ public class ProjectController {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode blocks = mapper.readTree(contentJson);
-
-            for (JsonNode block : blocks) {
-                String type = block.path("type").asText();
-
-                if ("image".equals(type)) {
-                    addAssetRef(
-                            assets,
-                            block.path("url").asText(),
-                            block.path("publicId").asText(null),
-                            "image"
-                    );
-                }
-
-                if ("video".equals(type)) {
-                    addAssetRef(
-                            assets,
-                            block.path("url").asText(),
-                            block.path("publicId").asText(null),
-                            "video"
-                    );
-                }
-
-                if ("mediaText".equals(type)) {
-                    String mediaType = block.path("mediaType").asText("image");
-
-                    addAssetRef(
-                            assets,
-                            block.path("imageUrl").asText(),
-                            block.path("publicId").asText(null),
-                            mediaType
-                    );
-                    addAssetRef(
-                            assets,
-                            block.path("imageUrlRight").asText(),
-                            block.path("publicIdRight").asText(null),
-                            "image"
-                    );
-                }
-            }
+            JsonNode root = mapper.readTree(contentJson);
+            assets.addAll(extractContentAssets(root));
         } catch (Exception error) {
             System.out.println("Failed parsing content blocks");
             error.printStackTrace();
+        }
+
+        return assets;
+    }
+
+    private List<CloudinaryAssetRef> extractContentAssets(JsonNode node) {
+        List<CloudinaryAssetRef> assets = new ArrayList<>();
+
+        if (node == null || node.isMissingNode()) {
+            return assets;
+        }
+
+        String type = node.path("type").asText();
+        JsonNode attrs = node.path("attrs");
+
+        if ("image".equals(type)) {
+            addAssetRef(
+                    assets,
+                    attrs.path("src").asText(),
+                    attrs.path("publicId").asText(null),
+                    "image"
+            );
+        }
+
+        if ("projectVideo".equals(type)) {
+            addAssetRef(
+                    assets,
+                    attrs.path("url").asText(),
+                    attrs.path("publicId").asText(null),
+                    "video"
+            );
+        }
+
+        if ("mediaText".equals(type)) {
+            String mediaType = attrs.path("mediaType").asText("image");
+
+            addAssetRef(
+                    assets,
+                    attrs.path("imageUrl").asText(),
+                    attrs.path("publicId").asText(null),
+                    mediaType
+            );
+            addAssetRef(
+                    assets,
+                    attrs.path("imageUrlRight").asText(),
+                    attrs.path("publicIdRight").asText(null),
+                    "image"
+            );
+        }
+
+        if (node.path("content").isArray()) {
+            for (JsonNode child : node.path("content")) {
+                assets.addAll(extractContentAssets(child));
+            }
         }
 
         return assets;

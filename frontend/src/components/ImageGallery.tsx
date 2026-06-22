@@ -49,48 +49,43 @@ function ImageGallery({
     return <div className="image-gallery">No images available.</div>;
   }
 
-  const activeMode = activeImage.mode ?? "default";
+  const activeMode = activeImage.mode ?? "landscape";
 
-  const getMainFrameAspectRatio = (image: GalleryImage) => {
-    const mode = image.mode ?? "default";
-    const baseHeight = mode === "header" ? 5 : 9;
-    const frameScale = Math.max(35, Math.min(100, image.frameHeight ?? 100));
-    return `16 / ${(baseHeight * frameScale) / 100}`;
-  };
-
-  const getThumbnailFrameAspectRatio = (image: GalleryImage) => {
-    return image.mode === "header" ? "16 / 6" : "16 / 9";
+  const getAspectRatio = (mode: GalleryImage["mode"]) => {
+    switch (mode) {
+      case "header":
+        return "16 / 5";
+      case "portrait":
+        return "4 / 5";
+      case "square":
+        return "1 / 1";
+      case "original":
+        return "auto";
+      default:
+        return "16 / 9";
+    }
   };
 
   const getMainImageStyle = (image: GalleryImage) => {
-    const zoom = Math.max(90, Math.min(220, image.zoom ?? 100));
-    const offsetX = Math.max(-50, Math.min(50, image.offsetX ?? 0));
-    const offsetY = Math.max(-50, Math.min(50, image.offsetY ?? 0));
-    const hasManualCrop =
-      zoom > 100 || offsetX !== 0 || offsetY !== 0 || image.mode === "header";
-
-    if (!hasManualCrop) {
+    if ((image.mode ?? "landscape") === "original") {
       return {
+        position: "relative",
         width: "100%",
         height: "100%",
-        objectFit: "cover",
-        objectPosition: "50% 50%",
-        left: "0",
-        top: "0",
-        transform: "none",
+        objectFit: "contain",
+        inset: "0",
       } as const;
     }
 
     return {
-      width: `${zoom}%`,
-      height: "auto",
-      minWidth: "100%",
-      minHeight: "100%",
-      maxWidth: "none",
-      left: "50%",
-      top: "50%",
-      transform: `translate(calc(-50% + ${offsetX}%), calc(-50% + ${offsetY}%))`,
-    };
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      objectPosition: "50% 50%",
+      left: "0",
+      top: "0",
+      transform: "none",
+    } as const;
   };
 
   const getThumbnailImageStyle = () => {
@@ -106,7 +101,7 @@ function ImageGallery({
     <div className="image-gallery">
       <div
         className={`image-gallery-main image-gallery-main--${activeMode}`}
-        style={{ aspectRatio: getMainFrameAspectRatio(activeImage) }}
+        style={{ aspectRatio: getAspectRatio(activeMode) }}
         onTouchStart={(event) => {
           setTouchStartX(event.changedTouches[0]?.clientX ?? null);
         }}
@@ -142,7 +137,7 @@ function ImageGallery({
               }`}
               onClick={() => setSelectedIndex(index)}
               type="button"
-              style={{ aspectRatio: getThumbnailFrameAspectRatio(image) }}
+              style={{ aspectRatio: getAspectRatio(image.mode ?? "landscape") }}
             >
               <img
                 src={image.url}

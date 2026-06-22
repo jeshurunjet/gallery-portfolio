@@ -7,9 +7,8 @@ import VideoPlayer from "../components/VideoPlayer";
 import AudioPlayer from "../components/AudioPlayer";
 import PdfViewer from "../components/PdfViewer";
 import CodeViewer from "../components/CodeViewer";
-import ProjectContentRenderer from "../components/ProjectContentRenderer";
-import FormattedText from "../components/FormattedText";
 import { API_BASE_URL } from "../config";
+import ProjectRichTextRenderer from "../components/ProjectRichTextRenderer";
 
 function ProjectPage() {
   const { id } = useParams();
@@ -61,16 +60,39 @@ function ProjectPage() {
     project.pdfs ??
     (project.pdfUrl ? [{ url: project.pdfUrl, publicId: project.pdfPublicId }] : []);
   const category = project.category ?? "Uncategorized";
-  const description = project.description ?? "No description yet.";
   const likes = localLikesById[project.id] ?? project.likes ?? 0;
   const views = project.views ?? 0;
-  const content = project.content ?? [];
+  const contentJson = project.contentJson ?? null;
   const facts = project.facts;
   const hasHeroMedia =
     videos.length > 0 ||
     audios.length > 0 ||
     Boolean(project.codeContent) ||
     galleryImages.length > 0;
+  const projectLinks = [
+    project.liveUrl
+      ? {
+          href: project.liveUrl,
+          label: "Live Demo",
+          icon: <Globe size={18} />,
+        }
+      : null,
+    project.githubUrl
+      ? {
+          href: project.githubUrl,
+          label: "GitHub",
+          icon: <Code2 size={18} />,
+        }
+      : null,
+    project.externalUrl
+      ? {
+          href: project.externalUrl,
+          label: "External",
+          icon: <ExternalLink size={18} />,
+        }
+      : null,
+  ].filter(Boolean) as { href: string; label: string; icon: React.ReactNode }[];
+  const hasProjectAside = projectLinks.length > 0 || tags.length > 0 || Boolean(facts);
 
   const handleLike = async () => {
     if (hasLiked) return;
@@ -142,117 +164,126 @@ function ProjectPage() {
         </div>
       )}
 
-      <div className="project-layout">
-        <section className="project-main">
-          <p className="project-category">{category}</p>
-          <h1>{project.title}</h1>
+      <div className="project-content">
+        <div className="project-intro-grid">
+          <div className="project-intro-main">
+            <p className="project-category">{category}</p>
+            <h1>{project.title}</h1>
 
-          <div className="project-description">
-            <FormattedText text={description} />
+            <div className="project-stats">
+              <button
+                className={`stat-item like-button ${hasLiked ? "liked" : ""}`}
+                disabled={hasLiked}
+                onClick={handleLike}
+              >
+                <ThumbsUp size={16} /> {likes}
+              </button>
+
+              <div className="stat-item">
+                <Eye size={16} /> {views}
+              </div>
+            </div>
+
+            {contentJson ? (
+              <ProjectRichTextRenderer
+                content={contentJson}
+                className="project-content-flow"
+              />
+            ) : !hasHeroMedia && pdfs.length === 0 ? (
+              <div className="empty-media">
+                <p>No media available for this project.</p>
+              </div>
+            ) : null}
           </div>
 
-          {pdfs.map((pdf, index) => (
-            <PdfViewer
-              key={`pdf-${pdf.publicId ?? pdf.url ?? index}`}
-              url={pdf.url}
-            />
-          ))}
+          {hasProjectAside && (
+            <aside className="project-intro-side">
+              {projectLinks.length > 0 && (
+                <div className="project-side-section">
+                  <span className="project-side-label">Project Links</span>
+                  <div className="project-links" aria-label="Project links">
+                    {projectLinks.map((link) => (
+                      <a
+                        key={link.label}
+                        href={link.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="project-link-button"
+                        aria-label={link.label}
+                        title={link.label}
+                      >
+                        {link.icon}
+                        <span>{link.label}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {content.length > 0 && <ProjectContentRenderer content={content} />}
+              {tags.length > 0 && (
+                <div className="project-side-section project-tags">
+                  <span className="project-side-label">Tags</span>
+                  <div className="project-tags-list">
+                    {visibleTags.map((tag, index) => (
+                      <span key={`${tag}-${index}`} className="tag">
+                        #{tag}
+                      </span>
+                    ))}
+                    {tags.length > 3 && (
+                      <span className="tag">+{tags.length - 3} more</span>
+                    )}
+                  </div>
+                </div>
+              )}
 
-          {!hasHeroMedia && pdfs.length === 0 && content.length === 0 && (
-            <div className="empty-media">
-              <p>No media available for this project.</p>
-            </div>
+              {facts && (
+                <div className="project-side-section">
+                  <span className="project-side-label">Project Facts</span>
+                  <div className="project-facts">
+                    {facts.role && (
+                      <div>
+                        <strong>Role</strong>
+                        <span>{facts.role}</span>
+                      </div>
+                    )}
+
+                    {facts.year && (
+                      <div>
+                        <strong>Year</strong>
+                        <span>{facts.year}</span>
+                      </div>
+                    )}
+
+                    {facts.tools && (
+                      <div>
+                        <strong>Tools</strong>
+                        <span>{facts.tools.join(", ")}</span>
+                      </div>
+                    )}
+
+                    {facts.category && (
+                      <div>
+                        <strong>Category</strong>
+                        <span>{facts.category}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </aside>
           )}
+        </div>
 
-          <div className="project-tags">
-            <hr className="content-divider"></hr>
-            {visibleTags.map((tag, index) => (
-              <span key={`${tag}-${index}`} className="tag">
-                #{tag}
-              </span>
+        {pdfs.length > 0 && (
+          <div className="project-full-section">
+            {pdfs.map((pdf, index) => (
+              <PdfViewer
+                key={`pdf-${pdf.publicId ?? pdf.url ?? index}`}
+                url={pdf.url}
+              />
             ))}
-            {tags.length > 3 && <span className="tag">+{tags.length - 3} more</span>}
           </div>
-        </section>
-
-        <aside className="project-side">
-          <div className="project-stats">
-            <button
-              className={`stat-item like-button ${hasLiked ? "liked" : ""}`}
-              disabled={hasLiked}
-              onClick={handleLike}
-            >
-              <ThumbsUp size={16} /> {likes}
-            </button>
-
-            <div className="stat-item">
-              <Eye size={16} /> {views}
-            </div>
-          </div>
-
-          {project.liveUrl && (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="project-link-button"
-            >
-              <Globe size={16} /> Live Demo
-            </a>
-          )}
-
-          {project.githubUrl && (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="project-link-button"
-            >
-              <Code2 size={16} /> GitHub
-            </a>
-          )}
-
-          {project.externalUrl && (
-            <a
-              href={project.externalUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="project-link-button"
-            >
-              <ExternalLink size={16} /> External
-            </a>
-          )}
-
-          {facts && (
-            <div className="project-facts">
-              {facts.role && (
-                <div>
-                  <strong>Role:</strong> {facts.role}
-                </div>
-              )}
-
-              {facts.year && (
-                <div>
-                  <strong>Year:</strong> {facts.year}
-                </div>
-              )}
-
-              {facts.tools && (
-                <div>
-                  <strong>Tools:</strong> {facts.tools.join(", ")}
-                </div>
-              )}
-
-              {facts.category && (
-                <div>
-                  <strong>Category:</strong> {facts.category}
-                </div>
-              )}
-            </div>
-          )}
-        </aside>
+        )}
       </div>
     </main>
   );

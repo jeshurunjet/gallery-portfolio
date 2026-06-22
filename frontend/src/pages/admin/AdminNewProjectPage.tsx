@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Toast from "../../components/Toast";
 import type { Project } from "../../data/projects";
+import { FolderPlus } from "lucide-react";
 
 function AdminNewProjectPage() {
   const { addProject } = useProjects();
@@ -18,8 +19,8 @@ function AdminNewProjectPage() {
   const initialData: ProjectFormData = {
     title: "",
     category: "",
-    description: "",
     content: [],
+    contentJson: null,
     tags: "",
     cover: "",
     coverPublicId: "",
@@ -69,8 +70,7 @@ function AdminNewProjectPage() {
       await addProject({
         title: data.title,
         category: data.category,
-        description: data.description,
-        content: data.content,
+        contentJson: data.contentJson,
         tags: data.tags
           .split(",")
           .map((t) => t.trim().toLowerCase())
@@ -111,9 +111,15 @@ function AdminNewProjectPage() {
     <>
       <main>
         <div className="admin-page-header">
-          <div>
-            <h1>New Project</h1>
-            <p>Create a new portfolio project.</p>
+          <div className="admin-page-heading">
+            <span className="admin-page-heading-icon" aria-hidden="true">
+              <FolderPlus size={20} />
+            </span>
+
+            <div className="admin-page-heading-copy">
+              <h1>New Project</h1>
+              <p>Create a new portfolio project.</p>
+            </div>
           </div>
         </div>
 

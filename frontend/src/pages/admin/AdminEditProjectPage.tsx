@@ -5,7 +5,7 @@ import ProjectForm, {
 } from "../../components/ProjectForm";
 import useProjects from "../../hooks/useProjects";
 import Toast from "../../components/Toast";
-import { Eye, ThumbsUp } from "lucide-react";
+import { Eye, SquarePen, ThumbsUp } from "lucide-react";
 
 function AdminEditProjectPage() {
   const { id } = useParams();
@@ -32,8 +32,8 @@ function AdminEditProjectPage() {
   const initialData: ProjectFormData = {
     title: project.title ?? "",
     category: project.category ?? "",
-    description: project.description ?? "",
-    content: project.content ?? [],
+    content: [],
+    contentJson: project.contentJson ?? null,
     tags: (project.tags ?? []).join(", "),
     cover: project.cover ?? "",
     coverPublicId: project.coverPublicId ?? "",
@@ -92,8 +92,7 @@ function AdminEditProjectPage() {
         ...project,
         title: data.title,
         category: data.category,
-        description: data.description,
-        content: data.content,
+        contentJson: data.contentJson,
         tags: data.tags
           .split(",")
           .map((tag) => tag.trim().toLowerCase())
@@ -134,9 +133,15 @@ function AdminEditProjectPage() {
     <>
       <main>
         <div className="admin-page-header">
-          <div>
-            <h1>Edit Project</h1>
-            <p>Update your project details.</p>
+          <div className="admin-page-heading">
+            <span className="admin-page-heading-icon" aria-hidden="true">
+              <SquarePen size={20} />
+            </span>
+
+            <div className="admin-page-heading-copy">
+              <h1>Edit Project</h1>
+              <p>Update your project details.</p>
+            </div>
           </div>
         </div>
 
@@ -149,56 +154,6 @@ function AdminEditProjectPage() {
             >
               ← Back
             </button>
-
-            <button
-              type="button"
-              className="admin-secondary-button admin-reset-button"
-              onClick={async () => {
-                try {
-                  await updateProject({
-                    ...project,
-                    likes: 0,
-                    pinned: draftPinned ?? project.pinned ?? false,
-                  });
-
-                  setToastMessage("Likes reset");
-                  setShowToast(true);
-                } catch (error) {
-                  setToastMessage(
-                    error instanceof Error ? error.message : "Failed to reset likes."
-                  );
-                  setShowToast(true);
-                }
-              }}
-            >
-              <ThumbsUp size={17} />
-              Reset Likes
-            </button>
-
-            <button
-              type="button"
-              className="admin-secondary-button admin-reset-button"
-              onClick={async () => {
-                try {
-                  await updateProject({
-                    ...project,
-                    views: 0,
-                    pinned: draftPinned ?? project.pinned ?? false,
-                  });
-
-                  setToastMessage("Views reset");
-                  setShowToast(true);
-                } catch (error) {
-                  setToastMessage(
-                    error instanceof Error ? error.message : "Failed to reset views."
-                  );
-                  setShowToast(true);
-                }
-              }}
-            >
-              <Eye size={17} />
-              Reset Views
-            </button>
           </div>
         </div>
 
@@ -208,6 +163,63 @@ function AdminEditProjectPage() {
           onSubmit={handleSubmit}
           pinnedOverride={draftPinned ?? project.pinned ?? false}
           onPinnedChange={setDraftPinned}
+          headerActions={
+            <>
+              <button
+                type="button"
+                className="admin-pin-button admin-pin-action admin-pin-action-icon"
+                aria-label="Reset likes"
+                data-label="Reset likes"
+                title="Reset likes"
+                onClick={async () => {
+                  try {
+                    await updateProject({
+                      ...project,
+                      likes: 0,
+                      pinned: draftPinned ?? project.pinned ?? false,
+                    });
+
+                    setToastMessage("Likes reset");
+                    setShowToast(true);
+                  } catch (error) {
+                    setToastMessage(
+                      error instanceof Error ? error.message : "Failed to reset likes."
+                    );
+                    setShowToast(true);
+                  }
+                }}
+              >
+                <ThumbsUp size={18} />
+              </button>
+
+              <button
+                type="button"
+                className="admin-pin-button admin-pin-action admin-pin-action-icon"
+                aria-label="Reset views"
+                data-label="Reset views"
+                title="Reset views"
+                onClick={async () => {
+                  try {
+                    await updateProject({
+                      ...project,
+                      views: 0,
+                      pinned: draftPinned ?? project.pinned ?? false,
+                    });
+
+                    setToastMessage("Views reset");
+                    setShowToast(true);
+                  } catch (error) {
+                    setToastMessage(
+                      error instanceof Error ? error.message : "Failed to reset views."
+                    );
+                    setShowToast(true);
+                  }
+                }}
+              >
+                <Eye size={18} />
+              </button>
+            </>
+          }
           onNotify={(message) => {
             setToastMessage(message);
             setShowToast(true);

@@ -4,6 +4,7 @@ import ProjectCard from "../components/ProjectCard";
 import useProjects from "../hooks/useProjects";
 import LoadingPage from "../components/LoadingPage";
 import { ChevronDown, Search, SlidersHorizontal } from "lucide-react";
+import { contentJsonToPlainText } from "../utils/projectContentMigration";
 
 type HomeSortOption = "recent" | "views" | "likes" | "az";
 
@@ -34,7 +35,7 @@ function HomePage() {
       const matchesSearch =
         !normalizedSearch ||
         project.title.toLowerCase().includes(normalizedSearch) ||
-        project.description.toLowerCase().includes(normalizedSearch) ||
+        contentJsonToPlainText(project.contentJson).toLowerCase().includes(normalizedSearch) ||
         project.category.toLowerCase().includes(normalizedSearch) ||
         project.tags.some((tag) => tag.toLowerCase().includes(normalizedSearch));
 

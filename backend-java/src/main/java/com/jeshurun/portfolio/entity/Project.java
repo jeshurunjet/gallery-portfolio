@@ -21,9 +21,6 @@ public class Project {
     private List<String> types;
 
     @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(columnDefinition = "TEXT")
     private String cover;
 
     @Column(columnDefinition = "TEXT")
@@ -71,7 +68,7 @@ public class Project {
     private String externalUrl;
 
     @Column(columnDefinition = "TEXT")
-    private String content;
+    private String contentJson;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> tags;
@@ -82,8 +79,6 @@ public class Project {
         this.id = id;
         this.title = title;
     }
-
-    // --- GETTERS & SETTERS ---
 
     public Long getId() {
         return id;
@@ -109,14 +104,6 @@ public class Project {
         this.category = category;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getCover() {
         return cover;
     }
@@ -131,22 +118,6 @@ public class Project {
 
     public void setCoverPublicId(String coverPublicId) {
         this.coverPublicId = coverPublicId;
-    }
-
-    public List<String> getImages() {
-    return images;
-    }
-
-    public void setImages(List<String> images) {
-        this.images = images;
-    }
-
-    public List<String> getImagesPublicIds() {
-        return imagesPublicIds;
-    }
-
-    public void setImagesPublicIds(List<String> imagesPublicIds) {
-        this.imagesPublicIds = imagesPublicIds;
     }
 
     public String getCoverDisplayMode() {
@@ -171,6 +142,22 @@ public class Project {
 
     public void setCoverPositionY(Integer coverPositionY) {
         this.coverPositionY = coverPositionY;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
+    public List<String> getImagesPublicIds() {
+        return imagesPublicIds;
+    }
+
+    public void setImagesPublicIds(List<String> imagesPublicIds) {
+        this.imagesPublicIds = imagesPublicIds;
     }
 
     public String getGalleryImagesJson() {
@@ -253,17 +240,9 @@ public class Project {
         this.externalUrl = externalUrl;
     }
 
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
     public Integer getLikes() {
-    return likes;
-}
+        return likes;
+    }
 
     public void setLikes(Integer likes) {
         this.likes = likes;
@@ -282,7 +261,7 @@ public class Project {
     }
 
     public void setPinned(Boolean pinned) {
-        this.pinned = pinned != null ? pinned : false;
+        this.pinned = pinned;
     }
 
     public List<String> getTypes() {
@@ -293,11 +272,19 @@ public class Project {
         this.types = types;
     }
 
-    public String getContent() {
-    return content;
+    public List<String> getTags() {
+        return tags;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public String getContentJson() {
+        return contentJson;
+    }
+
+    public void setContentJson(String contentJson) {
+        this.contentJson = contentJson;
     }
 }

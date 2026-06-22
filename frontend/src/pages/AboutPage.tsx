@@ -12,10 +12,10 @@ import {
 import TypingText from "../components/TypingText";
 
 const strengthIcons: Record<AboutStrengthIcon, ReactNode> = {
-  code: <Code2 size={22} />,
-  palette: <Palette size={22} />,
-  heart: <HeartHandshake size={22} />,
-  rocket: <Rocket size={22} />,
+  code: <Code2 size={50} strokeWidth={1.8} />,
+  palette: <Palette size={50} strokeWidth={1.8} />,
+  heart: <HeartHandshake size={50} strokeWidth={1.8} />,
+  rocket: <Rocket size={50} strokeWidth={1.8} />,
 };
 
 function AboutPage() {
@@ -52,7 +52,7 @@ function AboutPage() {
   return (
     <main className="about-page">
       <section className="about-hero about-hero-featured">
-        <div>
+        <div className="about-hero-copy">
           <p className="eyebrow">{content.heroEyebrow}</p>
           <h1 className="about-typing-line">
             <TypingText phrases={content.animatedPhrases} />
@@ -62,37 +62,67 @@ function AboutPage() {
           ))}
         </div>
 
-        <div className="about-card about-profile-card">
-          <h2>{content.focusTitle}</h2>
-          <p>{content.focusText}</p>
-          <div className="about-mini-list">
-            {content.focusAreas.map((item) => (
-              <span key={item}>{item}</span>
-            ))}
+        <aside className="about-hero-side">
+          <div className="about-card about-profile-card">
+            <h2>{content.focusTitle}</h2>
+            <p>{content.focusText}</p>
+            <div className="about-focus-list">
+              {content.focusAreas.map((item) => (
+                <div key={item} className="about-focus-item">
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
           </div>
+        </aside>
+      </section>
+
+      <section className="about-layout">
+        <div className="about-main">
+          <section className="about-section about-statement-panel">
+            <p className="eyebrow">Approach</p>
+            <h2>Design-aware engineering with a practical delivery mindset.</h2>
+            <p>{content.statement}</p>
+          </section>
+
+          <section className="about-section about-strengths-panel">
+            <div className="about-section-heading">
+              <div>
+                <p className="eyebrow">Strengths</p>
+                <h2>What I bring into a project.</h2>
+              </div>
+            </div>
+
+            <div className="about-grid about-strength-grid">
+              {content.strengths.map((item, index) => (
+                <div
+                  key={item.title}
+                  className="about-strength-card"
+                  style={{ animationDelay: `${index * 90}ms` }}
+                >
+                  <span className="about-card-icon">
+                    {strengthIcons[item.icon]}
+                  </span>
+                  <div className="about-strength-copy">
+                    <span className="about-strength-index">0{index + 1}</span>
+                    <h3>{item.title}</h3>
+                    <p>{item.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
-      </section>
 
-      <section className="about-section about-statement">
-        <p>{content.statement}</p>
-      </section>
-
-      <section className="about-grid about-strength-grid">
-        {content.strengths.map((item) => (
-          <div key={item.title}>
-            <span className="about-card-icon">{strengthIcons[item.icon]}</span>
-            <h3>{item.title}</h3>
-            <p>{item.text}</p>
-          </div>
-        ))}
-      </section>
-
-      <section className="about-section about-career-note">
-        <div>
-          <p className="eyebrow">{content.experienceEyebrow}</p>
-          <h2>{content.experienceTitle}</h2>
-        </div>
-        <p>{content.experienceText}</p>
+        <aside className="about-sidebar">
+          <section className="about-section about-career-note">
+            <div>
+              <p className="eyebrow">{content.experienceEyebrow}</p>
+              <h2>{content.experienceTitle}</h2>
+            </div>
+            <p>{content.experienceText}</p>
+          </section>
+        </aside>
       </section>
     </main>
   );

@@ -112,7 +112,7 @@
 .theme-dark .auth-helper-text,
 .theme-dark .content-block-header p,
 .theme-dark .block-preview-text {
-  color: var(--muted);
+  color: var(--text);
 }
 
 .theme-dark nav,
@@ -127,7 +127,6 @@
 .theme-dark .tag-button,
 .theme-dark .tag,
 .theme-dark .card-tag,
-.theme-dark .project-link-button,
 .theme-dark .stat-item,
 .theme-dark .thumb-button.active,
 .theme-dark .pdf-viewer,
@@ -195,6 +194,10 @@
   background: var(--surface);
   border-color: var(--border);
   color: var(--text);
+}
+
+.theme-dark .project-link-button span {
+  color: inherit;
 }
 
 .theme-dark .gallery-search,
@@ -270,7 +273,17 @@
 }
 
 .theme-dark .about-profile-card {
-  background: transparent;
+  background: var(--surface-soft);
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.theme-dark .about-statement-panel,
+.theme-dark .about-sidebar-panel,
+.theme-dark .about-career-note {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow-card);
 }
 
 .theme-dark .resume-header-featured {
@@ -284,6 +297,40 @@
 .theme-dark .about-statement,
 .theme-dark .about-statement p {
   background: transparent;
+}
+
+.theme-dark .about-hero-featured,
+.theme-dark .about-grid div,
+.theme-dark .about-career-note,
+.theme-dark .about-statement-panel,
+.theme-dark .about-sidebar-panel {
+  box-shadow: none;
+}
+
+.theme-dark .about-hero-featured,
+.theme-dark .about-career-note,
+.theme-dark .about-grid,
+.theme-dark .about-grid div,
+.theme-dark .about-statement-panel,
+.theme-dark .about-sidebar-panel {
+  border-color: var(--border);
+}
+
+.theme-dark .about-grid div {
+  background: var(--surface-soft);
+}
+
+.theme-dark .about-focus-item {
+  border-top-color: var(--border);
+}
+
+.theme-dark .about-focus-item::before,
+.theme-dark .about-focus-item span {
+  color: var(--text);
+}
+
+.theme-dark .about-focus-item::before {
+  color: var(--muted);
 }
 
 .theme-dark .card,
@@ -337,7 +384,7 @@
 .theme-dark .resume-sidebar {
   padding: 1.5rem;
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 6px;
   box-shadow: none;
   background: var(--surface);
 }
@@ -349,6 +396,7 @@
 
 .theme-dark .resume-sidebar > section {
   background: transparent;
+  border-top-color: var(--border);
 }
 
 .theme-dark .resume-sidebar-item::before {
@@ -403,6 +451,69 @@
   border-color: #e7edf3;
 }
 
+.theme-dark .project-side-label,
+.theme-dark .project-facts strong {
+  color: var(--muted);
+}
+
+.theme-dark .project-side-section,
+.theme-dark .project-stats,
+.theme-dark .project-facts > div:not(:last-child) {
+  border-color: var(--border);
+}
+
+.theme-dark .project-facts > div span,
+.theme-dark .project-content-flow,
+.theme-dark .project-content-blocks,
+.theme-dark .project-content-flow .content-paragraph,
+.theme-dark .project-content-flow .content-list,
+.theme-dark .project-content-flow .content-quote,
+.theme-dark .project-content-flow .content-references {
+  color: var(--text);
+}
+
+.theme-dark .project-content .content-heading,
+.theme-dark .project-content .content-subheading,
+.theme-dark .project-content .content-paragraph strong,
+.theme-dark .project-content .content-references strong {
+  color: var(--text);
+}
+
+.theme-dark .project-content .content-media-copy,
+.theme-dark .project-content .content-column,
+.theme-dark .project-content .content-paragraph,
+.theme-dark .project-content .content-list,
+.theme-dark .project-content .content-list li,
+.theme-dark .project-content .content-references,
+.theme-dark .project-content .content-references li,
+.theme-dark .project-content .content-media-caption {
+  color: var(--text-soft);
+}
+
+.theme-dark .project-content .content-quote {
+  background: var(--surface-soft);
+  border-left-color: var(--text);
+  color: var(--text-soft);
+}
+
+.theme-dark .project-content .content-media-image,
+.theme-dark .project-content .content-image {
+  background: var(--surface-soft);
+}
+
+.theme-dark .project-content .content-media-copy span,
+.theme-dark .project-content .content-column span,
+.theme-dark .project-content .content-references span,
+.theme-dark .project-content .content-list span {
+  color: inherit;
+}
+
+.theme-dark .about-mini-list span {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
 .theme-dark .admin-inline-form .admin-primary-button,
 .theme-dark .admin-tag-actions .admin-primary-button,
 .theme-dark .admin-pin-action {
@@ -438,7 +549,6 @@
 .theme-dark .card-tag,
 .theme-dark .tag,
 .theme-dark .about-mini-list span,
-.theme-dark .skill-list span,
 .theme-dark .resume-contact-row a,
 .theme-dark .resume-contact-row span,
 .theme-dark .admin-performance-chip,
@@ -525,7 +635,11 @@
 .theme-dark .media-dropzone-preview-audio-shell {
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 58%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.06) 100%);
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.06) 100%
+    );
 }
 
 .theme-dark .media-dropzone-preview-audio-shell svg,
@@ -552,6 +666,29 @@
 
 .theme-dark .resume-skills-section {
   box-shadow: none;
+}
+
+.theme-dark .resume-quick-card {
+  background: var(--surface-soft);
+  border-color: var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.theme-dark .skill-group {
+  border-top-color: var(--border);
+}
+
+.theme-dark .skill-list span {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.theme-dark .skill-list span:hover {
+  background: var(--surface-soft);
+  border-color: var(--border-strong);
+  color: #ffffff;
 }
 
 .theme-dark .resume-item-heading span,
@@ -753,7 +890,7 @@
 }
 
 .theme-dark .about-hero-featured {
-  border: 1px solid transparent;
+  border-width: 0 0 1px;
 }
 
 .theme-dark .admin-sort-tabs button {
@@ -867,4 +1004,201 @@
 .admin-theme-option span {
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+/* ----- Admin Editorial Refresh ----- */
+
+.theme-dark {
+  --admin-border: #30363d;
+  --admin-surface: #15191f;
+  --admin-surface-soft: #11161b;
+  --admin-text: #edf2f7;
+  --admin-muted: #9aa5b1;
+  --admin-shadow-subtle: none;
+  --admin-focus-ring: rgba(155, 215, 255, 0.12);
+}
+
+.theme-dark .admin-page-header,
+.theme-dark .admin-form-subsection,
+.theme-dark .content-block-section,
+.theme-dark .admin-section-toggle,
+.theme-dark .admin-form-panel,
+.theme-dark .admin-gallery-editor-card,
+.theme-dark .admin-gallery-floating-editor,
+.theme-dark .content-editor-card,
+.theme-dark .media-dropzone-preview-card,
+.theme-dark .media-dropzone-preview-visual,
+.theme-dark .tiptap-editor-frame,
+.theme-dark .tiptap-embedded-block,
+.theme-dark .admin-page-savebar {
+  border-color: var(--admin-border);
+}
+
+.theme-dark .admin-page-heading-icon,
+.theme-dark .admin-form-panel,
+.theme-dark .admin-gallery-floating-editor,
+.theme-dark .media-links-popover,
+.theme-dark .media-dropzone-preview-card,
+.theme-dark .admin-page-savebar {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.theme-dark .admin-gallery-editor-card,
+.theme-dark .content-editor-card,
+.theme-dark .content-block-section,
+.theme-dark .media-dropzone,
+.theme-dark .media-dropzone-preview-visual,
+.theme-dark .media-dropzone-preview-audio-frame,
+.theme-dark .media-dropzone-preview-audio-shell,
+.theme-dark .media-dropzone-preview-fallback,
+.theme-dark .media-dropzone-preview-pdf,
+.theme-dark .tiptap-embedded-block,
+.theme-dark .tiptap-toolbar button,
+.theme-dark .tiptap-add-inline-button,
+.theme-dark .content-toolbar button,
+.theme-dark .editor-toggle-button,
+.theme-dark .format-toolbar button,
+.theme-dark .block-preview-type {
+  background: var(--admin-surface-soft);
+}
+
+.theme-dark .admin-page-heading-copy h1,
+.theme-dark .admin-page-savebar strong,
+.theme-dark .admin-form-panel-header h3,
+.theme-dark .content-block-header h3,
+.theme-dark .admin-form-group label,
+.theme-dark .content-editor-card-header strong,
+.theme-dark .admin-gallery-card-copy strong,
+.theme-dark .block-preview-type,
+.theme-dark .admin-section-toggle,
+.theme-dark .admin-section-status,
+.theme-dark .admin-section-icon,
+.theme-dark .media-dropzone-preview-copy strong,
+.theme-dark .media-dropzone-preview-fallback strong {
+  color: var(--admin-text);
+}
+
+.theme-dark .admin-page-heading-copy p,
+.theme-dark .admin-form-panel-header p,
+.theme-dark .content-block-header p,
+.theme-dark .admin-form-status,
+.theme-dark .admin-page-savebar span,
+.theme-dark .block-preview-text,
+.theme-dark .content-editor-card-header p,
+.theme-dark .admin-gallery-card-copy small,
+.theme-dark .media-dropzone-copy span,
+.theme-dark .media-dropzone-copy small,
+.theme-dark .media-dropzone-preview-copy small,
+.theme-dark .media-links-popover-header p,
+.theme-dark .media-dropzone-note,
+.theme-dark .media-dropzone-preview-fallback small {
+  color: var(--admin-muted);
+}
+
+.theme-dark .admin-form-group input,
+.theme-dark .admin-form-group textarea,
+.theme-dark .admin-form-group select,
+.theme-dark .content-editor-card textarea,
+.theme-dark .content-editor-card input,
+.theme-dark .content-editor-card select,
+.theme-dark .tiptap-embedded-block input,
+.theme-dark .tiptap-embedded-block textarea,
+.theme-dark .tiptap-embedded-block select {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  border-color: var(--admin-border);
+}
+
+.theme-dark .admin-form-group input:focus,
+.theme-dark .admin-form-group textarea:focus,
+.theme-dark .admin-form-group select:focus,
+.theme-dark .content-editor-card textarea:focus,
+.theme-dark .content-editor-card input:focus,
+.theme-dark .content-editor-card select:focus,
+.theme-dark .tiptap-embedded-block input:focus,
+.theme-dark .tiptap-embedded-block textarea:focus,
+.theme-dark .tiptap-embedded-block select:focus {
+  border-color: #dbe4ee;
+  box-shadow: 0 0 0 3px var(--admin-focus-ring);
+}
+
+.theme-dark .admin-secondary-button,
+.theme-dark .admin-reset-button,
+.theme-dark .admin-back-button,
+.theme-dark .admin-pin-action,
+.theme-dark .admin-gallery-action-button,
+.theme-dark .admin-inline-input-row .admin-add-row-button,
+.theme-dark .media-link-add-button,
+.theme-dark .upload-preview button,
+.theme-dark .upload-preview-item button,
+.theme-dark .content-toolbar button,
+.theme-dark .editor-toggle-button,
+.theme-dark .format-toolbar button,
+.theme-dark .tiptap-toolbar button,
+.theme-dark .tiptap-add-inline-button,
+.theme-dark .content-editor-duplicate,
+.theme-dark .content-editor-cancel-delete {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  border-color: var(--admin-border);
+}
+
+.theme-dark .admin-secondary-button:hover,
+.theme-dark .admin-reset-button:hover,
+.theme-dark .admin-back-button:hover,
+.theme-dark .admin-pin-action:hover,
+.theme-dark .admin-pin-action.active,
+.theme-dark .admin-gallery-action-button:hover,
+.theme-dark .admin-inline-input-row .admin-add-row-button:hover,
+.theme-dark .media-link-add-button:hover,
+.theme-dark .upload-preview button:hover,
+.theme-dark .upload-preview-item button:hover,
+.theme-dark .content-toolbar button:hover,
+.theme-dark .editor-toggle-button:hover,
+.theme-dark .editor-toggle-button.active,
+.theme-dark .format-toolbar button:hover,
+.theme-dark .tiptap-toolbar button:hover,
+.theme-dark .tiptap-toolbar button.active,
+.theme-dark .tiptap-add-inline-button:hover,
+.theme-dark .content-editor-duplicate:hover,
+.theme-dark .content-editor-cancel-delete:hover,
+.theme-dark .media-dropzone:hover,
+.theme-dark .media-dropzone[data-drag-active="true"] {
+  background: var(--admin-surface-soft);
+  color: var(--admin-text);
+  border-color: #424a53;
+}
+
+.theme-dark .admin-primary-button {
+  background: #edf2f7;
+  color: #0f1419;
+  border-color: #edf2f7;
+}
+
+.theme-dark .admin-primary-button:hover {
+  background: #d8e0e9;
+  color: #0f1419;
+  border-color: #d8e0e9;
+}
+
+.theme-dark .admin-pin-action-icon::after {
+  background: #0f1419;
+  color: var(--admin-text);
+  border-color: var(--admin-border);
+  box-shadow: none;
+}
+
+.theme-dark .media-dropzone-icon,
+.theme-dark .media-links-launcher-icon,
+.theme-dark .admin-page-heading-icon,
+.theme-dark .admin-section-status,
+.theme-dark .media-dropzone-preview-badge {
+  background: var(--admin-surface);
+  border-color: var(--admin-border);
+  color: var(--admin-text);
+}
+
+.theme-dark .media-dropzone-preview-pdf {
+  background: #ffffff;
 }
