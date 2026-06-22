@@ -206,7 +206,7 @@ nav div {
 .card-image {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 4 / 3.25;
 }
 
 .card-image img {
