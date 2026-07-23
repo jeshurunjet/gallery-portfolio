@@ -21,7 +21,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 	"spring.mail.properties.mail.smtp.starttls.enable=true",
 	"app.admin-email=test@example.com",
 	"app.frontend-url=http://localhost:5173",
-	"app.registration-enabled=false"
+	"app.registration-enabled=false",
+	"app.jwt-secret=test-only-jwt-secret-that-is-long-enough"
 })
 class PortfolioApplicationTests {
 

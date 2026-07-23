@@ -3,7 +3,7 @@
     {
       "name": "cloudinary.cloud-name",
       "type": "java.lang.String",
-      "description": "Cloudinary cloud name used for media uploads."
+      "description": "Cloudinary cloud name."
     },
     {
       "name": "cloudinary.api-key",
@@ -18,18 +18,24 @@
     {
       "name": "app.admin-email",
       "type": "java.lang.String",
-      "description": "Email address for the application administrator."
+      "description": "Email address for the portfolio administrator."
     },
     {
       "name": "app.frontend-url",
       "type": "java.lang.String",
-      "description": "Frontend application URL."
+      "description": "Public frontend URL used for links such as password reset URLs.",
+      "defaultValue": "http://localhost:5173"
     },
     {
       "name": "app.registration-enabled",
       "type": "java.lang.Boolean",
-      "description": "Whether public user registration is enabled.",
+      "description": "Whether public account registration is enabled.",
       "defaultValue": false
+    },
+    {
+      "name": "app.jwt-secret",
+      "type": "java.lang.String",
+      "description": "Secret used to sign JWT session and login-challenge tokens. Supply it through the JWT_SECRET environment variable in production."
     }
   ]
 }

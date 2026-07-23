@@ -1,8 +1,10 @@
 .env
 .env.local
+node_modules/
+**/node_modules/
 backend-java/src/main/resources/application-local.properties
 backend-java/src/main/resources/application-devlocal.properties
-backend-java/.mvn/
+backend-java/.mvn/devlocal-reset-2fa.sql
 backend-java/target/
 backend-java/data/
 backend-java/uploads/

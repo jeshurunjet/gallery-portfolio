@@ -18,7 +18,9 @@ function ImageGallery({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
-  const activeImage = safeImages[selectedIndex] ?? safeImages[0] ?? null;
+  const normalizedSelectedIndex =
+    safeImages.length === 0 ? 0 : selectedIndex % safeImages.length;
+  const activeImage = safeImages[normalizedSelectedIndex] ?? null;
 
   const goToNextImage = () => {
     setSelectedIndex((current) => (current + 1) % safeImages.length);
@@ -39,11 +41,6 @@ function ImageGallery({
 
     return () => window.clearInterval(interval);
   }, [autoScroll, safeImages.length]);
-
-  useEffect(() => {
-    if (selectedIndex <= safeImages.length - 1) return;
-    setSelectedIndex(0);
-  }, [safeImages.length, selectedIndex]);
 
   if (safeImages.length === 0 || !activeImage?.url) {
     return <div className="image-gallery">No images available.</div>;
@@ -133,7 +130,7 @@ function ImageGallery({
             <button
               key={index}
               className={`thumb-button ${
-                selectedIndex === index ? "active" : ""
+                normalizedSelectedIndex === index ? "active" : ""
               }`}
               onClick={() => setSelectedIndex(index)}
               type="button"

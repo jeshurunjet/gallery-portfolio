@@ -20,4 +20,13 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: [
+      'src/components/tiptap/extensions/**/*.tsx',
+      'src/context/ThemeProvider.tsx',
+    ],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])

@@ -226,11 +226,13 @@ function ProjectForm({
   }, [formData.contentJson]);
 
   useEffect(() => {
+    const pendingRichTextMedia = pendingRichTextMediaRef.current;
+
     return () => {
-      pendingRichTextMediaRef.current.forEach((item) => {
+      pendingRichTextMedia.forEach((item) => {
         URL.revokeObjectURL(item.previewUrl);
       });
-      pendingRichTextMediaRef.current.clear();
+      pendingRichTextMedia.clear();
     };
   }, []);
 

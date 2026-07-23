@@ -1,12 +1,12 @@
 package com.jeshurun.portfolio.config;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.annotation.PostConstruct;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -19,11 +19,16 @@ public class ProjectContentMigrationService {
 
     private final JdbcTemplate jdbcTemplate;
     private final DataSource dataSource;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    public ProjectContentMigrationService(JdbcTemplate jdbcTemplate, DataSource dataSource) {
+    public ProjectContentMigrationService(
+            JdbcTemplate jdbcTemplate,
+            DataSource dataSource,
+            ObjectMapper objectMapper
+    ) {
         this.jdbcTemplate = jdbcTemplate;
         this.dataSource = dataSource;
+        this.objectMapper = objectMapper;
     }
 
     @PostConstruct
@@ -143,7 +148,7 @@ public class ProjectContentMigrationService {
 
         JsonNode root = objectMapper.readTree(rawJson);
 
-        if (!root.isObject() || !"doc".equals(root.path("type").asText()) || !root.path("content").isArray()) {
+        if (!root.isObject() || !"doc".equals(root.path("type").asString()) || !root.path("content").isArray()) {
             return empty;
         }
 
@@ -177,26 +182,26 @@ public class ProjectContentMigrationService {
         }
 
         for (JsonNode block : blocks) {
-            String type = block.path("type").asText();
+            String type = block.path("type").asString();
 
             switch (type) {
-                case "heading" -> result.add(headingNode(2, block.path("text").asText("")));
-                case "subheading" -> result.add(headingNode(3, block.path("text").asText("")));
+                case "heading" -> result.add(headingNode(2, block.path("text").asString("")));
+                case "subheading" -> result.add(headingNode(3, block.path("text").asString("")));
                 case "paragraph" -> paragraphsFromPlainText(
-                        block.path("text").asText(""),
-                        emptyToNull(block.path("align").asText())
+                        block.path("text").asString(""),
+                        emptyToNull(block.path("align").asString())
                 ).forEach(result::add);
-                case "quote" -> result.add(blockquoteNode(block.path("text").asText("")));
+                case "quote" -> result.add(blockquoteNode(block.path("text").asString("")));
                 case "image" -> result.add(imageNode(
-                        block.path("url").asText(""),
-                        block.path("alt").asText(""),
-                        block.path("caption").asText(""),
-                        emptyToNull(block.path("publicId").asText())
+                        block.path("url").asString(""),
+                        block.path("alt").asString(""),
+                        block.path("caption").asString(""),
+                        emptyToNull(block.path("publicId").asString())
                 ));
                 case "video" -> result.add(videoNode(
-                        block.path("url").asText(""),
-                        block.path("caption").asText(""),
-                        emptyToNull(block.path("publicId").asText())
+                        block.path("url").asString(""),
+                        block.path("caption").asString(""),
+                        emptyToNull(block.path("publicId").asString())
                 ));
                 case "list" -> result.add(bulletListNode(block.path("items")));
                 case "divider" -> result.add(simpleNode("horizontalRule"));
@@ -265,7 +270,7 @@ public class ProjectContentMigrationService {
             items.forEach((item) -> {
                 ObjectNode listItem = simpleNode("listItem");
                 ArrayNode listContent = objectMapper.createArrayNode();
-                listContent.add(paragraphNode(item.asText(""), null));
+                listContent.add(paragraphNode(item.asString(""), null));
                 listItem.set("content", listContent);
                 content.add(listItem);
             });
@@ -278,9 +283,9 @@ public class ProjectContentMigrationService {
     private ObjectNode twoColumnNode(JsonNode block) {
         ObjectNode node = simpleNode("twoColumn");
         ObjectNode attrs = objectMapper.createObjectNode();
-        attrs.put("left", block.path("left").asText(""));
-        attrs.put("right", block.path("right").asText(""));
-        attrs.put("align", defaultAlign(block.path("align").asText()));
+        attrs.put("left", block.path("left").asString(""));
+        attrs.put("right", block.path("right").asString(""));
+        attrs.put("align", defaultAlign(block.path("align").asString()));
         node.set("attrs", attrs);
         return node;
     }
@@ -288,25 +293,25 @@ public class ProjectContentMigrationService {
     private ObjectNode mediaTextNode(JsonNode block) {
         ObjectNode node = simpleNode("mediaText");
         ObjectNode attrs = objectMapper.createObjectNode();
-        attrs.put("layout", block.path("layout").asText("image-left"));
-        attrs.put("mediaType", block.path("mediaType").asText("image"));
-        attrs.put("text", block.path("text").asText(""));
-        attrs.put("imageUrl", block.path("imageUrl").asText(""));
-        attrs.put("imageAlt", block.path("imageAlt").asText(""));
-        attrs.put("imageUrlRight", block.path("imageUrlRight").asText(""));
-        attrs.put("imageAltRight", block.path("imageAltRight").asText(""));
-        attrs.put("align", defaultAlign(block.path("align").asText()));
+        attrs.put("layout", block.path("layout").asString("image-left"));
+        attrs.put("mediaType", block.path("mediaType").asString("image"));
+        attrs.put("text", block.path("text").asString(""));
+        attrs.put("imageUrl", block.path("imageUrl").asString(""));
+        attrs.put("imageAlt", block.path("imageAlt").asString(""));
+        attrs.put("imageUrlRight", block.path("imageUrlRight").asString(""));
+        attrs.put("imageAltRight", block.path("imageAltRight").asString(""));
+        attrs.put("align", defaultAlign(block.path("align").asString()));
 
-        if (isBlank(block.path("publicId").asText())) {
+        if (isBlank(block.path("publicId").asString())) {
             attrs.putNull("publicId");
         } else {
-            attrs.put("publicId", block.path("publicId").asText());
+            attrs.put("publicId", block.path("publicId").asString());
         }
 
-        if (isBlank(block.path("publicIdRight").asText())) {
+        if (isBlank(block.path("publicIdRight").asString())) {
             attrs.putNull("publicIdRight");
         } else {
-            attrs.put("publicIdRight", block.path("publicIdRight").asText());
+            attrs.put("publicIdRight", block.path("publicIdRight").asString());
         }
 
         node.set("attrs", attrs);
@@ -321,8 +326,8 @@ public class ProjectContentMigrationService {
         if (items.isArray()) {
             items.forEach((item) -> {
                 ObjectNode normalized = objectMapper.createObjectNode();
-                normalized.put("label", item.path("label").asText(""));
-                normalized.put("value", item.path("value").asText(""));
+                normalized.put("label", item.path("label").asString(""));
+                normalized.put("value", item.path("value").asString(""));
                 normalizedItems.add(normalized);
             });
         }

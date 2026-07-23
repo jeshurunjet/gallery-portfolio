@@ -46,7 +46,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const saved = localStorage.getItem(STORAGE_KEY) as Theme | null;
       if (saved) return saved;
-    } catch {}
+    } catch {
+      // Storage can be unavailable in privacy-restricted browser contexts.
+    }
     return "system";
   });
 
@@ -72,7 +74,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       if (theme === "system") localStorage.removeItem(STORAGE_KEY);
       else localStorage.setItem(STORAGE_KEY, theme);
-    } catch {}
+    } catch {
+      // The selected theme still applies when persistence is unavailable.
+    }
 
     const mql = window.matchMedia?.("(prefers-color-scheme: dark)");
     const onChange = () => apply(theme);

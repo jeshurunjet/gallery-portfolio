@@ -5,6 +5,10 @@ import com.jeshurun.portfolio.security.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -29,6 +33,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(formLogin -> formLogin.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(
                         new AuthFilter(jwtService, userRepository),
                         UsernamePasswordAuthenticationFilter.class
@@ -49,6 +56,16 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return (username) -> userRepository.findByEmail(username)
+                .map((user) -> User.withUsername(user.getEmail())
+                        .password(user.getPassword())
+                        .authorities("ROLE_USER")
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Bean

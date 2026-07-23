@@ -24,8 +24,13 @@ Run the backend (from the repo root):
 
 ```bash
 cd backend-java
-mvn spring-boot:run -Dspring-boot.run.profiles=devlocal
+JWT_SECRET="$(openssl rand -base64 48)" mvn spring-boot:run \
+  -Dspring-boot.run.profiles=devlocal \
+  -Dspring-boot.run.arguments="--spring.config.additional-location=file:./src/main/resources/application-devlocal.properties"
 ```
+
+The real local property files are intentionally ignored by Git and excluded
+from release JARs and Docker images.
 
 Run the frontend (from the repo root):
 
@@ -46,6 +51,29 @@ Important local defaults:
 - Backend local port: `8082`
 - Frontend API URL: `http://localhost:8082`
 - Local database: H2 file database via `application-local.properties`
+
+## Production environment
+
+The backend requires these environment variables:
+
+```text
+DATABASE_URL
+DATABASE_USERNAME
+DATABASE_PASSWORD
+CLOUDINARY_CLOUD_NAME
+CLOUDINARY_API_KEY
+CLOUDINARY_API_SECRET
+MAIL_USERNAME
+MAIL_APP_PASSWORD
+ADMIN_EMAIL
+FRONTEND_URL
+JWT_SECRET
+```
+
+Generate `JWT_SECRET` with `openssl rand -base64 48`. Keep
+`REGISTRATION_ENABLED=false` in production. The default
+`HIBERNATE_DDL_AUTO=validate` checks the existing schema without changing it.
+Only use `update` temporarily and after taking a database backup.
 
 ## Usage examples
 

@@ -1,0 +1,9 @@
+target/
+data/
+uploads/
+.mvn/devlocal-reset-2fa.sql
+src/main/resources/application-local.properties
+src/main/resources/application-devlocal.properties
+.env
+.env.*
+*.log

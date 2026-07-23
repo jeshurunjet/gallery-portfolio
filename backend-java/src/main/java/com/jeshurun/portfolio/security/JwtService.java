@@ -3,10 +3,11 @@ package com.jeshurun.portfolio.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 
@@ -19,11 +20,13 @@ public class JwtService {
     private static final String PURPOSE_SESSION = "session";
     private static final String PURPOSE_LOGIN_CHALLENGE = "login_challenge";
 
-    private static final String SECRET =
-            "temporary-development-secret-key-must-be-at-least-32-chars";
+    private final SecretKey signingKey;
 
-    private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+    public JwtService(@Value("${app.jwt-secret}") String secret) {
+        if (secret == null || secret.length() < 32) {
+            throw new IllegalStateException("JWT_SECRET must contain at least 32 characters");
+        }
+        this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String email) {
@@ -42,20 +45,20 @@ public class JwtService {
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
-                .setSubject(email)
-                .addClaims(claims)
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + durationMs))
-                .signWith(getSigningKey())
+                .subject(email)
+                .claims(claims)
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + durationMs))
+                .signWith(signingKey)
                 .compact();
     }
 
     public String extractEmail(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+        Claims claims = Jwts.parser()
+                .verifyWith(signingKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
 
         return claims.getSubject();
     }
@@ -70,11 +73,11 @@ public class JwtService {
 
     private boolean isTokenValid(String token, String expectedPurpose) {
         try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+            Claims claims = Jwts.parser()
+                    .verifyWith(signingKey)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
 
             return expectedPurpose.equals(claims.get(CLAIM_PURPOSE, String.class));
         } catch (Exception e) {

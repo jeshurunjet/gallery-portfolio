@@ -6,10 +6,10 @@ import com.jeshurun.portfolio.entity.Project;
 import com.jeshurun.portfolio.repository.ProjectRepository;
 import com.jeshurun.portfolio.repository.TagRepository;
 import org.springframework.web.bind.annotation.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,15 +28,18 @@ public class ProjectController {
     private final ProjectRepository projectRepository;
     private final TagRepository tagRepository;
     private final Cloudinary cloudinary;
+    private final ObjectMapper objectMapper;
 
     public ProjectController(
             ProjectRepository projectRepository,
             TagRepository tagRepository,
-            Cloudinary cloudinary
+            Cloudinary cloudinary,
+            ObjectMapper objectMapper
     ) {
         this.projectRepository = projectRepository;
         this.tagRepository = tagRepository;
         this.cloudinary = cloudinary;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping("/api/projects")
@@ -198,8 +201,7 @@ public class ProjectController {
         if (contentJson == null || contentJson.isBlank()) return;
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(contentJson);
+            JsonNode root = objectMapper.readTree(contentJson);
 
             for (CloudinaryAssetRef asset : extractContentAssets(root)) {
                 if (asset.publicId() != null && !asset.publicId().isBlank()) {
@@ -316,8 +318,7 @@ public class ProjectController {
         }
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode items = mapper.readTree(mediaJson);
+            JsonNode items = objectMapper.readTree(mediaJson);
 
             if (!items.isArray()) {
                 return assets;
@@ -326,8 +327,8 @@ public class ProjectController {
             for (JsonNode item : items) {
                 addAssetRef(
                         assets,
-                        item.path("url").asText(),
-                        item.path("publicId").asText(null),
+                        item.path("url").asString(),
+                        item.path("publicId").asString(null),
                         resourceType
                 );
             }
@@ -347,8 +348,7 @@ public class ProjectController {
         }
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(contentJson);
+            JsonNode root = objectMapper.readTree(contentJson);
             assets.addAll(extractContentAssets(root));
         } catch (Exception error) {
             System.out.println("Failed parsing content blocks");
@@ -365,14 +365,14 @@ public class ProjectController {
             return assets;
         }
 
-        String type = node.path("type").asText();
+        String type = node.path("type").asString();
         JsonNode attrs = node.path("attrs");
 
         if ("image".equals(type)) {
             addAssetRef(
                     assets,
-                    attrs.path("src").asText(),
-                    attrs.path("publicId").asText(null),
+                    attrs.path("src").asString(),
+                    attrs.path("publicId").asString(null),
                     "image"
             );
         }
@@ -380,25 +380,25 @@ public class ProjectController {
         if ("projectVideo".equals(type)) {
             addAssetRef(
                     assets,
-                    attrs.path("url").asText(),
-                    attrs.path("publicId").asText(null),
+                    attrs.path("url").asString(),
+                    attrs.path("publicId").asString(null),
                     "video"
             );
         }
 
         if ("mediaText".equals(type)) {
-            String mediaType = attrs.path("mediaType").asText("image");
+            String mediaType = attrs.path("mediaType").asString("image");
 
             addAssetRef(
                     assets,
-                    attrs.path("imageUrl").asText(),
-                    attrs.path("publicId").asText(null),
+                    attrs.path("imageUrl").asString(),
+                    attrs.path("publicId").asString(null),
                     mediaType
             );
             addAssetRef(
                     assets,
-                    attrs.path("imageUrlRight").asText(),
-                    attrs.path("publicIdRight").asText(null),
+                    attrs.path("imageUrlRight").asString(),
+                    attrs.path("publicIdRight").asString(null),
                     "image"
             );
         }
