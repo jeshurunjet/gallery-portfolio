@@ -55,7 +55,6 @@ type RecoveryCodesResponse = {
 type Passkey = {
   id: number;
   name: string;
-  synced: boolean;
   createdAt: number;
   lastUsedAt: number | null;
 };
@@ -643,8 +642,7 @@ function AdminAccountPage() {
                   <div>
                     <strong>{passkey.name}</strong>
                     <small>
-                      {passkey.synced ? "Synced passkey" : "Device passkey"}
-                      {" · Added "}
+                      Passkey · Added{" "}
                       {new Date(passkey.createdAt).toLocaleDateString()}
                     </small>
                   </div>

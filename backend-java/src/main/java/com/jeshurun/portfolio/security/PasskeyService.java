@@ -106,8 +106,10 @@ public class PasskeyService {
         passkey.setPublicKeyCose(result.getPublicKeyCose().getBase64());
         passkey.setSignatureCount(result.getSignatureCount());
         passkey.setDisplayName(cleanDisplayName(displayName));
-        passkey.setBackupEligible(result.isBackupEligible());
-        passkey.setBackedUp(result.isBackedUp());
+        // Yubico currently marks passkey backup-state reporting as experimental
+        // and deprecated. Keep the existing database columns at safe defaults.
+        passkey.setBackupEligible(false);
+        passkey.setBackedUp(false);
         passkey.setCreatedAt(System.currentTimeMillis());
         return toView(passkeys.save(passkey));
     }
@@ -135,10 +137,11 @@ public class PasskeyService {
         if (!result.isSuccess() || !result.isUserVerified()) {
             throw new IllegalArgumentException("Passkey verification failed");
         }
-        PasskeyCredential passkey = passkeys.findByCredentialId(result.getCredentialId().getBase64Url())
+        PasskeyCredential passkey = passkeys.findByCredentialId(
+                        result.getCredential().getCredentialId().getBase64Url()
+                )
                 .orElseThrow(() -> new IllegalArgumentException("Passkey not found"));
         passkey.setSignatureCount(result.getSignatureCount());
-        passkey.setBackedUp(result.isBackedUp());
         passkey.setLastUsedAt(System.currentTimeMillis());
         passkeys.save(passkey);
         return passkey.getUser();
@@ -192,10 +195,10 @@ public class PasskeyService {
     }
 
     private PasskeyView toView(PasskeyCredential value) {
-        return new PasskeyView(value.getId(), value.getDisplayName(), value.isBackedUp(),
+        return new PasskeyView(value.getId(), value.getDisplayName(),
                 value.getCreatedAt(), value.getLastUsedAt());
     }
 
     public record StartResult(String challengeId, String publicKeyOptionsJson) {}
-    public record PasskeyView(Long id, String name, boolean synced, long createdAt, Long lastUsedAt) {}
+    public record PasskeyView(Long id, String name, long createdAt, Long lastUsedAt) {}
 }

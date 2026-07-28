@@ -68,8 +68,6 @@ public class PasskeyCredentialStore implements CredentialRepository {
                 .userHandle(fromBase64Url(value.getUserHandle()))
                 .publicKeyCose(ByteArray.fromBase64(value.getPublicKeyCose()))
                 .signatureCount(value.getSignatureCount())
-                .backupEligible(value.isBackupEligible())
-                .backupState(value.isBackedUp())
                 .build();
     }
 
