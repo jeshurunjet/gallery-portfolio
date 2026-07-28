@@ -248,7 +248,7 @@ function LoginPage() {
               Back to password
             </button>
           ) : showFallback ? (
-            <p className="auth-helper-text">
+            <div className="auth-helper-actions">
               <button
                 type="button"
                 className="auth-text-button"
@@ -259,9 +259,10 @@ function LoginPage() {
               >
                 Use a passkey
               </button>
-              {" · "}
-              <Link to="/forgot-password">Reset password</Link>
-            </p>
+              <Link className="auth-helper-link" to="/forgot-password">
+                Forgot password?
+              </Link>
+            </div>
           ) : (
             <button
               type="button"

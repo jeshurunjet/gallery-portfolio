@@ -4037,14 +4037,46 @@ nav div {
   gap: 0.55rem;
 }
 
-.auth-text-button {
+.auth-helper-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.1rem;
+}
+
+.auth-form .auth-text-button,
+.auth-helper-link {
+  width: auto;
+  margin: 0;
   border: 0;
   padding: 0;
   background: transparent;
-  color: inherit;
+  color: #444;
   font: inherit;
+  font-size: 0.9rem;
   text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
+}
+
+.auth-form .auth-text-button:hover,
+.auth-helper-link:hover {
+  color: #111;
+}
+
+.auth-form .auth-text-button:focus-visible,
+.auth-helper-link:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+@media (max-width: 420px) {
+  .auth-helper-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 .admin-passkey-list {

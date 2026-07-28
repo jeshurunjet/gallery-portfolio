@@ -110,6 +110,8 @@
 .theme-dark .footer-name,
 .theme-dark .auth-subtext,
 .theme-dark .auth-helper-text,
+.theme-dark .auth-text-button,
+.theme-dark .auth-helper-link,
 .theme-dark .content-block-header p,
 .theme-dark .block-preview-text {
   color: var(--text);
