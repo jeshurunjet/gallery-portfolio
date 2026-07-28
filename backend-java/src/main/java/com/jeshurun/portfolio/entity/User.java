@@ -23,6 +23,9 @@ public class User {
 
     @Column(name = "two_factor_recovery_codes", columnDefinition = "TEXT")
     private String twoFactorRecoveryCodes;
+
+    @Column(name = "passkey_user_handle", unique = true, length = 256)
+    private String passkeyUserHandle;
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -100,5 +103,13 @@ public class User {
 
     public void setTwoFactorRecoveryCodes(String twoFactorRecoveryCodes) {
         this.twoFactorRecoveryCodes = twoFactorRecoveryCodes;
+    }
+
+    public String getPasskeyUserHandle() {
+        return passkeyUserHandle;
+    }
+
+    public void setPasskeyUserHandle(String passkeyUserHandle) {
+        this.passkeyUserHandle = passkeyUserHandle;
     }
 }

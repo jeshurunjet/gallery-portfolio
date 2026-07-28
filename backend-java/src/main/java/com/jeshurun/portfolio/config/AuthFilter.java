@@ -36,6 +36,7 @@ private final UserRepository userRepository;
 
         // Allow public routes
         if (path.startsWith("/api/auth/login") ||
+        path.startsWith("/api/auth/passkeys/login") ||
         path.startsWith("/api/auth/register") ||
         path.startsWith("/api/auth/forgot") ||
         path.startsWith("/api/auth/reset") ||

@@ -2,6 +2,7 @@ package com.jeshurun.portfolio.controller;
 
 import com.jeshurun.portfolio.entity.User;
 import com.jeshurun.portfolio.repository.UserRepository;
+import com.jeshurun.portfolio.repository.PasskeyCredentialRepository;
 import com.jeshurun.portfolio.security.RecoveryCodeService;
 import com.jeshurun.portfolio.security.TotpService;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final TotpService totpService;
     private final RecoveryCodeService recoveryCodeService;
+    private final PasskeyCredentialRepository passkeyCredentialRepository;
 
     public AuthController(
         UserRepository userRepository,
@@ -52,7 +54,8 @@ public class AuthController {
         JwtService jwtService,
         JavaMailSender mailSender,
         TotpService totpService,
-        RecoveryCodeService recoveryCodeService
+        RecoveryCodeService recoveryCodeService,
+        PasskeyCredentialRepository passkeyCredentialRepository
 ) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
@@ -60,6 +63,7 @@ public class AuthController {
     this.mailSender = mailSender;
     this.totpService = totpService;
     this.recoveryCodeService = recoveryCodeService;
+    this.passkeyCredentialRepository = passkeyCredentialRepository;
 }
 
     @PostMapping("/register")
@@ -178,6 +182,7 @@ public class AuthController {
         return ResponseEntity.status(401).body("Unauthorized");
     }
 
+    passkeyCredentialRepository.deleteAllByUser(user);
     userRepository.delete(user);
 
     return ResponseEntity.ok("Account deleted");

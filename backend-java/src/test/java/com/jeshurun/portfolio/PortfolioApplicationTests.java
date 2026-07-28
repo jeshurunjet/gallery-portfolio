@@ -2,6 +2,10 @@ package com.jeshurun.portfolio;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.jeshurun.portfolio.security.PasskeyService;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(properties = {
 	"spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
@@ -25,9 +29,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 	"app.jwt-secret=test-only-jwt-secret-that-is-long-enough"
 })
 class PortfolioApplicationTests {
+	@Autowired
+	private PasskeyService passkeyService;
 
 	@Test
 	void contextLoads() {
+	}
+
+	@Test
+	void createsPasskeyLoginOptions() throws Exception {
+		PasskeyService.StartResult result = passkeyService.startAuthentication();
+		assertFalse(result.challengeId().isBlank());
+		assertTrue(result.publicKeyOptionsJson().contains("\"challenge\""));
+		assertTrue(result.publicKeyOptionsJson().contains("\"userVerification\":\"required\""));
 	}
 
 }

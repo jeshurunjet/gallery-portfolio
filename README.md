@@ -68,12 +68,27 @@ MAIL_APP_PASSWORD
 ADMIN_EMAIL
 FRONTEND_URL
 JWT_SECRET
+WEBAUTHN_RP_ID
+WEBAUTHN_RP_NAME
+WEBAUTHN_ORIGINS
 ```
 
 Generate `JWT_SECRET` with `openssl rand -base64 48`. Keep
 `REGISTRATION_ENABLED=false` in production. The default
 `HIBERNATE_DDL_AUTO=validate` checks the existing schema without changing it.
 Only use `update` temporarily and after taking a database backup.
+
+For the production passkey login, use:
+
+```text
+WEBAUTHN_RP_ID=jesh.nz
+WEBAUTHN_RP_NAME=Jesh Portfolio Admin
+WEBAUTHN_ORIGINS=https://jesh.nz,https://www.jesh.nz
+```
+
+Before deploying the passkey-enabled backend, back up the production database
+and run `backend-java/src/main/resources/db/passkey-migration.sql` once. Passkeys
+require HTTPS in production; browsers allow HTTP only for localhost development.
 
 ## Usage examples
 

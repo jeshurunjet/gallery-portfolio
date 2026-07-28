@@ -2,8 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { API_BASE_URL } from "../../config";
 import Toast from "../../components/Toast";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, KeyRound } from "lucide-react";
 import { startStoredSession } from "../../utils/session";
+import {
+  authenticationOptionsFromJson,
+  credentialToJson,
+  passkeysSupported,
+} from "../../utils/passkeys";
 
 function LoginPage() {
   const initialAuthMessage = sessionStorage.getItem("authMessage");
@@ -12,6 +17,8 @@ function LoginPage() {
   const [verificationCode, setVerificationCode] = useState("");
   const [challengeToken, setChallengeToken] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
+  const [isPasskeySubmitting, setIsPasskeySubmitting] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage] = useState(initialAuthMessage ?? "");
@@ -110,6 +117,51 @@ function LoginPage() {
     setError("");
   };
 
+  const handlePasskeyLogin = async () => {
+    setError("");
+
+    if (!passkeysSupported()) {
+      setError("Passkeys are not available in this browser. Use Google Authenticator instead.");
+      setShowFallback(true);
+      return;
+    }
+
+    try {
+      setIsPasskeySubmitting(true);
+      const startResponse = await fetch(`${API_BASE_URL}/api/auth/passkeys/login/start`, {
+        method: "POST",
+      });
+      if (!startResponse.ok) throw new Error("Could not start passkey login");
+      const startData = await startResponse.json();
+      const credential = (await navigator.credentials.get({
+        publicKey: authenticationOptionsFromJson(startData.publicKeyOptionsJson),
+      })) as PublicKeyCredential | null;
+      if (!credential) throw new Error("No passkey was selected");
+
+      const finishResponse = await fetch(`${API_BASE_URL}/api/auth/passkeys/login/finish`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          challengeId: startData.challengeId,
+          credentialJson: credentialToJson(credential),
+        }),
+      });
+      if (!finishResponse.ok) throw new Error("Passkey was not accepted");
+      const data = await finishResponse.json();
+      startStoredSession(data.token);
+      window.location.replace("/admin");
+    } catch (passkeyError) {
+      console.error(passkeyError);
+      setError(
+        passkeyError instanceof DOMException && passkeyError.name === "NotAllowedError"
+          ? "Passkey sign-in was cancelled or timed out."
+          : "We could not sign you in with that passkey. You can use Google Authenticator instead."
+      );
+    } finally {
+      setIsPasskeySubmitting(false);
+    }
+  };
+
   return (
     <>
       <main className="auth-page">
@@ -119,7 +171,9 @@ function LoginPage() {
           <p>
             {challengeToken
               ? "Enter a 6-digit authenticator code or one of your backup recovery codes."
-              : "Sign in to manage your portfolio projects and tags."}
+              : showFallback
+                ? "Use your password and Google Authenticator."
+                : "Use your phone, fingerprint, face, pattern, or device PIN."}
           </p>
 
           {challengeToken ? (
@@ -130,7 +184,7 @@ function LoginPage() {
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value.toUpperCase().trim())}
             />
-          ) : (
+          ) : showFallback ? (
             <>
               <input
                 type="email"
@@ -160,19 +214,31 @@ function LoginPage() {
                 </button>
               </div>
             </>
+          ) : (
+            <button
+              type="button"
+              className="admin-primary-button auth-passkey-button"
+              onClick={handlePasskeyLogin}
+              disabled={isPasskeySubmitting}
+            >
+              <KeyRound size={18} />
+              {isPasskeySubmitting ? "Waiting for your device..." : "Sign in with a passkey"}
+            </button>
           )}
 
           {error && <p className="auth-error">{error}</p>}
 
-          <button type="submit" className="admin-primary-button">
-            {isSubmitting
-              ? challengeToken
-                ? "Verifying..."
-                : "Signing In..."
-              : challengeToken
-                ? "Verify Code"
-                : "Sign In"}
-          </button>
+          {(challengeToken || showFallback) && (
+            <button type="submit" className="admin-primary-button">
+              {isSubmitting
+                ? challengeToken
+                  ? "Verifying..."
+                  : "Signing In..."
+                : challengeToken
+                  ? "Verify Code"
+                  : "Continue"}
+            </button>
+          )}
           {challengeToken ? (
             <button
               type="button"
@@ -181,10 +247,32 @@ function LoginPage() {
             >
               Back to password
             </button>
-          ) : (
+          ) : showFallback ? (
             <p className="auth-helper-text">
-              Forgot your password? <Link to="/forgot-password">Reset it</Link>
+              <button
+                type="button"
+                className="auth-text-button"
+                onClick={() => {
+                  setShowFallback(false);
+                  setError("");
+                }}
+              >
+                Use a passkey
+              </button>
+              {" · "}
+              <Link to="/forgot-password">Reset password</Link>
             </p>
+          ) : (
+            <button
+              type="button"
+              className="auth-secondary-button"
+              onClick={() => {
+                setShowFallback(true);
+                setError("");
+              }}
+            >
+              Use Google Authenticator instead
+            </button>
           )}
         </form>
       </main>

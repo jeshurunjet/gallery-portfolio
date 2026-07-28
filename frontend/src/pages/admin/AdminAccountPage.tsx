@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
 import {
   AlertTriangle,
+  KeyRound,
   LockKeyhole,
   Monitor,
   Moon,
   ShieldCheck,
   Sun,
+  Trash2,
   UserRound,
 } from "lucide-react";
 import { API_BASE_URL } from "../../config";
 import Toast from "../../components/Toast";
 import useTheme from "../../hooks/useTheme";
+import {
+  credentialToJson,
+  passkeysSupported,
+  registrationOptionsFromJson,
+} from "../../utils/passkeys";
 
 type AccountSummary = {
   id: number;
@@ -45,6 +52,14 @@ type RecoveryCodesResponse = {
   recoveryCodeCount: number;
 };
 
+type Passkey = {
+  id: number;
+  name: string;
+  synced: boolean;
+  createdAt: number;
+  lastUsedAt: number | null;
+};
+
 function AdminAccountPage() {
   const { theme, setTheme } = useTheme();
   const [account, setAccount] = useState<AccountSummary | null>(null);
@@ -61,6 +76,12 @@ function AdminAccountPage() {
   const [visibleRecoveryCodes, setVisibleRecoveryCodes] = useState<string[]>([]);
   const [regeneratePassword, setRegeneratePassword] = useState("");
   const [regenerateCode, setRegenerateCode] = useState("");
+  const [passkeys, setPasskeys] = useState<Passkey[]>([]);
+  const [passkeyName, setPasskeyName] = useState("My phone");
+  const [passkeyPassword, setPasskeyPassword] = useState("");
+  const [passkeyCode, setPasskeyCode] = useState("");
+  const [passkeyError, setPasskeyError] = useState("");
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
 
   const themeOptions = [
     {
@@ -113,6 +134,12 @@ function AdminAccountPage() {
         if (response.ok) {
           const data: AccountSummary = await response.json();
           setAccount(data);
+          const passkeyResponse = await fetch(`${API_BASE_URL}/api/auth/passkeys`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (passkeyResponse.ok) {
+            setPasskeys(await passkeyResponse.json());
+          }
           return;
         }
 
@@ -417,6 +444,101 @@ function AdminAccountPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleAddPasskey = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setPasskeyError("");
+    if (!passkeysSupported()) {
+      setPasskeyError("Passkeys require HTTPS and a supported browser.");
+      return;
+    }
+
+    try {
+      setPasskeyLoading(true);
+      const token = localStorage.getItem("token");
+      const startResponse = await fetch(`${API_BASE_URL}/api/auth/passkeys/register/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password: passkeyPassword, code: passkeyCode }),
+      });
+      if (!startResponse.ok) {
+        throw new Error(
+          startResponse.status === 401
+            ? "Your password or Google Authenticator code was not accepted."
+            : "Could not start passkey setup."
+        );
+      }
+      const startData = await startResponse.json();
+      const credential = (await navigator.credentials.create({
+        publicKey: registrationOptionsFromJson(startData.publicKeyOptionsJson),
+      })) as PublicKeyCredential | null;
+      if (!credential) throw new Error("No passkey was created.");
+
+      const finishResponse = await fetch(`${API_BASE_URL}/api/auth/passkeys/register/finish`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          challengeId: startData.challengeId,
+          credentialJson: credentialToJson(credential),
+          name: passkeyName,
+        }),
+      });
+      if (!finishResponse.ok) throw new Error("The passkey could not be saved.");
+      const saved: Passkey = await finishResponse.json();
+      setPasskeys((current) => [...current, saved]);
+      setPasskeyPassword("");
+      setPasskeyCode("");
+      setToastMessage("Passkey added. You can now use it as your main way to sign in.");
+      setShowToast(true);
+    } catch (passkeySetupError) {
+      console.error(passkeySetupError);
+      setPasskeyError(
+        passkeySetupError instanceof DOMException && passkeySetupError.name === "NotAllowedError"
+          ? "Passkey setup was cancelled or timed out."
+          : passkeySetupError instanceof Error
+            ? passkeySetupError.message
+            : "Could not add this passkey."
+      );
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
+
+  const handleRemovePasskey = async (passkey: Passkey) => {
+    if (!confirm(`Remove “${passkey.name}”? Google Authenticator will remain available.`)) return;
+    setPasskeyError("");
+    try {
+      setPasskeyLoading(true);
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/api/auth/passkeys/${passkey.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password: passkeyPassword, code: passkeyCode }),
+      });
+      if (!response.ok) {
+        throw new Error("Enter your password and a current Google Authenticator code first.");
+      }
+      setPasskeys((current) => current.filter((item) => item.id !== passkey.id));
+      setPasskeyPassword("");
+      setPasskeyCode("");
+      setToastMessage("Passkey removed.");
+      setShowToast(true);
+    } catch (removeError) {
+      console.error(removeError);
+      setPasskeyError(removeError instanceof Error ? removeError.message : "Could not remove passkey.");
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
+
   return (
     <>
       <main>
@@ -497,6 +619,94 @@ function AdminAccountPage() {
                 : "Total stored admin user accounts."}
             </small>
           </div>
+        </section>
+
+        <section className="admin-section admin-theme-panel">
+          <div className="admin-section-header">
+            <div>
+              <p className="admin-stat-label">Primary sign-in</p>
+              <h2>Passkeys</h2>
+            </div>
+            <small>{passkeys.length > 0 ? `${passkeys.length} ready` : "Not set up"}</small>
+          </div>
+
+          <p>
+            Sign in using your phone, fingerprint, face, pattern, or device PIN.
+            Google Authenticator remains your backup sign-in method.
+          </p>
+
+          {passkeys.length > 0 && (
+            <div className="admin-passkey-list">
+              {passkeys.map((passkey) => (
+                <div className="admin-passkey-item" key={passkey.id}>
+                  <span className="admin-account-icon"><KeyRound size={19} /></span>
+                  <div>
+                    <strong>{passkey.name}</strong>
+                    <small>
+                      {passkey.synced ? "Synced passkey" : "Device passkey"}
+                      {" · Added "}
+                      {new Date(passkey.createdAt).toLocaleDateString()}
+                    </small>
+                  </div>
+                  <button
+                    type="button"
+                    className="auth-secondary-button"
+                    onClick={() => handleRemovePasskey(passkey)}
+                    disabled={passkeyLoading}
+                    aria-label={`Remove ${passkey.name}`}
+                  >
+                    <Trash2 size={16} /> Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!account?.twoFactorEnabled ? (
+            <p className="auth-error">
+              Enable Google Authenticator below before adding a passkey. It will be your backup.
+            </p>
+          ) : (
+            <form className="admin-two-factor-form" onSubmit={handleAddPasskey}>
+              <p className="admin-two-factor-help">
+                To add or remove a passkey, confirm with your password and a current
+                Google Authenticator code.
+              </p>
+              <input
+                type="text"
+                placeholder="Passkey name, e.g. My iPhone"
+                value={passkeyName}
+                maxLength={120}
+                onChange={(event) => setPasskeyName(event.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="Current password"
+                autoComplete="current-password"
+                value={passkeyPassword}
+                onChange={(event) => setPasskeyPassword(event.target.value)}
+              />
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="\d{6}"
+                placeholder="Current 6-digit authenticator code"
+                value={passkeyCode}
+                onChange={(event) =>
+                  setPasskeyCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+              />
+              {passkeyError && <p className="auth-error">{passkeyError}</p>}
+              <button
+                type="submit"
+                className="admin-primary-button"
+                disabled={passkeyLoading}
+              >
+                <KeyRound size={18} />
+                {passkeyLoading ? "Waiting for your device..." : "Add a passkey"}
+              </button>
+            </form>
+          )}
         </section>
 
         <section className="admin-section admin-theme-panel">
