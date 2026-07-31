@@ -1,68 +1,17 @@
-import { useEffect, useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, Outlet } from "react-router-dom";
 
 function AdminLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
-
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [location.pathname]);
-
-  useEffect(() => {
-    document.body.style.overflow = sidebarOpen ? "hidden" : "";
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [sidebarOpen]);
-
-  const closeSidebar = () => setSidebarOpen(false);
-
   return (
     <div className="admin-layout">
-      <div className="admin-mobile-bar">
-        <button
-          type="button"
-          className="admin-mobile-menu-button"
-          onClick={() => setSidebarOpen((open) => !open)}
-          aria-expanded={sidebarOpen}
-          aria-label="Toggle admin menu"
-        >
-          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-        <span className="admin-mobile-title">Admin Control</span>
-      </div>
-
-      {sidebarOpen && (
-        <button
-          type="button"
-          className="admin-sidebar-overlay"
-          aria-label="Close admin menu"
-          onClick={closeSidebar}
-        />
-      )}
-
-      <aside className={`admin-sidebar ${sidebarOpen ? "open" : ""}`}>
+      <aside className="admin-sidebar">
         <h2 className="admin-title">Admin Control</h2>
 
         <nav className="admin-nav">
-          <Link to="/admin" onClick={closeSidebar}>
-            Dashboard
-          </Link>
-          <Link to="/admin/projects" onClick={closeSidebar}>
-            Projects
-          </Link>
-          <Link to="/admin/tags" onClick={closeSidebar}>
-            Tags
-          </Link>
-          <Link to="/admin/pages" onClick={closeSidebar}>
-            Pages
-          </Link>
-          <Link to="/admin/account" onClick={closeSidebar}>
-            Account
-          </Link>
+          <Link to="/admin">Dashboard</Link>
+          <Link to="/admin/projects">Projects</Link>
+          <Link to="/admin/tags">Tags</Link>
+          <Link to="/admin/pages">Pages</Link>
+          <Link to="/admin/account">Account</Link>
         </nav>
       </aside>
 
